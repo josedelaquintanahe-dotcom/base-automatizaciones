@@ -71,4 +71,15 @@ Configuracion del servidor, carga de entorno y convenciones operativas del backe
 
 ## Estado actual
 
-Estructura documental base creada. Todavia no contiene implementacion real ni dependencias instaladas.
+Base Express inicial creada con entrypoint real en `app/server.js`.
+
+## Ejecucion local prevista
+
+Comandos:
+
+- `npm run dev`
+- `npm start`
+
+Endpoint de salud esperado:
+
+- `GET /api/health`

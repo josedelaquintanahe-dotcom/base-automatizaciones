@@ -13,6 +13,25 @@ Esta base define una arquitectura modular para automatizaciones empresariales do
 
 El objetivo no es solo organizar un proyecto concreto, sino establecer un patron repetible para futuros sistemas de automatizacion.
 
+## Estado actual de implementacion
+
+La arquitectura esta definida y la base backend Express ya existe a nivel local con:
+
+- arranque del servidor,
+- rutas operativas minimas,
+- validacion de entorno,
+- logging estructurado basico,
+- clientes base para Supabase, n8n y Rendel,
+- estructura por capas `routes`, `controllers`, `services`, `repositories`, `clients`, `middlewares` y `config`.
+
+Todavia no estan implementadas:
+
+- consultas de negocio reales contra Supabase,
+- llamadas reales a n8n,
+- invocaciones reales a Rendel.com,
+- despliegue productivo del backend persistente,
+- integraciones funcionales de extremo a extremo.
+
 ## Separacion modular por dominios
 
 ### 1. Datos y servicios gestionados: Supabase

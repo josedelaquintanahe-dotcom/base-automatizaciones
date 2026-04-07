@@ -1,27 +1,35 @@
 "use strict";
 
+const { log } = require("../app/logger");
+
 function notFoundMiddleware(req, res, _next) {
   res.status(404).json({
     status: "error",
     error: "route_not_found",
     correlationId: req.correlationId || null,
+    timestamp: new Date().toISOString(),
   });
 }
 
 function errorHandlerMiddleware(err, req, res, _next) {
-  console.error(
-    JSON.stringify({
-      level: "error",
-      message: "Unhandled backend error",
-      correlationId: req.correlationId || null,
-      error: err && err.message ? err.message : "unknown_error",
-    }),
-  );
+  const statusCode =
+    err && Number.isInteger(err.statusCode) && err.statusCode >= 400 && err.statusCode <= 599
+      ? err.statusCode
+      : 500;
 
-  res.status(500).json({
-    status: "error",
-    error: "internal_server_error",
+  log("error", "Unhandled backend error", {
     correlationId: req.correlationId || null,
+    method: req.method,
+    path: req.originalUrl,
+    statusCode,
+    error: err && err.message ? err.message : "unknown_error",
+  });
+
+  res.status(statusCode).json({
+    status: "error",
+    error: statusCode === 500 ? "internal_server_error" : "request_failed",
+    correlationId: req.correlationId || null,
+    timestamp: new Date().toISOString(),
   });
 }
 

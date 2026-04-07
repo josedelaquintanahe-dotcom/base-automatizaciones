@@ -76,3 +76,21 @@ no registrar secretos, tokens ni payloads sensibles completos sin necesidad oper
 
 - `docs/modelo-seguridad.md` define el marco general,
 - este documento anade criterios especificos para backend Node.js.
+
+## Estado actual
+
+La base de seguridad backend ya cubre:
+
+- validacion de entorno al arranque,
+- advertencias claras en local,
+- bloqueo por configuracion incompleta en `staging` y `production`,
+- `correlation_id`,
+- logging estructurado minimo,
+- manejo centralizado de errores.
+
+Todavia no cubre:
+
+- autenticacion o autorizacion funcional,
+- rate limiting,
+- validacion de payloads por dominio,
+- politicas de acceso reales contra servicios externos.

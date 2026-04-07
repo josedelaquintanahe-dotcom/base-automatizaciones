@@ -49,6 +49,18 @@ Su papel esperado:
 
 Express no sustituye la arquitectura por capas; la organiza.
 
+## Validacion de entorno al arranque
+
+El backend valida su configuracion al iniciar para evitar arranques ambiguos o configuraciones incompletas.
+
+Criterios actuales:
+
+- `PORT`, `NODE_ENV` y `BASE_API_PATH` deben ser validos para arrancar,
+- en `development` y `test` se permite iniciar sin credenciales reales de integracion,
+- en `staging` y `production` las variables de integracion requeridas deben existir,
+- si faltan variables no criticas en local, se muestran advertencias claras,
+- si falta configuracion obligatoria en entornos no locales, el servidor falla con error explicito.
+
 ## Que tipo de logica vivira en Node.js
 
 - logica de negocio reutilizable,
@@ -71,3 +83,21 @@ Express no sustituye la arquitectura por capas; la organiza.
 ## Principio operativo
 
 Node.js debe actuar como backend principal de aplicacion, no como reemplazo de Supabase, n8n, Rendel.com o Vercel. Su funcion es conectar esas capas con reglas de negocio y adaptacion controlada.
+
+## Estado actual
+
+La base backend ya esta preparada para desarrollo local con:
+
+- Express como framework HTTP principal,
+- entrypoint operativo,
+- rutas modulares iniciales,
+- validacion de entorno al arranque,
+- logging estructurado basico,
+- clientes base estructurales para Supabase, n8n y Rendel.
+
+Todavia no incluye:
+
+- logica de negocio real conectada a datos,
+- integraciones externas activas,
+- autenticacion de backend,
+- despliegue persistente configurado en un entorno real.

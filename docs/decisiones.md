@@ -71,3 +71,17 @@ Se adopta Express como framework HTTP principal para estructurar el backend Node
 
 Motivo:
 Permite una base simple, modular y ampliamente conocida para organizar la capa HTTP sin introducir complejidad prematura ni romper la separacion por capas definida para el sistema.
+
+### D-011. Carga local de variables mediante .env.local solo en desarrollo
+
+Se adopta `src/backend/.env.local` como archivo privado de entorno para desarrollo local del backend, cargado automaticamente solo cuando el entorno es `development` o no esta definido.
+
+Motivo:
+Permite activar integraciones locales sin exponer secretos en el repositorio y mantiene una separacion clara entre configuracion local, staging y produccion.
+
+### D-012. La verificacion de conectividad de Supabase no dependera de tablas de negocio
+
+Se adopta que `GET /api/system/status` valide conectividad real contra un endpoint tecnico de Supabase accesible con `anon key`, sin depender de la existencia o permisos sobre tablas como `logs_eventos`.
+
+Motivo:
+Separar disponibilidad de infraestructura de permisos de datos evita falsos negativos y permite diagnosticar con precision si falta configuracion, si Supabase responde o si el problema esta en el modelo de datos o en RLS.

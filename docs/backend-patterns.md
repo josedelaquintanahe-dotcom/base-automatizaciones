@@ -85,6 +85,35 @@ los middlewares deben resolver preocupaciones transversales, no reemplazar servi
 - `middlewares/`
 - `config/`
 
+## Carga de configuracion local
+
+Patron recomendado:
+
+- `.env.example` como contrato publico,
+- `src/backend/.env.local` como archivo privado de desarrollo,
+- carga automatica solo en `development`,
+- validacion posterior en `config/server-config.js`.
+
 ## Beneficio estructural
 
 Estos patrones permiten cambios pequenos, pruebas futuras mas simples, menor acoplamiento y una evolucion mas controlada del backend.
+
+## Estado actual
+
+La estructura del backend ya sigue estos patrones a nivel base, pero todavia en un alcance minimo y controlado.
+
+Implementado:
+
+- enrutado Express modular,
+- controladores ligeros,
+- servicios basicos,
+- repositories de ejemplo,
+- clients estructurales,
+- middlewares para trazabilidad, errores y logging.
+
+Pendiente:
+
+- casos de uso reales,
+- acceso a datos de negocio,
+- integraciones externas activas,
+- validacion avanzada de inputs por dominio.

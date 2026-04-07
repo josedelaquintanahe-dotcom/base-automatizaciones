@@ -204,3 +204,9 @@ Riesgos a controlar:
 ## Estado actual
 
 Base documental definida para separar local, staging y produccion antes de iniciar integraciones reales.
+
+Situacion actual:
+
+- el backend esta preparado para ejecucion local,
+- staging y produccion estan definidos a nivel documental y de validacion de entorno,
+- no existen todavia integraciones reales activadas entre capas.

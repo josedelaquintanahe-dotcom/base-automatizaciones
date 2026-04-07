@@ -1,0 +1,74 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.turbo/
+
+# Build y artefactos
+dist/
+build/
+.next/
+.vercel/
+coverage/
+tmp/
+temp/
+out/
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+
+# Entornos y secretos
+.env
+.env.local
+.env.*
+.envrc
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.pid
+
+# Archivos de sistema y editores
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.code-workspace
+
+# Python y scripts auxiliares
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+
+# n8n
+.n8n/
+
+# Pruebas y snapshots
+playwright-report/
+test-results/
+
+# Archivos temporales de Windows
+*.tmp
+*.bak
+*.swp
+~$*

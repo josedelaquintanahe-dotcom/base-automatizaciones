@@ -40,20 +40,113 @@ function buildCredenciales(formState) {
   };
 }
 
+function validarEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function getClienteErrorMessage(error) {
+  if (!error) {
+    return "No se pudo completar el onboarding.";
+  }
+
+  if (error.status === 400) {
+    return "Revisa los datos del formulario o usa un email no registrado";
+  }
+
+  if (error.status === 401 || error.status === 403) {
+    return "No autorizado";
+  }
+
+  if (error.status === 500) {
+    return "Error interno del servidor";
+  }
+
+  if (error.message === "No se pudo conectar con el backend") {
+    return "No se pudo conectar con el backend";
+  }
+
+  return error.message || "No se pudo completar el onboarding.";
+}
+
 export default function Clientes() {
   const [formState, setFormState] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [response, setResponse] = useState(null);
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [copyMessage, setCopyMessage] = useState("");
 
   const lastCliente = useMemo(() => response || null, [response]);
+
+  function validateForm() {
+    const errors = [];
+
+    if (!formState.nombre_empresa.trim() || formState.nombre_empresa.trim().length < 3) {
+      errors.push("El nombre de empresa debe tener al menos 3 caracteres.");
+    }
+
+    if (!validarEmail(formState.email.trim())) {
+      errors.push("Introduce un email valido.");
+    }
+
+    if (!formState.telefono.trim()) {
+      errors.push("El telefono es obligatorio.");
+    }
+
+    if (!formState.plan.trim()) {
+      errors.push("Selecciona un plan.");
+    }
+
+    if (!formState.gmail_email.trim()) {
+      errors.push("gmail_email es obligatorio.");
+    }
+
+    if (!formState.api_token.trim()) {
+      errors.push("api_token es obligatorio.");
+    }
+
+    if (formState.credenciales_json.trim()) {
+      try {
+        const parsed = JSON.parse(formState.credenciales_json);
+
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+          errors.push("El JSON extra debe ser un objeto valido.");
+        }
+      } catch (parseError) {
+        errors.push("El JSON extra no tiene un formato valido.");
+      }
+    }
+
+    return errors;
+  }
+
+  async function copyToClipboard(value, label) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyMessage(`${label} copiado.`);
+      window.setTimeout(() => setCopyMessage(""), 2400);
+    } catch (copyError) {
+      setCopyMessage(`No se pudo copiar ${label.toLowerCase()}.`);
+      window.setTimeout(() => setCopyMessage(""), 2400);
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
+    const formErrors = validateForm();
+
+    if (formErrors.length > 0) {
+      setValidationErrors(formErrors);
+      setError("");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
+      setValidationErrors([]);
+      setCopyMessage("");
       const payload = {
         nombre_empresa: formState.nombre_empresa.trim(),
         email: formState.email.trim(),
@@ -63,8 +156,9 @@ export default function Clientes() {
       };
       const result = await crearCliente(payload);
       setResponse(result);
+      setFormState(initialFormState);
     } catch (requestError) {
-      setError(requestError.message);
+      setError(getClienteErrorMessage(requestError));
     } finally {
       setLoading(false);
     }
@@ -177,9 +271,12 @@ export default function Clientes() {
             <button
               className="button-secondary"
               type="button"
+              disabled={loading}
               onClick={() => {
                 setFormState(initialFormState);
                 setError("");
+                setValidationErrors([]);
+                setCopyMessage("");
               }}
             >
               Limpiar
@@ -189,9 +286,24 @@ export default function Clientes() {
 
         <div className="mt-6">
           {loading ? <LoadingSpinner label="Enviando onboarding al backend..." /> : null}
+          {validationErrors.length > 0 ? (
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <p className="font-medium">Corrige estos campos antes de enviar:</p>
+              <ul className="mt-2 list-disc pl-5">
+                {validationErrors.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           {error ? (
             <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
               {error}
+            </div>
+          ) : null}
+          {copyMessage ? (
+            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              {copyMessage}
             </div>
           ) : null}
         </div>
@@ -206,14 +318,47 @@ export default function Clientes() {
           </p>
           {lastCliente ? (
             <div className="mt-5 space-y-4">
+              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.25em] text-emerald-700">
+                      Cliente creado
+                    </p>
+                    <p className="mt-2 text-sm text-emerald-900/80">
+                      Guarda estos datos solo en un entorno seguro de administracion.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-900">
+                    OK
+                  </span>
+                </div>
+              </div>
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">cliente_id</p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-slate-500">cliente_id</p>
+                  <button
+                    className="button-secondary px-3 py-2 text-xs"
+                    type="button"
+                    onClick={() => copyToClipboard(lastCliente.cliente_id, "Cliente ID")}
+                  >
+                    Copiar
+                  </button>
+                </div>
                 <p className="mt-2 break-all text-sm font-medium text-ink">
                   {lastCliente.cliente_id}
                 </p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">token</p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-slate-500">token</p>
+                  <button
+                    className="button-secondary px-3 py-2 text-xs"
+                    type="button"
+                    onClick={() => copyToClipboard(lastCliente.token, "Token")}
+                  >
+                    Copiar
+                  </button>
+                </div>
                 <p className="mt-2 break-all font-mono text-xs text-ink">{lastCliente.token}</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -234,7 +379,7 @@ export default function Clientes() {
           ) : (
             <EmptyState
               title="Aun no hay cliente creado"
-              description="Completa el formulario y ejecuta el onboarding para ver aqui el cliente_id y el token operativo devueltos por el backend."
+              description="Completa el formulario y ejecuta el onboarding para ver aqui el cliente_id, el token operativo y el resumen economico devueltos por el backend."
             />
           )}
         </section>

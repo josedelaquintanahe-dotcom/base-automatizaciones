@@ -3,6 +3,18 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import StatCard from "../components/StatCard";
 import { getHealth, getSystemStatus } from "../utils/api";
 
+function getDashboardErrorMessage(message) {
+  if (message === "No se pudo conectar con el backend") {
+    return "No se pudo contactar con la API. Comprueba que backend y CORS esten activos.";
+  }
+
+  if (message === "Error interno del servidor") {
+    return "El backend respondio con un error interno al cargar el dashboard.";
+  }
+
+  return message || "No se pudo cargar el estado del sistema.";
+}
+
 export default function Dashboard() {
   const [health, setHealth] = useState(null);
   const [systemStatus, setSystemStatus] = useState(null);
@@ -25,9 +37,11 @@ export default function Dashboard() {
         setSystemStatus(systemData);
         setError("");
       } catch (requestError) {
-        if (isMounted) {
-          setError(requestError.message);
+        if (!isMounted) {
+          return;
         }
+
+        setError(getDashboardErrorMessage(requestError.message));
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -51,7 +65,7 @@ export default function Dashboard() {
       {error ? (
         <div className="panel border-rose-200 bg-rose-50 text-rose-900">
           <h2 className="panel-title">No se pudo cargar el dashboard</h2>
-          <p className="panel-subtitle">{error}</p>
+          <p className="panel-subtitle text-rose-900/80">{error}</p>
         </div>
       ) : null}
 
@@ -84,7 +98,7 @@ export default function Dashboard() {
         <section className="panel">
           <h2 className="panel-title">Salud del sistema</h2>
           <p className="panel-subtitle">
-            Vista rápida del backend Express y de la comprobación técnica actual contra Supabase.
+            Vista rapida del backend Express y de la comprobacion tecnica actual contra Supabase.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-4">
@@ -107,15 +121,15 @@ export default function Dashboard() {
           <div className="mt-5 space-y-4 text-sm text-white/80">
             <p>
               El dashboard solo usa endpoints ya presentes en el backend. No se muestran KPIs de
-              clientes, automatizaciones o facturación que todavía no estén respaldados por
+              clientes, automatizaciones o facturacion que todavia no esten respaldados por
               contratos API estables.
             </p>
             <p>
-              Si <code>connectivity</code> está en <code>reachable</code>, la base de Supabase
-              responde correctamente en la comprobación técnica actual.
+              Si <code>connectivity</code> esta en <code>reachable</code>, la base de Supabase
+              responde correctamente en la comprobacion tecnica actual.
             </p>
             <p>
-              Si alguna integración todavía no está cerrada, se refleja como placeholder en las
+              Si alguna integracion todavia no esta cerrada, se refleja como placeholder en las
               pantallas siguientes en lugar de simular datos falsos.
             </p>
           </div>

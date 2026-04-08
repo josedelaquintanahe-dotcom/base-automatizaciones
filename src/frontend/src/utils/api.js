@@ -7,16 +7,50 @@ const api = axios.create({
   timeout: 15000,
 });
 
-function normalizeError(error) {
-  if (error?.response?.data?.error) {
-    return error.response.data.error;
+function createApiError(message, status = null, details = null) {
+  const error = new Error(message);
+  error.status = status;
+  error.details = details;
+  return error;
+}
+
+export function parseApiError(error) {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status ?? null;
+    const backendError = error.response?.data?.error || null;
+
+    if (!error.response) {
+      return createApiError("No se pudo conectar con el backend", null, backendError);
+    }
+
+    if (status === 400) {
+      return createApiError(
+        backendError || "Revisa los datos enviados antes de volver a intentarlo",
+        status,
+        backendError,
+      );
+    }
+
+    if (status === 401 || status === 403) {
+      return createApiError("No autorizado", status, backendError);
+    }
+
+    if (status === 404) {
+      return createApiError("Recurso no encontrado", status, backendError);
+    }
+
+    if (status >= 500) {
+      return createApiError("Error interno del servidor", status, backendError);
+    }
+
+    return createApiError(
+      backendError || error.message || "Error desconocido de comunicacion con la API.",
+      status,
+      backendError,
+    );
   }
 
-  if (error?.message) {
-    return error.message;
-  }
-
-  return "Error desconocido de comunicacion con la API.";
+  return createApiError(error?.message || "Error desconocido de comunicacion con la API.");
 }
 
 export async function getHealth() {
@@ -24,7 +58,7 @@ export async function getHealth() {
     const response = await api.get("/health");
     return response.data;
   } catch (error) {
-    throw new Error(normalizeError(error));
+    throw parseApiError(error);
   }
 }
 
@@ -33,7 +67,7 @@ export async function getSystemStatus() {
     const response = await api.get("/system/status");
     return response.data;
   } catch (error) {
-    throw new Error(normalizeError(error));
+    throw parseApiError(error);
   }
 }
 
@@ -42,7 +76,7 @@ export async function crearCliente(datos) {
     const response = await api.post("/clientes/onboarding", datos);
     return response.data;
   } catch (error) {
-    throw new Error(normalizeError(error));
+    throw parseApiError(error);
   }
 }
 
@@ -55,7 +89,7 @@ export async function obtenerCliente(clienteId, token) {
     });
     return response.data;
   } catch (error) {
-    throw new Error(normalizeError(error));
+    throw parseApiError(error);
   }
 }
 

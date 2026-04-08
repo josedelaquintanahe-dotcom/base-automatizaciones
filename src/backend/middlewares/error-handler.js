@@ -22,8 +22,9 @@ function errorHandlerMiddleware(err, req, res, _next) {
     method: req.method,
     path: req.originalUrl,
     statusCode,
-    error: err && err.message ? err.message : "unknown_error",
   });
+
+  const isDev = process.env.NODE_ENV !== "production";
 
   res.status(statusCode).json({
     status: "error",

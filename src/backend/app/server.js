@@ -11,37 +11,53 @@ const { requestContextMiddleware } = require("../middlewares/request-context");
 const { requestLoggerMiddleware } = require("../middlewares/request-logger");
 const { notFoundMiddleware, errorHandlerMiddleware } = require("../middlewares/error-handler");
 
-const ALLOWED_CORS_ORIGINS = new Set([
+const DEFAULT_DEVELOPMENT_CORS_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
-]);
+];
 const ALLOWED_CORS_METHODS = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
 const ALLOWED_CORS_HEADERS = "Content-Type, Authorization";
 
-function developmentCorsMiddleware(req, res, next) {
-  const requestOrigin = req.headers.origin;
-
-  if (requestOrigin && ALLOWED_CORS_ORIGINS.has(requestOrigin)) {
-    res.setHeader("Access-Control-Allow-Origin", requestOrigin);
-    res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Methods", ALLOWED_CORS_METHODS);
-    res.setHeader("Access-Control-Allow-Headers", ALLOWED_CORS_HEADERS);
+function resolveAllowedCorsOrigins(config) {
+  if (Array.isArray(config.corsAllowedOrigins) && config.corsAllowedOrigins.length > 0) {
+    return new Set(config.corsAllowedOrigins);
   }
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
+  if (config.nodeEnv === "development") {
+    return new Set(DEFAULT_DEVELOPMENT_CORS_ORIGINS);
   }
 
-  return next();
+  return new Set();
+}
+
+function createCorsMiddleware(config) {
+  const allowedOrigins = resolveAllowedCorsOrigins(config);
+
+  return function corsMiddleware(req, res, next) {
+    const requestOrigin = req.headers.origin;
+
+    if (requestOrigin && allowedOrigins.has(requestOrigin)) {
+      res.setHeader("Access-Control-Allow-Origin", requestOrigin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Methods", ALLOWED_CORS_METHODS);
+      res.setHeader("Access-Control-Allow-Headers", ALLOWED_CORS_HEADERS);
+    }
+
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
+
+    return next();
+  };
 }
 
 function createServer(config = getServerConfig()) {
   const app = express();
 
   app.disable("x-powered-by");
-  app.use(developmentCorsMiddleware);
+  app.use(createCorsMiddleware(config));
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true }));
   app.use(requestContextMiddleware);

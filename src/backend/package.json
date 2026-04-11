@@ -6,12 +6,30 @@
   "main": "app/server.js",
   "scripts": {
     "dev": "nodemon app/server.js",
-    "start": "node app/server.js"
+    "start": "node app/server.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "utils/**/*.js",
+      "middlewares/**/*.js",
+      "config/**/*.js",
+      "clients/**/*.js",
+      "services/**/*.js",
+      "controllers/**/*.js"
+    ],
+    "coverageReporters": ["text", "lcov"]
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
+    "jest": "^30.3.0",
     "nodemon": "^3.1.14"
   },
   "dependencies": {

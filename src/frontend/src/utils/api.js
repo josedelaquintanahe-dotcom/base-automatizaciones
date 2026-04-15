@@ -80,6 +80,19 @@ export async function crearCliente(datos) {
   }
 }
 
+export async function listarClientes(backofficeToken) {
+  try {
+    const response = await api.get("/clientes", {
+      headers: {
+        Authorization: `Bearer ${backofficeToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw parseApiError(error);
+  }
+}
+
 export async function obtenerCliente(clienteId, token) {
   try {
     const response = await api.get(`/clientes/${clienteId}`, {

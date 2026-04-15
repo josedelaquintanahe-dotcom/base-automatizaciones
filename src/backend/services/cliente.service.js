@@ -200,7 +200,15 @@ async function listarClientesService() {
       throw createServiceError(`No se pudieron listar los clientes: ${error.message}`);
     }
 
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data)
+      ? data.map((cliente) => ({
+          id: cliente.id,
+          nombre: cliente.nombre_empresa,
+          email_contacto: cliente.email_contacto,
+          created_at: cliente.created_at,
+          estado: cliente.estado || null,
+        }))
+      : [];
   } catch (error) {
     log("error", "listarClientesService failed", {
       error: error && error.message ? error.message : "unknown_error",

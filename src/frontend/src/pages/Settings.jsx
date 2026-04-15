@@ -26,6 +26,7 @@ export default function Settings() {
         <ul className="mt-6 space-y-3 text-sm leading-6 text-slate-700">
           <li>El frontend se ha separado como proyecto independiente en <code>src/frontend</code>.</li>
           <li>Los endpoints consumidos se limitan a contratos backend ya presentes.</li>
+          <li>El token de backoffice para <code>GET /api/clientes</code> se introduce en tiempo de uso y no se guarda en variables <code>VITE_*</code>.</li>
           <li>Automatizaciones y facturacion mantienen placeholders hasta cerrar integracion final.</li>
           <li>Para local, el ejemplo recomendado es <code>http://localhost:3000/api</code>.</li>
         </ul>

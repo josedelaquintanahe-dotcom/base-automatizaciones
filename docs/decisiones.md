@@ -85,3 +85,19 @@ Se adopta que `GET /api/system/status` valide conectividad real contra un endpoi
 
 Motivo:
 Separar disponibilidad de infraestructura de permisos de datos evita falsos negativos y permite diagnosticar con precision si falta configuracion, si Supabase responde o si el problema esta en el modelo de datos o en RLS.
+
+## 2026-04-15
+
+### D-013. Los endpoints globales de backoffice tendran autenticacion separada de los tokens de cliente
+
+Se adopta que los endpoints administrativos globales, como `GET /api/clientes`, no se expondran en publico ni reutilizaran `authMiddleware`, ya que ese middleware autentica tokens operativos asociados a un `cliente_id` concreto.
+
+Motivo:
+Mantiene el aislamiento entre clientes, evita que un token de cliente obtenga visibilidad global y separa claramente el acceso administrativo interno del acceso operativo de autoservicio.
+
+### D-014. La proteccion minima de backoffice se resuelve con un bearer token dedicado en backend
+
+Se adopta una proteccion minima y reversible basada en `Authorization: Bearer` con un secreto de entorno exclusivo del backend (`BACKOFFICE_API_TOKEN`) para los endpoints internos de backoffice mientras no exista un sistema formal de identidades administrativas.
+
+Motivo:
+Evita exponer el endpoint, no introduce complejidad prematura y permite operar el panel interno sin incrustar secretos en el repositorio ni mezclar credenciales de cliente con privilegios de administracion.

@@ -25,6 +25,7 @@ Este documento define la base de seguridad del repositorio y del futuro sistema 
 - no almacenar credenciales reales en el repositorio,
 - no reutilizar la misma credencial en varios entornos,
 - service role keys solo para backend o funciones controladas,
+- credenciales administrativas de backoffice separadas de tokens operativos de cliente,
 - rotar credenciales cuando una integracion pase a produccion,
 - documentar el uso de cada secreto sin exponer su valor.
 
@@ -119,6 +120,8 @@ tareas de clasificacion, analisis, generacion o apoyo contextual.
 ## Reglas de seguridad operativa
 
 - no exponer service role keys al frontend,
+- no exponer tokens administrativos de backoffice en variables `VITE_*`,
+- no reutilizar tokens de cliente para endpoints globales de administracion,
 - no convertir n8n ni Vercel en sustitutos del backend principal de aplicacion,
 - no activar workflows o agentes productivos sin logs minimos definidos,
 - no conectar integraciones reales sin separar entornos,

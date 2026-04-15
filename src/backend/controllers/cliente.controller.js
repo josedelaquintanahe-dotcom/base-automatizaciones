@@ -2,6 +2,7 @@
 
 const {
   crearClienteService,
+  listarClientesService,
   obtenerClienteService,
 } = require("../services/cliente.service");
 
@@ -50,7 +51,21 @@ async function obtenerClienteController(req, res, next) {
   }
 }
 
+async function listarClientesController(req, res, next) {
+  try {
+    const clientes = await listarClientesService();
+
+    return res.status(200).json({
+      success: true,
+      clientes,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   onboardingController,
+  listarClientesController,
   obtenerClienteController,
 };

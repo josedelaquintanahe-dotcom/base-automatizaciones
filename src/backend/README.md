@@ -83,3 +83,9 @@ Comandos:
 Endpoint de salud esperado:
 
 - `GET /api/health`
+
+## Backoffice interno
+
+- `GET /api/clientes` queda reservado para backoffice interno.
+- Este endpoint requiere `Authorization: Bearer <BACKOFFICE_API_TOKEN>`.
+- `BACKOFFICE_API_TOKEN` debe configurarse solo en backend o en el entorno de despliegue, nunca en variables `VITE_*`.

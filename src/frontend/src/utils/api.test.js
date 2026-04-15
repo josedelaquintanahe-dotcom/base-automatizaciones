@@ -1,9 +1,17 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { describe, test, expect, beforeEach } from "vitest";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 
 // Importamos después de haber preparado el entorno
-import { parseApiError, getHealth, getSystemStatus, crearCliente, obtenerCliente, api } from "./api";
+import {
+  parseApiError,
+  getHealth,
+  getSystemStatus,
+  crearCliente,
+  listarClientes,
+  obtenerCliente,
+  api,
+} from "./api";
 
 const mock = new MockAdapter(api);
 
@@ -175,6 +183,29 @@ describe("crearCliente", () => {
 });
 
 // ─── obtenerCliente ───────────────────────────────────────────────────────────
+
+describe("listarClientes", () => {
+  const TOKEN = "backoffice_token_seguro";
+
+  test("realiza la peticion con el header Authorization correcto", async () => {
+    mock.onGet("/clientes").reply((config) => {
+      expect(config.headers.Authorization).toBe(`Bearer ${TOKEN}`);
+      return [200, { clientes: [] }];
+    });
+
+    const data = await listarClientes(TOKEN);
+    expect(data).toEqual({ clientes: [] });
+  });
+
+  test("lanza error 401 cuando el token de backoffice es invalido", async () => {
+    mock.onGet("/clientes").reply(401, { error: "Token de backoffice invalido." });
+
+    await expect(listarClientes("token_incorrecto")).rejects.toMatchObject({
+      message: "No autorizado",
+      status: 401,
+    });
+  });
+});
 
 describe("obtenerCliente", () => {
   const TOKEN = "client_abcdefghijklmnopqrstuvwx";

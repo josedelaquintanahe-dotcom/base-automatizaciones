@@ -1,6 +1,6 @@
 # Deployment
 
-Esta carpeta define la estructura base para despliegues en Vercel dentro de proyectos de automatizacion empresarial.
+Esta carpeta define la estructura base para despliegues en Vercel y Render dentro de proyectos de automatizacion empresarial.
 
 ## Objetivo
 
@@ -158,11 +158,11 @@ Ejemplos de endpoints:
 
 ## Estado actual
 
-Guia base definida para estructurar despliegues en Vercel, funciones serverless, frontend opcional y convivencia con backend Express.
+Guia base definida para estructurar despliegues en Vercel, Render, funciones serverless, frontend opcional y convivencia con backend Express.
 
 Situacion actual:
 
 - la estrategia de despliegue esta documentada,
 - el backend Express existe y funciona en local,
-- no se ha configurado todavia un despliegue persistente real del backend,
+- el backend queda preparado para despliegue persistente en Render mediante `render.yaml`,
 - no se han activado integraciones reales con Supabase, n8n o Rendel desde entorno desplegado.

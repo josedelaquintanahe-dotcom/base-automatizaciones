@@ -10,6 +10,8 @@ Checklist previa a despliegue para validar configuracion, permisos y trazabilida
 - [ ] No se han usado credenciales reales en archivos versionados.
 - [ ] Las variables de produccion no se han reutilizado en preview o local.
 - [ ] Las claves privilegiadas no estan expuestas al frontend.
+- [ ] `CORS_ALLOWED_ORIGINS` esta definido para el dominio real del frontend.
+- [ ] `BACKOFFICE_API_TOKEN` esta definido para endpoints internos administrativos.
 
 ## Supabase
 

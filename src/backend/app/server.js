@@ -103,13 +103,21 @@ function startServer() {
     });
   });
 
-  app.listen(config.port, () => {
+  const serverCallback = () => {
     log("info", "Backend Express inicializado", {
       port: config.port,
+      host: config.host || "default",
       baseApiPath: config.baseApiPath,
       nodeEnv: config.nodeEnv,
     });
-  });
+  };
+
+  if (config.host) {
+    app.listen(config.port, config.host, serverCallback);
+    return;
+  }
+
+  app.listen(config.port, serverCallback);
 }
 
 if (require.main === module) {

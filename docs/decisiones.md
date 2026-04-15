@@ -101,3 +101,10 @@ Se adopta una proteccion minima y reversible basada en `Authorization: Bearer` c
 
 Motivo:
 Evita exponer el endpoint, no introduce complejidad prematura y permite operar el panel interno sin incrustar secretos en el repositorio ni mezclar credenciales de cliente con privilegios de administracion.
+
+### D-015. El backend Node.js se preparara para despliegue persistente en Render sin alterar el flujo local
+
+Se adopta una estructura de despliegue en Render basada en `render.yaml` en la raiz del repositorio, con `rootDir` apuntando a `src/backend`, manteniendo `src/backend/.env.local` solo para desarrollo local y usando variables de entorno separadas en Render para staging o produccion.
+
+Motivo:
+Permite desplegar el backend Express como servicio persistente sin mover carpetas ni romper el arranque local actual, y hace explicita la configuracion minima necesaria para un entorno gestionado.

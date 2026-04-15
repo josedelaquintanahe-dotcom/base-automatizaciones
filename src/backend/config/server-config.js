@@ -3,6 +3,7 @@
 const DEFAULT_PORT = 3000;
 const DEFAULT_NODE_ENV = "development";
 const DEFAULT_BASE_API_PATH = "/api";
+const DEFAULT_PRODUCTION_HOST = "0.0.0.0";
 const ALLOWED_NODE_ENVS = new Set(["development", "staging", "production", "test"]);
 const REQUIRED_INTEGRATION_VARS = [
   "SUPABASE_URL",
@@ -11,6 +12,7 @@ const REQUIRED_INTEGRATION_VARS = [
   "N8N_WEBHOOK_BASE_URL",
   "JWT_SECRET",
 ];
+const REQUIRED_PRODUCTION_SECRET_VARS = ["ENCRYPTION_KEY", "BACKOFFICE_API_TOKEN"];
 
 function isValidAbsoluteUrl(value) {
   try {
@@ -47,6 +49,18 @@ function readNodeEnv(value) {
   }
 
   return nodeEnv;
+}
+
+function readHost(value, nodeEnv) {
+  if (!value || !String(value).trim()) {
+    if (nodeEnv === "staging" || nodeEnv === "production") {
+      return DEFAULT_PRODUCTION_HOST;
+    }
+
+    return null;
+  }
+
+  return String(value).trim();
 }
 
 function readBaseApiPath(value) {
@@ -91,9 +105,12 @@ function readCorsAllowedOrigins(value) {
 }
 
 function getServerConfig() {
+  const nodeEnv = readNodeEnv(process.env.NODE_ENV);
+
   return {
     port: readPort(process.env.PORT),
-    nodeEnv: readNodeEnv(process.env.NODE_ENV),
+    nodeEnv,
+    host: readHost(process.env.HOST, nodeEnv),
     baseApiPath: readBaseApiPath(process.env.BASE_API_PATH),
     corsAllowedOrigins: readCorsAllowedOrigins(process.env.CORS_ALLOWED_ORIGINS),
   };
@@ -111,6 +128,10 @@ function validateEnvironmentConfig(config) {
     errors.push("NODE_ENV no esta definido correctamente.");
   }
 
+  if (!config || !(config.host === null || typeof config.host === "string")) {
+    errors.push("HOST no esta definido correctamente.");
+  }
+
   if (!config || typeof config.baseApiPath !== "string" || !config.baseApiPath.startsWith("/")) {
     errors.push("BASE_API_PATH no esta definido correctamente.");
   }
@@ -120,8 +141,9 @@ function validateEnvironmentConfig(config) {
   }
 
   const missingIntegrationVars = REQUIRED_INTEGRATION_VARS.filter((key) => !process.env[key]);
-  const hasEncryptionKey =
-    typeof process.env.ENCRYPTION_KEY === "string" && process.env.ENCRYPTION_KEY.trim().length > 0;
+  const missingProductionSecretVars = REQUIRED_PRODUCTION_SECRET_VARS.filter(
+    (key) => typeof process.env[key] !== "string" || process.env[key].trim().length === 0,
+  );
 
   if (config.nodeEnv === "staging" || config.nodeEnv === "production") {
     if (missingIntegrationVars.length > 0) {
@@ -130,8 +152,16 @@ function validateEnvironmentConfig(config) {
       );
     }
 
-    if (!hasEncryptionKey) {
-      errors.push(`Falta ENCRYPTION_KEY para ${config.nodeEnv}. Revisa .env antes de iniciar el backend.`);
+    if (missingProductionSecretVars.length > 0) {
+      errors.push(
+        `Faltan secretos obligatorios para ${config.nodeEnv}: ${missingProductionSecretVars.join(", ")}. Revisa la configuracion del entorno antes de iniciar el backend.`,
+      );
+    }
+
+    if (config.corsAllowedOrigins.length === 0) {
+      errors.push(
+        `CORS_ALLOWED_ORIGINS es obligatorio en ${config.nodeEnv} para exponer el backend de forma segura.`,
+      );
     }
   } else if (missingIntegrationVars.length > 0) {
     warnings.push(
@@ -139,7 +169,10 @@ function validateEnvironmentConfig(config) {
     );
   }
 
-  if ((config.nodeEnv === "development" || config.nodeEnv === "test") && !hasEncryptionKey) {
+  if (
+    (config.nodeEnv === "development" || config.nodeEnv === "test") &&
+    (typeof process.env.ENCRYPTION_KEY !== "string" || process.env.ENCRYPTION_KEY.trim().length === 0)
+  ) {
     warnings.push(
       `Entorno ${config.nodeEnv}: falta ENCRYPTION_KEY. El backend puede iniciar, pero las utilidades de cifrado fallaran hasta configurarla.`,
     );

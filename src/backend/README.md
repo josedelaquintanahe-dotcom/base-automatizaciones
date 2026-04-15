@@ -89,3 +89,20 @@ Endpoint de salud esperado:
 - `GET /api/clientes` queda reservado para backoffice interno.
 - Este endpoint requiere `Authorization: Bearer <BACKOFFICE_API_TOKEN>`.
 - `BACKOFFICE_API_TOKEN` debe configurarse solo en backend o en el entorno de despliegue, nunca en variables `VITE_*`.
+
+## Despliegue en Render
+
+- Existe un `render.yaml` en la raiz del repositorio para desplegar el backend como web service.
+- Render debe apuntar a `src/backend` como `rootDir`.
+- El backend escucha en `process.env.PORT` y, en `staging` o `production`, resuelve `HOST` a `0.0.0.0` si no se define manualmente.
+- Variables obligatorias en Render:
+  - `NODE_ENV=production`
+  - `BASE_API_PATH=/api`
+  - `CORS_ALLOWED_ORIGINS`
+  - `SUPABASE_URL`
+  - `SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `N8N_WEBHOOK_BASE_URL`
+  - `JWT_SECRET`
+  - `ENCRYPTION_KEY`
+  - `BACKOFFICE_API_TOKEN`

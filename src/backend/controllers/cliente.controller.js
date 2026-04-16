@@ -3,6 +3,7 @@
 const {
   crearClienteService,
   listarClientesService,
+  obtenerClienteBackofficeService,
   obtenerClienteService,
 } = require("../services/cliente.service");
 
@@ -64,8 +65,23 @@ async function listarClientesController(req, res, next) {
   }
 }
 
+async function obtenerClienteBackofficeController(req, res, next) {
+  try {
+    const { cliente_id: clienteId } = req.params;
+    const detail = await obtenerClienteBackofficeService(clienteId);
+
+    return res.status(200).json({
+      success: true,
+      detail,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   onboardingController,
   listarClientesController,
+  obtenerClienteBackofficeController,
   obtenerClienteController,
 };

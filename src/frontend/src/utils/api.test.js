@@ -9,6 +9,7 @@ import {
   getSystemStatus,
   crearCliente,
   listarClientes,
+  obtenerClienteBackoffice,
   obtenerCliente,
   api,
 } from "./api";
@@ -203,6 +204,29 @@ describe("listarClientes", () => {
     await expect(listarClientes("token_incorrecto")).rejects.toMatchObject({
       message: "No autorizado",
       status: 401,
+    });
+  });
+});
+
+describe("obtenerClienteBackoffice", () => {
+  const TOKEN = "backoffice_token_seguro";
+
+  test("realiza la peticion de detalle con Authorization correcto", async () => {
+    mock.onGet("/clientes/backoffice/cli_001").reply((config) => {
+      expect(config.headers.Authorization).toBe(`Bearer ${TOKEN}`);
+      return [200, { detail: { cliente: { id: "cli_001" } } }];
+    });
+
+    const data = await obtenerClienteBackoffice("cli_001", TOKEN);
+    expect(data.detail.cliente.id).toBe("cli_001");
+  });
+
+  test("lanza error 404 cuando el cliente no existe en backoffice", async () => {
+    mock.onGet("/clientes/backoffice/no-existe").reply(404);
+
+    await expect(obtenerClienteBackoffice("no-existe", TOKEN)).rejects.toMatchObject({
+      message: "Recurso no encontrado",
+      status: 404,
     });
   });
 });

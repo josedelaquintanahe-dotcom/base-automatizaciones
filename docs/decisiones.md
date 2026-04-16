@@ -108,3 +108,12 @@ Se adopta una estructura de despliegue en Render basada en `render.yaml` en la r
 
 Motivo:
 Permite desplegar el backend Express como servicio persistente sin mover carpetas ni romper el arranque local actual, y hace explicita la configuracion minima necesaria para un entorno gestionado.
+
+## 2026-04-16
+
+### D-016. El detalle operativo de cliente se expone como endpoint administrativo separado y preparado para automatizaciones
+
+Se adopta que el detalle de cliente para operaciones internas no reutilice `GET /api/clientes/:cliente_id`, sino un endpoint administrativo especifico protegido con backoffice (`GET /api/clientes/backoffice/:cliente_id`) que devuelva contexto operativo agregado sin exponer secretos.
+
+Motivo:
+Permite mantener separado el autoservicio del cliente y el backoffice interno, y prepara un contrato estable para alimentar automatizaciones futuras de onboarding con estado, readiness y proximos pasos sin romper el flujo ya validado de alta y listado.

@@ -186,6 +186,172 @@ async function obtenerClienteService(cliente_id) {
   }
 }
 
+function buildOnboardingStatus({ cliente, activeCredentialCount, activeToken, latestInvoice }) {
+  if (cliente && typeof cliente.estado === "string" && cliente.estado.trim().toLowerCase() === "inactivo") {
+    return "inactivo";
+  }
+
+  if (activeCredentialCount === 0 && !activeToken && !latestInvoice) {
+    return "pendiente_configuracion";
+  }
+
+  if (activeCredentialCount > 0 && activeToken && latestInvoice) {
+    return "listo_para_automatizar";
+  }
+
+  return "en_configuracion";
+}
+
+function buildAutomationReadiness({ cliente, activeCredentials, activeToken, latestInvoice }) {
+  const checks = [
+    {
+      key: "cliente_activo",
+      label: "Cliente operativo",
+      ok: Boolean(cliente && cliente.estado && cliente.estado !== "inactivo"),
+    },
+    {
+      key: "credenciales_activas",
+      label: "Credenciales activas",
+      ok: activeCredentials.length > 0,
+    },
+    {
+      key: "token_operativo",
+      label: "Token operativo activo",
+      ok: Boolean(activeToken && activeToken.activo),
+    },
+    {
+      key: "factura_inicial",
+      label: "Factura inicial registrada",
+      ok: Boolean(latestInvoice),
+    },
+  ];
+
+  const missingRequirements = checks.filter((item) => !item.ok).map((item) => item.label);
+  const ready = missingRequirements.length === 0;
+
+  let nextRecommendedAction = "Validar workflow real de onboarding y conectar automatizaciones.";
+
+  if (!checks[0].ok) {
+    nextRecommendedAction = "Revisar el estado del cliente antes de activar automatizaciones.";
+  } else if (!checks[1].ok) {
+    nextRecommendedAction = "Completar y activar credenciales operativas del cliente.";
+  } else if (!checks[2].ok) {
+    nextRecommendedAction = "Emitir o reactivar un token operativo para el cliente.";
+  } else if (!checks[3].ok) {
+    nextRecommendedAction = "Registrar la factura inicial antes de automatizar el onboarding.";
+  }
+
+  return {
+    ready,
+    missing_requirements: missingRequirements,
+    next_recommended_action: nextRecommendedAction,
+    checks,
+    available_context: {
+      cliente_id: cliente.id,
+      plan: cliente.plan,
+      estado: cliente.estado || null,
+      credenciales_tipos: activeCredentials.map((item) => item.tipo),
+      token_operativo_activo: Boolean(activeToken && activeToken.activo),
+      factura_inicial_estado: latestInvoice ? latestInvoice.estado || null : null,
+    },
+  };
+}
+
+async function obtenerClienteBackofficeService(cliente_id) {
+  try {
+    if (typeof cliente_id !== "string" || !cliente_id.trim()) {
+      throw createServiceError("cliente_id es obligatorio.", 400);
+    }
+
+    const clienteId = cliente_id.trim();
+    const supabase = getBackendSupabaseClient();
+    const cliente = await obtenerClienteService(clienteId);
+
+    const [{ data: credentialRows, error: credentialsError }, { data: tokenRows, error: tokensError }, { data: invoiceRows, error: invoicesError }] =
+      await Promise.all([
+        supabase
+          .from("credenciales_cliente")
+          .select("tipo, nombre, activo")
+          .eq("cliente_id", clienteId),
+        supabase
+          .from("tokens")
+          .select("id, activo, expiracion")
+          .eq("cliente_id", clienteId)
+          .order("expiracion", { ascending: false }),
+        supabase
+          .from("facturas")
+          .select("mes, setup_inicial, mantenimiento_mensual, total, estado")
+          .eq("cliente_id", clienteId)
+          .order("mes", { ascending: false }),
+      ]);
+
+    if (credentialsError) {
+      throw createServiceError(
+        `No se pudo obtener el resumen de credenciales del cliente: ${credentialsError.message}`,
+      );
+    }
+
+    if (tokensError) {
+      throw createServiceError(`No se pudo obtener el resumen de tokens del cliente: ${tokensError.message}`);
+    }
+
+    if (invoicesError) {
+      throw createServiceError(`No se pudo obtener el resumen de facturacion del cliente: ${invoicesError.message}`);
+    }
+
+    const credentials = Array.isArray(credentialRows) ? credentialRows : [];
+    const activeCredentials = credentials.filter((item) => item.activo);
+    const tokens = Array.isArray(tokenRows) ? tokenRows : [];
+    const activeToken = tokens.find((item) => item.activo) || null;
+    const invoices = Array.isArray(invoiceRows) ? invoiceRows : [];
+    const latestInvoice = invoices[0] || null;
+    const onboardingStatus = buildOnboardingStatus({
+      cliente,
+      activeCredentialCount: activeCredentials.length,
+      activeToken,
+      latestInvoice,
+    });
+
+    return {
+      cliente,
+      operational_summary: {
+        onboarding_status: onboardingStatus,
+        credenciales: {
+          total: credentials.length,
+          activas: activeCredentials.length,
+          tipos_configurados: [...new Set(activeCredentials.map((item) => item.tipo).filter(Boolean))],
+          entradas: activeCredentials.map((item) => ({
+            tipo: item.tipo || null,
+            nombre: item.nombre || null,
+            activo: Boolean(item.activo),
+          })),
+        },
+        access: {
+          token_operativo_activo: Boolean(activeToken && activeToken.activo),
+          expiracion_token: activeToken ? activeToken.expiracion || null : null,
+          total_tokens_registrados: tokens.length,
+        },
+        billing: {
+          factura_inicial_emitida: Boolean(latestInvoice),
+          ultima_factura: latestInvoice,
+        },
+      },
+      automation_readiness: buildAutomationReadiness({
+        cliente,
+        activeCredentials,
+        activeToken,
+        latestInvoice,
+      }),
+    };
+  } catch (error) {
+    log("error", "obtenerClienteBackofficeService failed", {
+      clienteId: cliente_id || null,
+      error: error && error.message ? error.message : "unknown_error",
+    });
+    throw error;
+  }
+}
+
 async function listarClientesService() {
   try {
     const supabase = getBackendSupabaseClient();
@@ -219,6 +385,7 @@ async function listarClientesService() {
 
 module.exports = {
   crearClienteService,
+  obtenerClienteBackofficeService,
   obtenerClienteService,
   listarClientesService,
 };

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { crearCliente, listarClientes } from "../utils/api";
@@ -110,6 +111,7 @@ function getInitialBackofficeToken() {
 }
 
 export default function Clientes() {
+  const navigate = useNavigate();
   const [formState, setFormState] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -553,6 +555,7 @@ export default function Clientes() {
                       <th className="px-4 py-3 font-medium">Fecha de alta</th>
                       <th className="px-4 py-3 font-medium">Estado</th>
                       <th className="px-4 py-3 font-medium">ID</th>
+                      <th className="px-4 py-3 font-medium">Detalle</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -567,6 +570,17 @@ export default function Clientes() {
                           </span>
                         </td>
                         <td className="px-4 py-3 font-mono text-xs text-slate-600">{cliente.id}</td>
+                        <td className="px-4 py-3">
+                          <button
+                            className="button-secondary px-3 py-2 text-xs"
+                            type="button"
+                            onClick={() => {
+                              navigate(`/cliente-detalle?cliente_id=${encodeURIComponent(cliente.id)}`);
+                            }}
+                          >
+                            Ver detalle
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

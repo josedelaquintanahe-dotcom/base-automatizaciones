@@ -218,7 +218,7 @@ describe("obtenerClienteBackoffice", () => {
     });
 
     const data = await obtenerClienteBackoffice("cli_001", TOKEN);
-    expect(data.detail.cliente.id).toBe("cli_001");
+    expect(data.cliente.id).toBe("cli_001");
   });
 
   test("lanza error 404 cuando el cliente no existe en backoffice", async () => {

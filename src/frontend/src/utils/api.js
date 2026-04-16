@@ -100,7 +100,7 @@ export async function obtenerClienteBackoffice(clienteId, backofficeToken) {
         Authorization: `Bearer ${backofficeToken}`,
       },
     });
-    return response.data;
+    return response.data.detail;
   } catch (error) {
     throw parseApiError(error);
   }

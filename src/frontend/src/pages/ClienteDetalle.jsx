@@ -111,7 +111,7 @@ export default function ClienteDetalle() {
       setError("");
       setValidationError("");
       const result = await obtenerClienteBackoffice(clienteId.trim(), token.trim());
-      setDetail(result.detail);
+      setDetail(result);
     } catch (requestError) {
       setDetail(null);
       setError(getClienteDetalleErrorMessage(requestError));

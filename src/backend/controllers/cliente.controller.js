@@ -1,6 +1,7 @@
 "use strict";
 
 const {
+  activarOnboardingBackofficeService,
   crearClienteService,
   listarClientesService,
   obtenerClienteBackofficeService,
@@ -79,7 +80,24 @@ async function obtenerClienteBackofficeController(req, res, next) {
   }
 }
 
+async function activarOnboardingBackofficeController(req, res, next) {
+  try {
+    const { cliente_id: clienteId } = req.params;
+    const activation = await activarOnboardingBackofficeService(clienteId, {
+      correlationId: req.correlationId || null,
+    });
+
+    return res.status(200).json({
+      success: activation.status !== "blocked",
+      activation,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
+  activarOnboardingBackofficeController,
   onboardingController,
   listarClientesController,
   obtenerClienteBackofficeController,

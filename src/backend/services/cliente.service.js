@@ -191,6 +191,14 @@ function buildOnboardingStatus({ cliente, activeCredentialCount, activeToken, la
     return "inactivo";
   }
 
+  if (
+    cliente &&
+    typeof cliente.estado === "string" &&
+    cliente.estado.trim().toLowerCase() === "onboarding_activado"
+  ) {
+    return "onboarding_activado";
+  }
+
   if (activeCredentialCount === 0 && !activeToken && !latestInvoice) {
     return "pendiente_configuracion";
   }
@@ -231,6 +239,14 @@ function buildAutomationReadiness({ cliente, activeCredentials, activeToken, lat
 
   let nextRecommendedAction = "Validar workflow real de onboarding y conectar automatizaciones.";
 
+  if (
+    cliente &&
+    typeof cliente.estado === "string" &&
+    cliente.estado.trim().toLowerCase() === "onboarding_activado"
+  ) {
+    nextRecommendedAction = "Onboarding ya activado. Pendiente de conectar el dispatcher real.";
+  }
+
   if (!checks[0].ok) {
     nextRecommendedAction = "Revisar el estado del cliente antes de activar automatizaciones.";
   } else if (!checks[1].ok) {
@@ -254,6 +270,39 @@ function buildAutomationReadiness({ cliente, activeCredentials, activeToken, lat
       token_operativo_activo: Boolean(activeToken && activeToken.activo),
       factura_inicial_estado: latestInvoice ? latestInvoice.estado || null : null,
     },
+  };
+}
+
+function buildActivationSummary({ cliente, automationReadiness }) {
+  const clienteEstado = cliente && typeof cliente.estado === "string" ? cliente.estado.trim().toLowerCase() : "";
+  const alreadyActivated = clienteEstado === "onboarding_activado";
+  const blockedReasons = Array.isArray(automationReadiness.missing_requirements)
+    ? automationReadiness.missing_requirements
+    : [];
+
+  if (alreadyActivated) {
+    return {
+      status: "activated",
+      can_activate: false,
+      blocking_reasons: [],
+      operator_message: "El onboarding ya fue activado para este cliente.",
+    };
+  }
+
+  if (!automationReadiness.ready || blockedReasons.length > 0) {
+    return {
+      status: "blocked",
+      can_activate: false,
+      blocking_reasons: blockedReasons,
+      operator_message: automationReadiness.next_recommended_action,
+    };
+  }
+
+  return {
+    status: "ready",
+    can_activate: true,
+    blocking_reasons: [],
+    operator_message: "El cliente esta listo para activar onboarding desde backoffice.",
   };
 }
 
@@ -311,6 +360,12 @@ async function obtenerClienteBackofficeService(cliente_id) {
       activeToken,
       latestInvoice,
     });
+    const automationReadiness = buildAutomationReadiness({
+      cliente,
+      activeCredentials,
+      activeToken,
+      latestInvoice,
+    });
 
     return {
       cliente,
@@ -335,16 +390,97 @@ async function obtenerClienteBackofficeService(cliente_id) {
           factura_inicial_emitida: Boolean(latestInvoice),
           ultima_factura: latestInvoice,
         },
+        activation: buildActivationSummary({
+          cliente,
+          automationReadiness,
+        }),
       },
-      automation_readiness: buildAutomationReadiness({
-        cliente,
-        activeCredentials,
-        activeToken,
-        latestInvoice,
-      }),
+      automation_readiness: automationReadiness,
     };
   } catch (error) {
     log("error", "obtenerClienteBackofficeService failed", {
+      clienteId: cliente_id || null,
+      error: error && error.message ? error.message : "unknown_error",
+    });
+    throw error;
+  }
+}
+
+async function activarOnboardingBackofficeService(cliente_id, context = {}) {
+  try {
+    const clienteId = typeof cliente_id === "string" ? cliente_id.trim() : "";
+
+    if (!clienteId) {
+      throw createServiceError("cliente_id es obligatorio.", 400);
+    }
+
+    const attemptedAt = new Date().toISOString();
+    const currentDetail = await obtenerClienteBackofficeService(clienteId);
+    const activationSummary = currentDetail.operational_summary.activation;
+
+    if (!activationSummary.can_activate) {
+      log("warn", "Onboarding activation blocked", {
+        correlationId: context.correlationId || null,
+        clienteId,
+        activationStatus: activationSummary.status,
+        blockingReasons: activationSummary.blocking_reasons,
+      });
+
+      return {
+        status: activationSummary.status === "activated" ? "already_activated" : "blocked",
+        attempted_at: attemptedAt,
+        correlation_id: context.correlationId || null,
+        blocking_reasons: activationSummary.blocking_reasons,
+        operator_message: activationSummary.operator_message,
+        dispatch: {
+          mode: "pending_integration",
+          automated: false,
+          target: "automatizacion_onboarding",
+        },
+        detail: currentDetail,
+      };
+    }
+
+    const supabase = getBackendSupabaseClient();
+    const activationDate = currentDetail.cliente.fecha_inicio || attemptedAt.slice(0, 10);
+    const { error: updateError } = await supabase
+      .from("clientes")
+      .update({
+        estado: "onboarding_activado",
+        fecha_inicio: activationDate,
+      })
+      .eq("id", clienteId);
+
+    if (updateError) {
+      throw createServiceError(`No se pudo activar el onboarding del cliente: ${updateError.message}`);
+    }
+
+    log("info", "Onboarding activation registered", {
+      correlationId: context.correlationId || null,
+      clienteId,
+      activationDate,
+      dispatchMode: "pending_integration",
+    });
+
+    const updatedDetail = await obtenerClienteBackofficeService(clienteId);
+
+    return {
+      status: "activated",
+      attempted_at: attemptedAt,
+      correlation_id: context.correlationId || null,
+      blocking_reasons: [],
+      operator_message: "Onboarding activado. Pendiente de conectar la automatizacion real.",
+      dispatch: {
+        mode: "pending_integration",
+        automated: false,
+        target: "automatizacion_onboarding",
+        next_step: "Conectar este punto con el dispatcher real en n8n o backend.",
+      },
+      detail: updatedDetail,
+    };
+  } catch (error) {
+    log("error", "activarOnboardingBackofficeService failed", {
+      correlationId: context.correlationId || null,
       clienteId: cliente_id || null,
       error: error && error.message ? error.message : "unknown_error",
     });
@@ -384,6 +520,7 @@ async function listarClientesService() {
 }
 
 module.exports = {
+  activarOnboardingBackofficeService,
   crearClienteService,
   obtenerClienteBackofficeService,
   obtenerClienteService,

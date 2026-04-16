@@ -106,6 +106,23 @@ export async function obtenerClienteBackoffice(clienteId, backofficeToken) {
   }
 }
 
+export async function activarOnboardingBackoffice(clienteId, backofficeToken) {
+  try {
+    const response = await api.post(
+      `/clientes/backoffice/${clienteId}/activar-onboarding`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${backofficeToken}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw parseApiError(error);
+  }
+}
+
 export async function obtenerCliente(clienteId, token) {
   try {
     const response = await api.get(`/clientes/${clienteId}`, {

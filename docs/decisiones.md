@@ -117,3 +117,10 @@ Se adopta que el detalle de cliente para operaciones internas no reutilice `GET 
 
 Motivo:
 Permite mantener separado el autoservicio del cliente y el backoffice interno, y prepara un contrato estable para alimentar automatizaciones futuras de onboarding con estado, readiness y proximos pasos sin romper el flujo ya validado de alta y listado.
+
+### D-017. La activacion de onboarding se ejecuta como accion administrativa controlada y desacoplada del dispatcher real
+
+Se adopta una accion administrativa `POST /api/clientes/backoffice/:cliente_id/activar-onboarding` protegida con backoffice, que solo puede ejecutarse si `automation_readiness.ready` es verdadero y no existen requisitos bloqueantes. En esta fase la accion registra estado y trazabilidad, pero no dispara todavia una automatizacion real en n8n.
+
+Motivo:
+Permite a operaciones activar onboarding de forma segura desde el detalle de cliente, deja persistido un estado operativo reutilizable y prepara un punto de integracion limpio para conectar el dispatcher real mas adelante sin romper los contratos ya validados.

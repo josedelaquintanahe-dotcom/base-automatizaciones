@@ -5,6 +5,7 @@ jest.mock("../app/logger", () => ({ log: jest.fn() }));
 
 const { createSupabaseClient } = require("../clients/supabase.client");
 const {
+  activarOnboardingBackofficeService,
   obtenerClienteBackofficeService,
 } = require("../services/cliente.service");
 
@@ -18,6 +19,8 @@ function buildSupabaseMock({
   tokensError = null,
   invoicesError = null,
 } = {}) {
+  const clienteState = cliente ? { ...cliente } : null;
+
   return {
     from(table) {
       if (table === "clientes") {
@@ -27,11 +30,24 @@ function buildSupabaseMock({
               eq() {
                 return {
                   maybeSingle: jest.fn().mockResolvedValue({
-                    data: cliente,
+                    data: clienteState,
                     error: clienteError,
                   }),
                 };
               },
+            };
+          },
+          update(payload) {
+            return {
+              eq: jest.fn().mockImplementation(() => {
+                if (clienteState && payload && typeof payload === "object") {
+                  Object.assign(clienteState, payload);
+                }
+
+                return Promise.resolve({
+                  error: null,
+                });
+              }),
             };
           },
         };
@@ -166,5 +182,74 @@ describe("obtenerClienteBackofficeService", () => {
       message: expect.stringMatching(/cliente_id/i),
       statusCode: 400,
     });
+  });
+});
+
+describe("activarOnboardingBackofficeService", () => {
+  test("activa onboarding cuando readiness permite la accion", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: {
+          id: "cli_010",
+          nombre_empresa: "Empresa Activa",
+          email_contacto: "ops@test.com",
+          telefono: "600000000",
+          plan: "profesional",
+          estado: "activo",
+          fecha_inicio: null,
+          precio_mensual: 299,
+          created_at: "2026-04-15T10:00:00.000Z",
+          updated_at: "2026-04-15T11:00:00.000Z",
+        },
+        credentials: [
+          { tipo: "gmail", nombre: "gmail_email", activo: true },
+        ],
+        tokens: [{ id: "tok_001", activo: true, expiracion: "2027-04-15" }],
+        invoices: [
+          {
+            mes: "2026-04-15",
+            setup_inicial: 800,
+            mantenimiento_mensual: 299,
+            total: 1099,
+            estado: "pendiente",
+          },
+        ],
+      }),
+    );
+
+    const result = await activarOnboardingBackofficeService("cli_010", {
+      correlationId: "corr-001",
+    });
+
+    expect(result.status).toBe("activated");
+    expect(result.detail.operational_summary.activation.status).toBe("activated");
+    expect(result.dispatch.mode).toBe("pending_integration");
+  });
+
+  test("bloquea la activacion si faltan requisitos", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: {
+          id: "cli_011",
+          nombre_empresa: "Empresa Bloqueada",
+          email_contacto: "ops@test.com",
+          telefono: null,
+          plan: "basico",
+          estado: "activo",
+          fecha_inicio: null,
+          precio_mensual: 99,
+          created_at: "2026-04-15T10:00:00.000Z",
+          updated_at: "2026-04-15T11:00:00.000Z",
+        },
+      }),
+    );
+
+    const result = await activarOnboardingBackofficeService("cli_011", {
+      correlationId: "corr-002",
+    });
+
+    expect(result.status).toBe("blocked");
+    expect(result.blocking_reasons.length).toBeGreaterThan(0);
+    expect(result.dispatch.mode).toBe("pending_integration");
   });
 });

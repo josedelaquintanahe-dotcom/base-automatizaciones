@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import EmptyState from "../components/EmptyState";
-import { obtenerClienteBackoffice } from "../utils/api";
+import { activarOnboardingBackoffice, obtenerClienteBackoffice } from "../utils/api";
 
 const BACKOFFICE_TOKEN_STORAGE_KEY = "backoffice_api_token";
 
@@ -57,10 +57,13 @@ export default function ClienteDetalle() {
   const [detail, setDetail] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activating, setActivating] = useState(false);
+  const [activationFeedback, setActivationFeedback] = useState(null);
   const [validationError, setValidationError] = useState("");
   const cliente = useMemo(() => detail?.cliente || null, [detail]);
   const operationalSummary = useMemo(() => detail?.operational_summary || null, [detail]);
   const automationReadiness = useMemo(() => detail?.automation_readiness || null, [detail]);
+  const activationSummary = useMemo(() => detail?.operational_summary?.activation || null, [detail]);
 
   useEffect(() => {
     const clienteIdParam = searchParams.get("cliente_id") || "";
@@ -110,6 +113,7 @@ export default function ClienteDetalle() {
       setLoading(true);
       setError("");
       setValidationError("");
+      setActivationFeedback(null);
       const result = await obtenerClienteBackoffice(clienteId.trim(), token.trim());
       setDetail(result);
     } catch (requestError) {
@@ -117,6 +121,34 @@ export default function ClienteDetalle() {
       setError(getClienteDetalleErrorMessage(requestError));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleActivateOnboarding() {
+    if (!clienteId.trim() || !token.trim()) {
+      return;
+    }
+
+    try {
+      setActivating(true);
+      setActivationFeedback(null);
+      const result = await activarOnboardingBackoffice(clienteId.trim(), token.trim());
+      setDetail(result.activation.detail);
+      setActivationFeedback({
+        status: result.activation.status,
+        operator_message: result.activation.operator_message,
+        blocking_reasons: result.activation.blocking_reasons || [],
+        correlation_id: result.activation.correlation_id || null,
+      });
+    } catch (requestError) {
+      setActivationFeedback({
+        status: "error",
+        operator_message: getClienteDetalleErrorMessage(requestError),
+        blocking_reasons: [],
+        correlation_id: null,
+      });
+    } finally {
+      setActivating(false);
     }
   }
 
@@ -318,6 +350,67 @@ export default function ClienteDetalle() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm text-slate-500">Activar onboarding</p>
+                  <p className="mt-2 text-sm text-slate-700">
+                    {activationSummary?.operator_message || "Sin estado de activacion disponible."}
+                  </p>
+                </div>
+                <button
+                  className="button-primary"
+                  type="button"
+                  disabled={
+                    loading ||
+                    activating ||
+                    !activationSummary?.can_activate ||
+                    !automationReadiness?.ready
+                  }
+                  onClick={handleActivateOnboarding}
+                >
+                  {activating ? "Activando..." : "Activar onboarding"}
+                </button>
+              </div>
+
+              {activationSummary?.blocking_reasons?.length ? (
+                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  <p className="font-medium">Bloqueos actuales</p>
+                  <ul className="mt-2 list-disc pl-5">
+                    {activationSummary.blocking_reasons.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {activationFeedback ? (
+                <div
+                  className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
+                    activationFeedback.status === "activated"
+                      ? "border border-emerald-200 bg-emerald-50 text-emerald-900"
+                      : activationFeedback.status === "already_activated"
+                        ? "border border-sky-200 bg-sky-50 text-sky-900"
+                        : activationFeedback.status === "blocked"
+                          ? "border border-amber-200 bg-amber-50 text-amber-900"
+                          : "border border-rose-200 bg-rose-50 text-rose-900"
+                  }`}
+                >
+                  <p className="font-medium">{activationFeedback.operator_message}</p>
+                  {activationFeedback.blocking_reasons.length ? (
+                    <ul className="mt-2 list-disc pl-5">
+                      {activationFeedback.blocking_reasons.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {activationFeedback.correlation_id ? (
+                    <p className="mt-2 text-xs">correlation_id: {activationFeedback.correlation_id}</p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-4">

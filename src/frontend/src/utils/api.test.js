@@ -10,6 +10,7 @@ import {
   crearCliente,
   listarClientes,
   obtenerClienteBackoffice,
+  activarOnboardingBackoffice,
   obtenerCliente,
   api,
 } from "./api";
@@ -228,6 +229,20 @@ describe("obtenerClienteBackoffice", () => {
       message: "Recurso no encontrado",
       status: 404,
     });
+  });
+});
+
+describe("activarOnboardingBackoffice", () => {
+  const TOKEN = "backoffice_token_seguro";
+
+  test("realiza la activacion con Authorization correcto", async () => {
+    mock.onPost("/clientes/backoffice/cli_001/activar-onboarding").reply((config) => {
+      expect(config.headers.Authorization).toBe(`Bearer ${TOKEN}`);
+      return [200, { activation: { status: "activated" } }];
+    });
+
+    const data = await activarOnboardingBackoffice("cli_001", TOKEN);
+    expect(data.activation.status).toBe("activated");
   });
 });
 

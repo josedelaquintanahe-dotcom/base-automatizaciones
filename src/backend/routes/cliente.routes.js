@@ -5,6 +5,7 @@ const express = require("express");
 const { authMiddleware } = require("../middlewares/auth.middleware");
 const { backofficeAuthMiddleware } = require("../middlewares/backoffice-auth.middleware");
 const {
+  activarOnboardingBackofficeController,
   listarClientesController,
   onboardingController,
   obtenerClienteBackofficeController,
@@ -16,6 +17,11 @@ function createClienteRouter() {
 
   router.get("/", backofficeAuthMiddleware, listarClientesController);
   router.get("/backoffice/:cliente_id", backofficeAuthMiddleware, obtenerClienteBackofficeController);
+  router.post(
+    "/backoffice/:cliente_id/activar-onboarding",
+    backofficeAuthMiddleware,
+    activarOnboardingBackofficeController,
+  );
   router.post("/onboarding", onboardingController);
   router.get("/:cliente_id", authMiddleware, obtenerClienteController);
 

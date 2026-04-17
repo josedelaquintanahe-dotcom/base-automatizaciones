@@ -127,3 +127,10 @@ Permite a operaciones activar onboarding de forma segura desde el detalle de cli
 
 Nota de alineacion 2026-04-17:
 La activacion no introduce un nuevo valor en `clientes.estado`. La tabla solo admite `activo` y `suspendido`, por lo que la accion mantiene `activo`, conserva `fecha_inicio` y devuelve el estado de activacion a traves del contrato de backoffice mientras no exista una persistencia dedicada para auditoria o dispatcher.
+
+### D-018. La salida oficial de activacion de onboarding se centraliza en un dispatcher backend interno
+
+Se adopta una capa explicita de dispatcher backend para la activacion de onboarding. `POST /api/clientes/backoffice/:cliente_id/activar-onboarding` mantiene su contrato actual, pero deja de construir el dispatch inline y delega en un servicio especializado que registra el evento estructurado `onboarding_activated` y resuelve un destino interno.
+
+Motivo:
+Permite separar persistencia de negocio, registro de eventos y salida hacia automatizaciones reales. Deja una base clara para conectar destinos futuros como webhooks de n8n, colas o workers sin romper `ClienteDetalle`, el frontend actual ni el endpoint ya validado.

@@ -2,6 +2,7 @@
 
 const { log } = require("../app/logger");
 const { createSupabaseClient } = require("../clients/supabase.client");
+const { dispatchOnboardingActivated } = require("./onboarding-dispatcher.service");
 const { encriptar, generarToken, hashToken } = require("../utils/encryption");
 const { validarOnboarding } = require("../utils/validation");
 
@@ -437,7 +438,6 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
       correlationId: context.correlationId || null,
       clienteId,
       activationDate,
-      dispatchMode: "pending_integration",
     });
 
     const updatedDetail = await obtenerClienteBackofficeService(clienteId);
@@ -457,6 +457,13 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
         next_recommended_action: "Onboarding activado. Pendiente de conectar el dispatcher real.",
       },
     };
+    const dispatchResult = await dispatchOnboardingActivated({
+      cliente: activationDetail.cliente,
+      detail: activationDetail,
+      attemptedAt,
+      activationDate,
+      context,
+    });
 
     return {
       status: "activated",
@@ -464,12 +471,7 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
       correlation_id: context.correlationId || null,
       blocking_reasons: [],
       operator_message: "Onboarding activado. Pendiente de conectar la automatizacion real.",
-      dispatch: {
-        mode: "pending_integration",
-        automated: false,
-        target: "automatizacion_onboarding",
-        next_step: "Conectar este punto con el dispatcher real en n8n o backend.",
-      },
+      dispatch: dispatchResult.dispatch,
       detail: activationDetail,
     };
   } catch (error) {

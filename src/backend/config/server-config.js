@@ -104,6 +104,22 @@ function readCorsAllowedOrigins(value) {
   return origins;
 }
 
+function readOptionalWebhookUrl(value) {
+  if (!value || !String(value).trim()) {
+    return null;
+  }
+
+  const webhookUrl = String(value).trim();
+
+  if (!isValidAbsoluteUrl(webhookUrl)) {
+    throw new Error(
+      "Configuracion invalida: ONBOARDING_DISPATCH_WEBHOOK_URL debe ser una URL absoluta http o https.",
+    );
+  }
+
+  return webhookUrl;
+}
+
 function getServerConfig() {
   const nodeEnv = readNodeEnv(process.env.NODE_ENV);
 
@@ -113,6 +129,7 @@ function getServerConfig() {
     host: readHost(process.env.HOST, nodeEnv),
     baseApiPath: readBaseApiPath(process.env.BASE_API_PATH),
     corsAllowedOrigins: readCorsAllowedOrigins(process.env.CORS_ALLOWED_ORIGINS),
+    onboardingDispatchWebhookUrl: readOptionalWebhookUrl(process.env.ONBOARDING_DISPATCH_WEBHOOK_URL),
   };
 }
 
@@ -138,6 +155,13 @@ function validateEnvironmentConfig(config) {
 
   if (!config || !Array.isArray(config.corsAllowedOrigins)) {
     errors.push("CORS_ALLOWED_ORIGINS no esta definido correctamente.");
+  }
+
+  if (
+    !config ||
+    !(config.onboardingDispatchWebhookUrl === null || typeof config.onboardingDispatchWebhookUrl === "string")
+  ) {
+    errors.push("ONBOARDING_DISPATCH_WEBHOOK_URL no esta definido correctamente.");
   }
 
   const missingIntegrationVars = REQUIRED_INTEGRATION_VARS.filter((key) => !process.env[key]);

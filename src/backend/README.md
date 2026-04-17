@@ -106,3 +106,7 @@ Endpoint de salud esperado:
   - `JWT_SECRET`
   - `ENCRYPTION_KEY`
   - `BACKOFFICE_API_TOKEN`
+- Variable opcional para automatizacion real de onboarding:
+  - `ONBOARDING_DISPATCH_WEBHOOK_URL`
+  - si esta definida, el dispatcher envia `onboarding_activated` por `POST` al webhook configurado;
+  - si falta o el envio falla, el backend mantiene fallback interno y no rompe la activacion principal.

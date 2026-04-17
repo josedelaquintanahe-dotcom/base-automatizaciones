@@ -134,3 +134,10 @@ Se adopta una capa explicita de dispatcher backend para la activacion de onboard
 
 Motivo:
 Permite separar persistencia de negocio, registro de eventos y salida hacia automatizaciones reales. Deja una base clara para conectar destinos futuros como webhooks de n8n, colas o workers sin romper `ClienteDetalle`, el frontend actual ni el endpoint ya validado.
+
+### D-019. El dispatcher de onboarding puede publicar opcionalmente un webhook externo sin bloquear la activacion principal
+
+Se adopta `ONBOARDING_DISPATCH_WEBHOOK_URL` como variable opcional de entorno para publicar el evento `onboarding_activated` hacia un webhook externo preparado para n8n. El envio se ejecuta desde el dispatcher backend, registra logs estructurados y, si falla, no rompe la respuesta principal de activacion.
+
+Motivo:
+Permite conectar una automatizacion real con minimo acoplamiento y sin degradar el flujo ya validado de backoffice. El backend conserva el control del contrato, el `correlation_id` y el fallback interno cuando el webhook no esta configurado o devuelve error.

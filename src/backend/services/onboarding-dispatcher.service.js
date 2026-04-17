@@ -1,13 +1,20 @@
 "use strict";
 
 const { log } = require("../app/logger");
+const { getServerConfig } = require("../config/server-config");
 const { registerBackendEvent } = require("../repositories/event-log.repository");
 
 const DEFAULT_DISPATCH_TARGET = "internal_pending";
+const WEBHOOK_DISPATCH_TARGET = "n8n_webhook";
 
 function buildOnboardingActivatedEventPayload({ cliente, detail, attemptedAt, activationDate }) {
   return {
     trigger: "backoffice_activation",
+    event_name: "onboarding_activated",
+    timestamp: attemptedAt,
+    correlation_id: detail?.operational_summary?.activation?.correlation_id || null,
+    cliente_id: cliente.id,
+    onboarding_status: detail.operational_summary?.onboarding_status || null,
     attempted_at: attemptedAt,
     activation_date: activationDate,
     cliente: {
@@ -38,6 +45,103 @@ function buildOnboardingActivatedEventPayload({ cliente, detail, attemptedAt, ac
   };
 }
 
+function getWebhookDispatchUrl() {
+  return getServerConfig().onboardingDispatchWebhookUrl;
+}
+
+function getSafeWebhookTarget(webhookUrl) {
+  try {
+    const parsedUrl = new URL(webhookUrl);
+    return `${parsedUrl.origin}${parsedUrl.pathname}`;
+  } catch (error) {
+    return "invalid_webhook_url";
+  }
+}
+
+async function dispatchToWebhook({ clienteId, correlationId, event, attemptedAt, activationDate, detail }) {
+  try {
+    const webhookUrl = getWebhookDispatchUrl();
+
+    if (!webhookUrl) {
+      return null;
+    }
+
+    const payload = {
+      event_name: "onboarding_activated",
+      correlation_id: correlationId || null,
+      cliente_id: clienteId,
+      timestamp: attemptedAt,
+      onboarding_status: detail.operational_summary?.onboarding_status || null,
+      activation_date: activationDate,
+      source: "backoffice_activation",
+      event,
+    };
+    const webhookTarget = getSafeWebhookTarget(webhookUrl);
+
+    log("info", "Onboarding webhook dispatch started", {
+      correlationId,
+      clienteId,
+      webhookTarget,
+      eventName: payload.event_name,
+    });
+
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-correlation-id": correlationId || "",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook respondio con HTTP ${response.status}.`);
+    }
+
+    log("info", "Onboarding webhook dispatch completed", {
+      correlationId,
+      clienteId,
+      webhookTarget,
+      eventName: payload.event_name,
+      statusCode: response.status,
+    });
+
+    return {
+      mode: "webhook",
+      automated: true,
+      target: "automatizacion_onboarding",
+      next_step: "Webhook de onboarding enviado correctamente al destino configurado.",
+      destination: WEBHOOK_DISPATCH_TARGET,
+      delivery_status: "accepted",
+      webhook_target: webhookTarget,
+    };
+  } catch (error) {
+    const webhookTarget =
+      typeof process.env.ONBOARDING_DISPATCH_WEBHOOK_URL === "string" &&
+      process.env.ONBOARDING_DISPATCH_WEBHOOK_URL.trim()
+        ? getSafeWebhookTarget(process.env.ONBOARDING_DISPATCH_WEBHOOK_URL.trim())
+        : "not_configured";
+
+    log("error", "Onboarding webhook dispatch failed", {
+      correlationId,
+      clienteId,
+      webhookTarget,
+      eventName: "onboarding_activated",
+      error: error && error.message ? error.message : "unknown_error",
+    });
+
+    return {
+      mode: "pending_integration",
+      automated: false,
+      target: "automatizacion_onboarding",
+      next_step: "El webhook de onboarding fallo. Revisar logs y reintentar integracion.",
+      destination: WEBHOOK_DISPATCH_TARGET,
+      delivery_status: "failed",
+      webhook_target: webhookTarget,
+    };
+  }
+}
+
 async function dispatchToInternalPending({ clienteId, correlationId, event }) {
   log("info", "Onboarding dispatch accepted by internal dispatcher", {
     correlationId,
@@ -56,37 +160,43 @@ async function dispatchToInternalPending({ clienteId, correlationId, event }) {
   };
 }
 
-const DISPATCH_HANDLERS = {
-  [DEFAULT_DISPATCH_TARGET]: dispatchToInternalPending,
-};
-
-function resolveDispatchHandler(target = DEFAULT_DISPATCH_TARGET) {
-  return DISPATCH_HANDLERS[target] || DISPATCH_HANDLERS[DEFAULT_DISPATCH_TARGET];
-}
-
 async function dispatchOnboardingActivated({ cliente, detail, attemptedAt, activationDate, context = {} }) {
   if (!cliente || !cliente.id) {
     throw new Error("cliente es obligatorio para ejecutar el dispatcher de onboarding.");
   }
 
+  const correlationId =
+    context.correlationId || detail?.operational_summary?.activation?.correlation_id || null;
+  const eventPayload = buildOnboardingActivatedEventPayload({
+    cliente,
+    detail,
+    attemptedAt,
+    activationDate,
+  });
+  eventPayload.correlation_id = correlationId;
+
   const event = await registerBackendEvent({
     eventName: "onboarding_activated",
-    correlationId: context.correlationId || null,
-    payload: buildOnboardingActivatedEventPayload({
-      cliente,
-      detail,
-      attemptedAt,
-      activationDate,
-    }),
+    correlationId,
+    payload: eventPayload,
     status: "accepted",
   });
 
-  const dispatchHandler = resolveDispatchHandler(DEFAULT_DISPATCH_TARGET);
-  const dispatch = await dispatchHandler({
+  const webhookDispatch = await dispatchToWebhook({
     clienteId: cliente.id,
-    correlationId: context.correlationId || null,
+    correlationId,
     event,
+    attemptedAt,
+    activationDate,
+    detail,
   });
+  const dispatch =
+    webhookDispatch ||
+    (await dispatchToInternalPending({
+      clienteId: cliente.id,
+      correlationId,
+      event,
+    }));
 
   return {
     event,

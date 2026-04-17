@@ -216,6 +216,33 @@ describe("getServerConfig - CORS_ALLOWED_ORIGINS", () => {
   });
 });
 
+describe("getServerConfig - ONBOARDING_DISPATCH_WEBHOOK_URL", () => {
+  test("retorna null si ONBOARDING_DISPATCH_WEBHOOK_URL no esta definida", () => {
+    const backup = process.env.ONBOARDING_DISPATCH_WEBHOOK_URL;
+    delete process.env.ONBOARDING_DISPATCH_WEBHOOK_URL;
+
+    try {
+      expect(getServerConfig().onboardingDispatchWebhookUrl).toBeNull();
+    } finally {
+      if (backup !== undefined) process.env.ONBOARDING_DISPATCH_WEBHOOK_URL = backup;
+    }
+  });
+
+  test("acepta una URL webhook valida", () => {
+    withEnv({ ONBOARDING_DISPATCH_WEBHOOK_URL: "https://n8n.example.com/webhook/onboarding" }, () => {
+      expect(getServerConfig().onboardingDispatchWebhookUrl).toBe(
+        "https://n8n.example.com/webhook/onboarding",
+      );
+    });
+  });
+
+  test("lanza Error si ONBOARDING_DISPATCH_WEBHOOK_URL no es valida", () => {
+    withEnv({ ONBOARDING_DISPATCH_WEBHOOK_URL: "no-es-url" }, () => {
+      expect(() => getServerConfig()).toThrow(/ONBOARDING_DISPATCH_WEBHOOK_URL/);
+    });
+  });
+});
+
 describe("validateEnvironmentConfig", () => {
   const configValida = {
     port: 3000,
@@ -223,6 +250,7 @@ describe("validateEnvironmentConfig", () => {
     host: null,
     baseApiPath: "/api",
     corsAllowedOrigins: [],
+    onboardingDispatchWebhookUrl: null,
   };
 
   test("es valida con config correcta en entorno development", () => {

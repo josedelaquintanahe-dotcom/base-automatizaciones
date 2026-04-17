@@ -9,19 +9,11 @@ const { registerBackendEvent } = require("../repositories/event-log.repository")
 const { dispatchOnboardingActivated } = require("../services/onboarding-dispatcher.service");
 
 describe("dispatchOnboardingActivated", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  const originalFetch = global.fetch;
+  const originalWebhookUrl = process.env.ONBOARDING_DISPATCH_WEBHOOK_URL;
 
-  test("registra el evento onboarding_activated y devuelve el dispatch publico esperado", async () => {
-    registerBackendEvent.mockResolvedValue({
-      event_name: "onboarding_activated",
-      correlation_id: "corr-100",
-      provider: "backend_log",
-      persisted: false,
-    });
-
-    const result = await dispatchOnboardingActivated({
+  function buildDispatchInput() {
+    return {
       cliente: {
         id: "cli_100",
         nombre_empresa: "Empresa Test",
@@ -61,7 +53,34 @@ describe("dispatchOnboardingActivated", () => {
       context: {
         correlationId: "corr-100",
       },
+    };
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    delete process.env.ONBOARDING_DISPATCH_WEBHOOK_URL;
+    global.fetch = jest.fn();
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+
+    if (originalWebhookUrl === undefined) {
+      delete process.env.ONBOARDING_DISPATCH_WEBHOOK_URL;
+    } else {
+      process.env.ONBOARDING_DISPATCH_WEBHOOK_URL = originalWebhookUrl;
+    }
+  });
+
+  test("usa fallback interno si no hay webhook configurado", async () => {
+    registerBackendEvent.mockResolvedValue({
+      event_name: "onboarding_activated",
+      correlation_id: "corr-100",
+      provider: "backend_log",
+      persisted: false,
     });
+
+    const result = await dispatchOnboardingActivated(buildDispatchInput());
 
     expect(registerBackendEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -77,6 +96,71 @@ describe("dispatchOnboardingActivated", () => {
       target: "automatizacion_onboarding",
       destination: "internal_pending",
       delivery_status: "accepted",
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test("envia webhook si ONBOARDING_DISPATCH_WEBHOOK_URL esta configurada", async () => {
+    process.env.ONBOARDING_DISPATCH_WEBHOOK_URL = "https://n8n.example.com/webhook/onboarding";
+    global.fetch.mockResolvedValue({
+      ok: true,
+      status: 202,
+    });
+    registerBackendEvent.mockResolvedValue({
+      event_name: "onboarding_activated",
+      correlation_id: "corr-100",
+      provider: "backend_log",
+      persisted: false,
+    });
+
+    const result = await dispatchOnboardingActivated(buildDispatchInput());
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://n8n.example.com/webhook/onboarding",
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-correlation-id": "corr-100",
+        }),
+      }),
+    );
+    const [, fetchOptions] = global.fetch.mock.calls[0];
+    const payload = JSON.parse(fetchOptions.body);
+    expect(payload).toMatchObject({
+      event_name: "onboarding_activated",
+      correlation_id: "corr-100",
+      cliente_id: "cli_100",
+      timestamp: "2026-04-17T10:00:00.000Z",
+      onboarding_status: "listo_para_automatizar",
+    });
+    expect(result.dispatch).toMatchObject({
+      mode: "webhook",
+      automated: true,
+      target: "automatizacion_onboarding",
+      destination: "n8n_webhook",
+      delivery_status: "accepted",
+    });
+  });
+
+  test("si el webhook falla no rompe el dispatcher y devuelve estado de entrega fallido", async () => {
+    process.env.ONBOARDING_DISPATCH_WEBHOOK_URL = "https://n8n.example.com/webhook/onboarding";
+    global.fetch.mockRejectedValue(new Error("network_error"));
+    registerBackendEvent.mockResolvedValue({
+      event_name: "onboarding_activated",
+      correlation_id: "corr-100",
+      provider: "backend_log",
+      persisted: false,
+    });
+
+    const result = await dispatchOnboardingActivated(buildDispatchInput());
+
+    expect(result.dispatch).toMatchObject({
+      mode: "pending_integration",
+      automated: false,
+      target: "automatizacion_onboarding",
+      destination: "n8n_webhook",
+      delivery_status: "failed",
     });
   });
 });

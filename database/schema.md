@@ -71,6 +71,24 @@ Relaciones sugeridas:
 
 - `event_id` -> `logs_eventos.id`
 
+Implementacion minima adoptada para el primer workflow real:
+
+- `workflow_name`
+- `execution_source`
+- `correlation_id`
+- `cliente_id`
+- `status`
+- `input_payload`
+- `started_at`
+- `finished_at`
+- `created_at`
+
+Estados iniciales recomendados:
+
+- `received`
+- `completed`
+- `error`
+
 ### 3. `ejecuciones_agentes`
 
 Proposito:

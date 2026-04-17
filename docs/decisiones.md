@@ -155,3 +155,10 @@ Se adopta un payload saliente especifico para `onboarding_activated` hacia n8n, 
 
 Motivo:
 Reduce acoplamiento entre el modelo interno del backend y el workflow de n8n, facilita evolucionar el dispatcher sin romper consumidores externos y mantiene un contrato mas claro para integraciones reales.
+
+### D-022. La primera accion real de n8n tras onboarding_activated sera persistir una ejecucion tecnica del workflow
+
+Se adopta `ejecuciones_workflows` como tabla tecnica minima para registrar la recepcion y resultado de la primera automatizacion real disparada por `onboarding_activated`. El primer workflow de n8n debe insertar una fila al recibir el webhook, reutilizar `correlation_id` y actualizar su estado final a `completed` o `error`.
+
+Motivo:
+Es la accion de menor riesgo con efecto real verificable, cierra la trazabilidad extremo a extremo entre backend y n8n y no introduce todavia efectos externos mas delicados como emails, altas en terceros o manejo de credenciales.

@@ -128,3 +128,7 @@ Informacion minima a registrar:
 ## Estado actual
 
 Guia base definida para documentar y estandarizar workflows n8n en futuros proyectos de automatizacion empresarial.
+
+Workflow preparado actualmente:
+
+- `onboarding__webhook__onboarding_activated__v1`

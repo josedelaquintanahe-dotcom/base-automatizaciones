@@ -3,7 +3,10 @@
 jest.mock("../clients/supabase.client");
 jest.mock("../app/logger", () => ({ log: jest.fn() }));
 
-const { createSupabaseClient } = require("../clients/supabase.client");
+const {
+  createSupabaseClient,
+  validateSupabaseClientConfig,
+} = require("../clients/supabase.client");
 const {
   activarOnboardingBackofficeService,
   obtenerClienteBackofficeService,
@@ -109,6 +112,15 @@ function buildSupabaseMock({
     },
   };
 }
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  validateSupabaseClientConfig.mockReturnValue({
+    isValid: true,
+    missing: [],
+    errors: [],
+  });
+});
 
 describe("obtenerClienteBackofficeService", () => {
   test("devuelve detalle operativo y readiness cuando el cliente existe", async () => {

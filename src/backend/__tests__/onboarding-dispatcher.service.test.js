@@ -85,7 +85,12 @@ describe("dispatchOnboardingActivated", () => {
     expect(registerBackendEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         eventName: "onboarding_activated",
+        clienteId: "cli_100",
         correlationId: "corr-100",
+        eventTimestamp: "2026-04-17T10:00:00.000Z",
+        dispatchMode: "pending_integration",
+        dispatchStatus: "accepted",
+        destination: "internal_pending",
         status: "accepted",
       }),
     );
@@ -141,6 +146,13 @@ describe("dispatchOnboardingActivated", () => {
       destination: "n8n_webhook",
       delivery_status: "accepted",
     });
+    expect(registerBackendEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dispatchMode: "webhook",
+        dispatchStatus: "accepted",
+        destination: "n8n_webhook",
+      }),
+    );
   });
 
   test("si el webhook falla no rompe el dispatcher y devuelve estado de entrega fallido", async () => {
@@ -162,5 +174,13 @@ describe("dispatchOnboardingActivated", () => {
       destination: "n8n_webhook",
       delivery_status: "failed",
     });
+    expect(registerBackendEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dispatchMode: "pending_integration",
+        dispatchStatus: "failed",
+        destination: "n8n_webhook",
+        errorMessage: expect.stringMatching(/revisar logs/i),
+      }),
+    );
   });
 });

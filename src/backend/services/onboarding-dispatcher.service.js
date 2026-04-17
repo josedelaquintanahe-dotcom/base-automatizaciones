@@ -58,6 +58,27 @@ function getSafeWebhookTarget(webhookUrl) {
   }
 }
 
+function buildTransientEvent({
+  eventName,
+  clienteId,
+  correlationId,
+  eventTimestamp,
+  payload,
+}) {
+  return {
+    id: null,
+    provider: "backend_log",
+    persisted: false,
+    event_type: "domain_event",
+    event_source: "backend",
+    event_name: eventName,
+    cliente_id: clienteId,
+    correlation_id: correlationId || null,
+    event_timestamp: eventTimestamp,
+    payload,
+  };
+}
+
 async function dispatchToWebhook({ clienteId, correlationId, event, attemptedAt, activationDate, detail }) {
   try {
     const webhookUrl = getWebhookDispatchUrl();
@@ -174,18 +195,18 @@ async function dispatchOnboardingActivated({ cliente, detail, attemptedAt, activ
     activationDate,
   });
   eventPayload.correlation_id = correlationId;
-
-  const event = await registerBackendEvent({
+  const transientEvent = buildTransientEvent({
     eventName: "onboarding_activated",
+    clienteId: cliente.id,
     correlationId,
+    eventTimestamp: attemptedAt,
     payload: eventPayload,
-    status: "accepted",
   });
 
   const webhookDispatch = await dispatchToWebhook({
     clienteId: cliente.id,
     correlationId,
-    event,
+    event: transientEvent,
     attemptedAt,
     activationDate,
     detail,
@@ -195,8 +216,20 @@ async function dispatchOnboardingActivated({ cliente, detail, attemptedAt, activ
     (await dispatchToInternalPending({
       clienteId: cliente.id,
       correlationId,
-      event,
+      event: transientEvent,
     }));
+  const event = await registerBackendEvent({
+    eventName: transientEvent.event_name,
+    clienteId: transientEvent.cliente_id,
+    correlationId,
+    eventTimestamp: transientEvent.event_timestamp,
+    dispatchMode: dispatch.mode,
+    dispatchStatus: dispatch.delivery_status,
+    destination: dispatch.destination,
+    errorMessage: dispatch.delivery_status === "failed" ? dispatch.next_step : null,
+    payload: transientEvent.payload,
+    status: "accepted",
+  });
 
   return {
     event,

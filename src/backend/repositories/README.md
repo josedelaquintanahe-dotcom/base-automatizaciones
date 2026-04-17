@@ -47,3 +47,21 @@ Comportamiento:
 - usa `anon key` por defecto,
 - si Supabase no esta configurado, devuelve estado estructurado sin lanzar consulta,
 - si Supabase no responde o devuelve error HTTP, devuelve fallback controlado.
+
+## Persistencia de eventos de automatizacion
+
+Archivos:
+
+- `automation-event.repository.js`
+- `event-log.repository.js`
+
+Funciones disponibles:
+
+- `createAutomationEvent()`
+- `registerBackendEvent()`
+
+Comportamiento:
+
+- `createAutomationEvent()` intenta persistir trazabilidad en `automation_events` con `service_role`,
+- si Supabase no esta configurado o la escritura falla, devuelve fallback estructurado y no rompe el flujo principal,
+- `registerBackendEvent()` construye el evento estructurado y delega la persistencia best effort al repository tecnico.

@@ -141,3 +141,10 @@ Se adopta `ONBOARDING_DISPATCH_WEBHOOK_URL` como variable opcional de entorno pa
 
 Motivo:
 Permite conectar una automatizacion real con minimo acoplamiento y sin degradar el flujo ya validado de backoffice. El backend conserva el control del contrato, el `correlation_id` y el fallback interno cuando el webhook no esta configurado o devuelve error.
+
+### D-020. Los eventos de automatizacion se persisten en una tabla tecnica dedicada y con escritura best effort
+
+Se adopta `automation_events` como tabla tecnica para registrar eventos emitidos por dispatchers backend, empezando por `onboarding_activated`. La persistencia se ejecuta al final del dispatcher con metadatos de envio reales (`dispatch_mode`, `dispatch_status`, `destination`, `error_message`) y se implementa como escritura best effort para no romper el endpoint principal si Supabase no esta configurado o la tabla todavia no existe.
+
+Motivo:
+Permite trazabilidad y auditoria persistente sin acoplar el flujo HTTP a la disponibilidad de la capa de datos. Deja una estructura reutilizable para futuros eventos de automatizacion sin limitarla a onboarding.

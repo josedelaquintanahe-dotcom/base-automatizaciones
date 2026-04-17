@@ -146,6 +146,36 @@ CREATE INDEX IF NOT EXISTS idx_tokens_cliente
   ON public.tokens (cliente_id);
 
 -- ============================================================================
+-- 7. automation_events
+-- Trazabilidad persistente de eventos emitidos por dispatchers backend.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.automation_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_name VARCHAR NOT NULL,
+  cliente_id UUID REFERENCES public.clientes(id) ON DELETE SET NULL,
+  correlation_id VARCHAR,
+  event_timestamp TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  dispatch_mode VARCHAR NOT NULL,
+  dispatch_status VARCHAR NOT NULL,
+  destination VARCHAR,
+  error_message TEXT,
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_automation_events_cliente
+  ON public.automation_events (cliente_id);
+
+CREATE INDEX IF NOT EXISTS idx_automation_events_correlation
+  ON public.automation_events (correlation_id);
+
+CREATE INDEX IF NOT EXISTS idx_automation_events_event_name
+  ON public.automation_events (event_name);
+
+CREATE INDEX IF NOT EXISTS idx_automation_events_created_at
+  ON public.automation_events (created_at DESC);
+
+-- ============================================================================
 -- Triggers reutilizando public.set_updated_at() para tablas con updated_at
 -- Se crean de forma idempotente comprobando pg_trigger.
 -- ============================================================================

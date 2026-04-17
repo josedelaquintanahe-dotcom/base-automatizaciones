@@ -175,6 +175,31 @@ Relaciones sugeridas:
 - `workflow_execution_id` -> `ejecuciones_workflows.id`
 - `agent_execution_id` -> `ejecuciones_agentes.id`
 
+### 7. `automation_events`
+
+Proposito:
+Persistir cada evento de automatizacion emitido por el backend o por dispatchers internos, con trazabilidad suficiente para auditoria operativa.
+
+Campos sugeridos:
+
+- `id` UUID primary key
+- `event_name` text
+- `cliente_id` UUID nullable
+- `correlation_id` text nullable
+- `event_timestamp` timestamptz
+- `dispatch_mode` text
+- `dispatch_status` text
+- `destination` text nullable
+- `error_message` text nullable
+- `payload` jsonb
+- `created_at` timestamptz
+
+Notas:
+
+- esta tabla sirve como historico tecnico y funcional del envio de eventos,
+- debe permitir eventos futuros mas alla de `onboarding_activated`,
+- `payload` debe guardar el evento estructurado ya normalizado, no secretos ni credenciales.
+
 ## Relaciones base del modelo
 
 - un evento puede disparar cero o muchas ejecuciones de workflow,

@@ -40,6 +40,10 @@ function getCurrentMonthDateIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function normalizeClienteEstado(value) {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
 function deriveCredentialMetadata(rawKey) {
   const normalizedKey = String(rawKey || "").trim();
   const normalizedType = normalizedKey
@@ -187,16 +191,8 @@ async function obtenerClienteService(cliente_id) {
 }
 
 function buildOnboardingStatus({ cliente, activeCredentialCount, activeToken, latestInvoice }) {
-  if (cliente && typeof cliente.estado === "string" && cliente.estado.trim().toLowerCase() === "inactivo") {
-    return "inactivo";
-  }
-
-  if (
-    cliente &&
-    typeof cliente.estado === "string" &&
-    cliente.estado.trim().toLowerCase() === "onboarding_activado"
-  ) {
-    return "onboarding_activado";
+  if (normalizeClienteEstado(cliente && cliente.estado) === "suspendido") {
+    return "suspendido";
   }
 
   if (activeCredentialCount === 0 && !activeToken && !latestInvoice) {
@@ -211,11 +207,12 @@ function buildOnboardingStatus({ cliente, activeCredentialCount, activeToken, la
 }
 
 function buildAutomationReadiness({ cliente, activeCredentials, activeToken, latestInvoice }) {
+  const clienteEstado = normalizeClienteEstado(cliente && cliente.estado);
   const checks = [
     {
       key: "cliente_activo",
       label: "Cliente operativo",
-      ok: Boolean(cliente && cliente.estado && cliente.estado !== "inactivo"),
+      ok: Boolean(cliente && cliente.estado && clienteEstado !== "suspendido"),
     },
     {
       key: "credenciales_activas",
@@ -238,14 +235,6 @@ function buildAutomationReadiness({ cliente, activeCredentials, activeToken, lat
   const ready = missingRequirements.length === 0;
 
   let nextRecommendedAction = "Validar workflow real de onboarding y conectar automatizaciones.";
-
-  if (
-    cliente &&
-    typeof cliente.estado === "string" &&
-    cliente.estado.trim().toLowerCase() === "onboarding_activado"
-  ) {
-    nextRecommendedAction = "Onboarding ya activado. Pendiente de conectar el dispatcher real.";
-  }
 
   if (!checks[0].ok) {
     nextRecommendedAction = "Revisar el estado del cliente antes de activar automatizaciones.";
@@ -274,20 +263,9 @@ function buildAutomationReadiness({ cliente, activeCredentials, activeToken, lat
 }
 
 function buildActivationSummary({ cliente, automationReadiness }) {
-  const clienteEstado = cliente && typeof cliente.estado === "string" ? cliente.estado.trim().toLowerCase() : "";
-  const alreadyActivated = clienteEstado === "onboarding_activado";
   const blockedReasons = Array.isArray(automationReadiness.missing_requirements)
     ? automationReadiness.missing_requirements
     : [];
-
-  if (alreadyActivated) {
-    return {
-      status: "activated",
-      can_activate: false,
-      blocking_reasons: [],
-      operator_message: "El onboarding ya fue activado para este cliente.",
-    };
-  }
 
   if (!automationReadiness.ready || blockedReasons.length > 0) {
     return {
@@ -446,7 +424,7 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
     const { error: updateError } = await supabase
       .from("clientes")
       .update({
-        estado: "onboarding_activado",
+        estado: "activo",
         fecha_inicio: activationDate,
       })
       .eq("id", clienteId);
@@ -463,6 +441,22 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
     });
 
     const updatedDetail = await obtenerClienteBackofficeService(clienteId);
+    const activationDetail = {
+      ...updatedDetail,
+      operational_summary: {
+        ...updatedDetail.operational_summary,
+        activation: {
+          status: "activated",
+          can_activate: false,
+          blocking_reasons: [],
+          operator_message: "Onboarding activado. Pendiente de conectar la automatizacion real.",
+        },
+      },
+      automation_readiness: {
+        ...updatedDetail.automation_readiness,
+        next_recommended_action: "Onboarding activado. Pendiente de conectar el dispatcher real.",
+      },
+    };
 
     return {
       status: "activated",
@@ -476,7 +470,7 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
         target: "automatizacion_onboarding",
         next_step: "Conectar este punto con el dispatcher real en n8n o backend.",
       },
-      detail: updatedDetail,
+      detail: activationDetail,
     };
   } catch (error) {
     log("error", "activarOnboardingBackofficeService failed", {

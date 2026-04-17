@@ -14,6 +14,7 @@ function buildSupabaseMock({
   credentials = [],
   tokens = [],
   invoices = [],
+  onClienteUpdate = null,
   clienteError = null,
   credentialsError = null,
   tokensError = null,
@@ -42,6 +43,10 @@ function buildSupabaseMock({
               eq: jest.fn().mockImplementation(() => {
                 if (clienteState && payload && typeof payload === "object") {
                   Object.assign(clienteState, payload);
+                }
+
+                if (typeof onClienteUpdate === "function") {
+                  onClienteUpdate(payload);
                 }
 
                 return Promise.resolve({
@@ -187,8 +192,13 @@ describe("obtenerClienteBackofficeService", () => {
 
 describe("activarOnboardingBackofficeService", () => {
   test("activa onboarding cuando readiness permite la accion", async () => {
+    let updatePayload = null;
+
     createSupabaseClient.mockReturnValue(
       buildSupabaseMock({
+        onClienteUpdate(payload) {
+          updatePayload = payload;
+        },
         cliente: {
           id: "cli_010",
           nombre_empresa: "Empresa Activa",
@@ -222,7 +232,13 @@ describe("activarOnboardingBackofficeService", () => {
     });
 
     expect(result.status).toBe("activated");
+    expect(updatePayload).toMatchObject({
+      estado: "activo",
+    });
     expect(result.detail.operational_summary.activation.status).toBe("activated");
+    expect(result.detail.operational_summary.activation.can_activate).toBe(false);
+    expect(result.detail.cliente.estado).toBe("activo");
+    expect(result.detail.automation_readiness.next_recommended_action).toMatch(/dispatcher real/i);
     expect(result.dispatch.mode).toBe("pending_integration");
   });
 

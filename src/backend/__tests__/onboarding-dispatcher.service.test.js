@@ -134,11 +134,33 @@ describe("dispatchOnboardingActivated", () => {
     const payload = JSON.parse(fetchOptions.body);
     expect(payload).toMatchObject({
       event_name: "onboarding_activated",
+      version: "v1",
       correlation_id: "corr-100",
       cliente_id: "cli_100",
       timestamp: "2026-04-17T10:00:00.000Z",
+      source: "backoffice_activation",
       onboarding_status: "listo_para_automatizar",
+      activation_date: "2026-04-17",
+      client_summary: {
+        id: "cli_100",
+        nombre_empresa: "Empresa Test",
+        email_contacto: "ops@test.com",
+        plan: "profesional",
+        estado: "activo",
+        fecha_inicio: "2026-04-17",
+      },
+      automation_readiness: {
+        ready: true,
+        missing_requirements: [],
+      },
+      operational_summary: {
+        credenciales_activas: 2,
+        tipos_credencial: ["gmail", "api"],
+        token_operativo_activo: true,
+        factura_inicial_emitida: true,
+      },
     });
+    expect(payload.event).toBeUndefined();
     expect(result.dispatch).toMatchObject({
       mode: "webhook",
       automated: true,

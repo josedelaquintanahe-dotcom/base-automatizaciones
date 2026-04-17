@@ -148,3 +148,10 @@ Se adopta `automation_events` como tabla tecnica para registrar eventos emitidos
 
 Motivo:
 Permite trazabilidad y auditoria persistente sin acoplar el flujo HTTP a la disponibilidad de la capa de datos. Deja una estructura reutilizable para futuros eventos de automatizacion sin limitarla a onboarding.
+
+### D-021. El webhook de onboarding expone un contrato limpio, versionado y desacoplado del evento interno
+
+Se adopta un payload saliente especifico para `onboarding_activated` hacia n8n, con `version` explicita y campos operativos estables. El backend no envia el objeto interno `event` tal cual al webhook, sino un contrato limpio orientado a integracion.
+
+Motivo:
+Reduce acoplamiento entre el modelo interno del backend y el workflow de n8n, facilita evolucionar el dispatcher sin romper consumidores externos y mantiene un contrato mas claro para integraciones reales.

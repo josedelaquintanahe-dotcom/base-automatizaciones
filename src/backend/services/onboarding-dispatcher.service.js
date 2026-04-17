@@ -6,6 +6,7 @@ const { registerBackendEvent } = require("../repositories/event-log.repository")
 
 const DEFAULT_DISPATCH_TARGET = "internal_pending";
 const WEBHOOK_DISPATCH_TARGET = "n8n_webhook";
+const ONBOARDING_WEBHOOK_VERSION = "v1";
 
 function buildOnboardingActivatedEventPayload({ cliente, detail, attemptedAt, activationDate }) {
   return {
@@ -45,6 +46,39 @@ function buildOnboardingActivatedEventPayload({ cliente, detail, attemptedAt, ac
   };
 }
 
+function buildOnboardingWebhookPayload({ cliente, detail, attemptedAt, activationDate, correlationId }) {
+  return {
+    event_name: "onboarding_activated",
+    version: ONBOARDING_WEBHOOK_VERSION,
+    correlation_id: correlationId || null,
+    cliente_id: cliente.id,
+    timestamp: attemptedAt,
+    source: "backoffice_activation",
+    onboarding_status: detail.operational_summary?.onboarding_status || null,
+    activation_date: activationDate,
+    client_summary: {
+      id: cliente.id,
+      nombre_empresa: cliente.nombre_empresa,
+      email_contacto: cliente.email_contacto,
+      plan: cliente.plan,
+      estado: cliente.estado || null,
+      fecha_inicio: cliente.fecha_inicio || null,
+    },
+    automation_readiness: {
+      ready: Boolean(detail.automation_readiness?.ready),
+      missing_requirements: detail.automation_readiness?.missing_requirements || [],
+      next_recommended_action: detail.automation_readiness?.next_recommended_action || null,
+    },
+    operational_summary: {
+      credenciales_activas: detail.operational_summary?.credenciales?.activas ?? 0,
+      tipos_credencial: detail.operational_summary?.credenciales?.tipos_configurados || [],
+      token_operativo_activo: detail.operational_summary?.access?.token_operativo_activo || false,
+      factura_inicial_emitida:
+        detail.operational_summary?.billing?.factura_inicial_emitida || false,
+    },
+  };
+}
+
 function getWebhookDispatchUrl() {
   return getServerConfig().onboardingDispatchWebhookUrl;
 }
@@ -79,7 +113,7 @@ function buildTransientEvent({
   };
 }
 
-async function dispatchToWebhook({ clienteId, correlationId, event, attemptedAt, activationDate, detail }) {
+async function dispatchToWebhook({ cliente, correlationId, event, attemptedAt, activationDate, detail }) {
   try {
     const webhookUrl = getWebhookDispatchUrl();
 
@@ -87,23 +121,21 @@ async function dispatchToWebhook({ clienteId, correlationId, event, attemptedAt,
       return null;
     }
 
-    const payload = {
-      event_name: "onboarding_activated",
-      correlation_id: correlationId || null,
-      cliente_id: clienteId,
-      timestamp: attemptedAt,
-      onboarding_status: detail.operational_summary?.onboarding_status || null,
-      activation_date: activationDate,
-      source: "backoffice_activation",
-      event,
-    };
+    const payload = buildOnboardingWebhookPayload({
+      cliente,
+      detail,
+      attemptedAt,
+      activationDate,
+      correlationId,
+    });
     const webhookTarget = getSafeWebhookTarget(webhookUrl);
 
     log("info", "Onboarding webhook dispatch started", {
       correlationId,
-      clienteId,
+      clienteId: cliente.id,
       webhookTarget,
       eventName: payload.event_name,
+      eventVersion: payload.version,
     });
 
     const response = await fetch(webhookUrl, {
@@ -121,9 +153,10 @@ async function dispatchToWebhook({ clienteId, correlationId, event, attemptedAt,
 
     log("info", "Onboarding webhook dispatch completed", {
       correlationId,
-      clienteId,
+      clienteId: cliente.id,
       webhookTarget,
       eventName: payload.event_name,
+      eventVersion: payload.version,
       statusCode: response.status,
     });
 
@@ -145,7 +178,7 @@ async function dispatchToWebhook({ clienteId, correlationId, event, attemptedAt,
 
     log("error", "Onboarding webhook dispatch failed", {
       correlationId,
-      clienteId,
+      clienteId: cliente && cliente.id ? cliente.id : null,
       webhookTarget,
       eventName: "onboarding_activated",
       error: error && error.message ? error.message : "unknown_error",
@@ -204,7 +237,7 @@ async function dispatchOnboardingActivated({ cliente, detail, attemptedAt, activ
   });
 
   const webhookDispatch = await dispatchToWebhook({
-    clienteId: cliente.id,
+    cliente,
     correlationId,
     event: transientEvent,
     attemptedAt,

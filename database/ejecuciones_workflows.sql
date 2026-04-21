@@ -1,3 +1,7 @@
+-- Tabla tecnica minima para trazabilidad de ejecuciones n8n.
+-- Uso previsto inicial: workflow onboarding_activated.
+-- Este archivo solo crea/asegura public.ejecuciones_workflows y sus indices propios.
+
 CREATE TABLE IF NOT EXISTS public.ejecuciones_workflows (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   workflow_name VARCHAR NOT NULL,

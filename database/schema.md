@@ -89,6 +89,13 @@ Estados iniciales recomendados:
 - `completed`
 - `error`
 
+Convencion adoptada para `onboarding_activated`:
+
+- `workflow_name = "onboarding_activated"`
+- `execution_source = "n8n_webhook"`
+- `correlation_id` se reutiliza desde el payload recibido y enlaza esta tabla con `automation_events`.
+- `id` se conserva como clave tecnica de la fila y debe usarse dentro de n8n para actualizar exactamente la misma ejecucion tras el insert inicial.
+
 ### 3. `ejecuciones_agentes`
 
 Proposito:

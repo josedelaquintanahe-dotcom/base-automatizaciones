@@ -162,3 +162,12 @@ Se adopta `ejecuciones_workflows` como tabla tecnica minima para registrar la re
 
 Motivo:
 Es la accion de menor riesgo con efecto real verificable, cierra la trazabilidad extremo a extremo entre backend y n8n y no introduce todavia efectos externos mas delicados como emails, altas en terceros o manejo de credenciales.
+
+## 2026-04-21
+
+### D-023. La trazabilidad n8n de onboarding usara el nombre logico `onboarding_activated`
+
+Se adopta `workflow_name = "onboarding_activated"` para la fila tecnica de `ejecuciones_workflows`, aunque el archivo documental del workflow conserve un nombre versionado para organizacion interna del repositorio.
+
+Motivo:
+El nombre logico debe coincidir con el evento operacional que ya viaja por el backend y por `automation_events`, mientras que la version del documento puede evolucionar sin romper consultas operativas por `correlation_id` o por workflow.

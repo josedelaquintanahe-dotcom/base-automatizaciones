@@ -13,10 +13,23 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 ### `onboarding_activated`
 
 - documento fuente: `workflows/onboarding__webhook__onboarding_activated__v1.md`
-- estado detectado: documentado en repositorio y creado en n8n Cloud
+- estado detectado: documentado en repositorio, creado en n8n Cloud y validado extremo a extremo el 28 de abril de 2026
 - trigger: webhook `POST`
 - objetivo: registrar trazabilidad tecnica de onboarding activado
 - persistencia esperada: `automation_events` y `ejecuciones_workflows`
+- ruta activa validada: `/webhook/onboarding_activated`
+
+## Controles operativos minimos
+
+- mantener alineados `render.yaml`, Render y la ruta activa del workflow real,
+- tratar `ONBOARDING_DISPATCH_WEBHOOK_URL` como la referencia exacta del workflow versionado o activo,
+- usar `N8N_WEBHOOK_BASE_URL` solo como base generica, no como sustituto del webhook especifico de onboarding,
+- repetir una prueba real con `correlation_id` verificable despues de cualquier cambio de webhook, credencial o entorno n8n,
+- comprobar siempre:
+  - fila en `automation_events`,
+  - fila en `ejecuciones_workflows`,
+  - mismo `correlation_id`,
+  - `workflow_status = completed` salvo error controlado.
 
 ## Plantilla recomendada para cada workflow
 

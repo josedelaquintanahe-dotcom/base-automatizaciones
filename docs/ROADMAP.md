@@ -22,13 +22,18 @@ Pendiente residual:
 
 ## Fase 2. Estabilizacion funcional de la base actual
 
-Estado: parcialmente hecho
+Estado: avanzada
 
 Objetivos:
 
 - mantener backend y frontend con lint, test y build reproducibles,
-- revisar trazabilidad completa de onboarding,
+- mantener validada la trazabilidad completa de onboarding,
 - reforzar documentacion tecnica de arquitectura, seguridad y despliegue.
+
+Hecho recientemente:
+
+- validacion real de `backend -> automation_events -> n8n -> ejecuciones_workflows`
+- correccion del webhook de onboarding en Render para usar la ruta activa `onboarding_activated`
 
 ## Fase 3. Expansion de automatizaciones
 
@@ -54,7 +59,7 @@ Objetivos:
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Validar el sistema de agentes con diagnosticos seguros antes de cambios funcionales nuevos.
+3. Endurecer la operacion real de onboarding y ampliar automatizaciones sobre una base ya validada.
 
 ## Dependencias
 
@@ -64,4 +69,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Usar un ultimo ciclo de consistencia documental transversal para confirmar que la capa canonica ya esta cerrada y, despues, pasar a un bloque seguro de validacion operativa o revision de cambios acumulados.
+Usar un bloque seguro de diagnostico operativo del flujo de onboarding para definir mejoras concretas en observabilidad, reintentos, catalogo de workflows y controles de configuracion entre Render, Supabase y n8n.

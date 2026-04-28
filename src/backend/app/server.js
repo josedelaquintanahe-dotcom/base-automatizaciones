@@ -4,7 +4,11 @@ const express = require("express");
 
 const { loadLocalEnv } = require("../config/load-local-env");
 const localEnvResult = loadLocalEnv();
-const { getServerConfig, validateEnvironmentConfig } = require("../config/server-config");
+const {
+  getServerConfig,
+  getOnboardingDispatchConfigInfo,
+  validateEnvironmentConfig,
+} = require("../config/server-config");
 const { log } = require("./logger");
 const { registerRoutes } = require("../routes");
 const { requestContextMiddleware } = require("../middlewares/request-context");
@@ -104,11 +108,15 @@ function startServer() {
   });
 
   const serverCallback = () => {
+    const onboardingDispatchConfig = getOnboardingDispatchConfigInfo(config);
+
     log("info", "Backend Express inicializado", {
       port: config.port,
       host: config.host || "default",
       baseApiPath: config.baseApiPath,
       nodeEnv: config.nodeEnv,
+      onboardingDispatchConfigured: onboardingDispatchConfig.configured,
+      onboardingDispatchPathStatus: onboardingDispatchConfig.pathStatus,
     });
   };
 

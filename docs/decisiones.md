@@ -252,3 +252,17 @@ Se adopta declarar `ONBOARDING_DISPATCH_WEBHOOK_URL` en `render.yaml` con el val
 
 Motivo:
 La validacion operativa ha confirmado que el backend desplegado estaba enviando a una ruta con guion medio (`onboarding-activated`) mientras el workflow activo de n8n escucha en la ruta con guion bajo (`onboarding_activated`). Gestionar esta variable desde el blueprint reduce riesgo de deriva manual y permite reproducir el entorno correcto tras cada sync del despliegue.
+
+### D-035. El flujo de onboarding requerira una verificacion operativa minima tras cambios de entorno o webhook
+
+Se adopta como control operativo minimo que cualquier cambio en Render, en `render.yaml`, en el workflow `onboarding_activated` o en variables de entorno relacionadas con n8n vaya seguido de una verificacion real del flujo `backend -> automation_events -> n8n -> ejecuciones_workflows`, comprobando el mismo `correlation_id` en ambas tablas.
+
+Motivo:
+La incidencia resuelta el 28 de abril de 2026 no fue un fallo de logica de aplicacion sino una deriva de configuracion entre el backend desplegado y la ruta real del webhook activo en n8n. Sin una comprobacion operacional posterior al cambio, ese tipo de error puede permanecer oculto aunque el backend responda `200` y registre `automation_events`.
+
+### D-036. El endurecimiento operativo de onboarding priorizara observabilidad y validacion de configuracion antes que reintentos automaticos
+
+Se adopta reforzar el backend de onboarding con advertencias de configuracion, resumen seguro del estado del dispatch y logs de fallo con mas contexto, evitando por ahora reintentos automaticos del webhook.
+
+Motivo:
+En este flujo, un reintento ciego puede duplicar efectos en n8n si la primera llamada llego pero la respuesta se perdio. El problema detectado en produccion fue de configuracion, no de fiabilidad transitoria. Por eso conviene mejorar primero la observabilidad y la validacion de la URL real del webhook antes de introducir reintentos o semanticas de idempotencia mas complejas.

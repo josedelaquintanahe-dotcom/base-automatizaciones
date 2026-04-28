@@ -5,6 +5,7 @@ jest.mock("../repositories/event-log.repository", () => ({
   registerBackendEvent: jest.fn(),
 }));
 
+const { log } = require("../app/logger");
 const { registerBackendEvent } = require("../repositories/event-log.repository");
 const { dispatchOnboardingActivated } = require("../services/onboarding-dispatcher.service");
 
@@ -202,6 +203,34 @@ describe("dispatchOnboardingActivated", () => {
         dispatchStatus: "failed",
         destination: "n8n_webhook",
         errorMessage: expect.stringMatching(/revisar logs/i),
+      }),
+    );
+  });
+
+  test("si el webhook responde error HTTP registra contexto tecnico del fallo", async () => {
+    process.env.ONBOARDING_DISPATCH_WEBHOOK_URL = "https://n8n.example.com/webhook/onboarding";
+    global.fetch.mockResolvedValue({
+      ok: false,
+      status: 404,
+      text: jest.fn().mockResolvedValue('{"message":"not_found"}'),
+    });
+    registerBackendEvent.mockResolvedValue({
+      event_name: "onboarding_activated",
+      correlation_id: "corr-100",
+      provider: "backend_log",
+      persisted: false,
+    });
+
+    const result = await dispatchOnboardingActivated(buildDispatchInput());
+
+    expect(result.dispatch.delivery_status).toBe("failed");
+    expect(log).toHaveBeenCalledWith(
+      "error",
+      "Onboarding webhook dispatch failed",
+      expect.objectContaining({
+        correlationId: "corr-100",
+        statusCode: 404,
+        responseBody: expect.stringContaining("not_found"),
       }),
     );
   });

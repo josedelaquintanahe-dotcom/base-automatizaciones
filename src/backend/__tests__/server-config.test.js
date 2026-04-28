@@ -2,6 +2,7 @@
 
 const {
   getServerConfig,
+  getOnboardingDispatchConfigInfo,
   validateEnvironmentConfig,
 } = require("../config/server-config");
 
@@ -243,6 +244,41 @@ describe("getServerConfig - ONBOARDING_DISPATCH_WEBHOOK_URL", () => {
   });
 });
 
+describe("getOnboardingDispatchConfigInfo", () => {
+  test("marca not_configured si no hay webhook configurado", () => {
+    withEnv({ ONBOARDING_DISPATCH_WEBHOOK_URL: "" }, () => {
+      expect(getOnboardingDispatchConfigInfo(getServerConfig())).toEqual({
+        configured: false,
+        pathStatus: "not_configured",
+      });
+    });
+  });
+
+  test("marca expected si la ruta coincide con onboarding_activated", () => {
+    withEnv(
+      { ONBOARDING_DISPATCH_WEBHOOK_URL: "https://n8n.example.com/webhook/onboarding_activated" },
+      () => {
+        expect(getOnboardingDispatchConfigInfo(getServerConfig())).toEqual({
+          configured: true,
+          pathStatus: "expected",
+        });
+      },
+    );
+  });
+
+  test("marca unexpected si la ruta no coincide con onboarding_activated", () => {
+    withEnv(
+      { ONBOARDING_DISPATCH_WEBHOOK_URL: "https://n8n.example.com/webhook/onboarding-activated" },
+      () => {
+        expect(getOnboardingDispatchConfigInfo(getServerConfig())).toEqual({
+          configured: true,
+          pathStatus: "unexpected",
+        });
+      },
+    );
+  });
+});
+
 describe("validateEnvironmentConfig", () => {
   const configValida = {
     port: 3000,
@@ -366,6 +402,17 @@ describe("validateEnvironmentConfig", () => {
         if (backup[key] !== undefined) process.env[key] = backup[key];
       }
     }
+  });
+
+  test("emite warning si el webhook de onboarding usa una ruta inesperada", () => {
+    withEnv(
+      { ONBOARDING_DISPATCH_WEBHOOK_URL: "https://n8n.example.com/webhook/onboarding-activated" },
+      () => {
+        const { isValid, warnings } = validateEnvironmentConfig(getServerConfig());
+        expect(isValid).toBe(true);
+        expect(warnings.some((warning) => warning.includes("onboarding_activated"))).toBe(true);
+      },
+    );
   });
 
   test("es valida en production cuando existen variables requeridas y CORS", () => {

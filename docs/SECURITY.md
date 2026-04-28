@@ -36,6 +36,7 @@ Definir reglas, riesgos y checklist de seguridad para el proyecto y para el sist
 ## Riesgos detectados
 
 - deriva entre documentacion y configuracion real si no se mantiene `.env.example`
+- deriva entre `render.yaml`, configuracion manual de Render y ruta real de n8n si no se valida el webhook de onboarding tras cambios de entorno
 - posibles duplicados documentales que generen instrucciones inconsistentes
 - cambios de automatizacion sin auditoria de trazabilidad o errores
 - endpoints administrativos protegidos solo por bearer token mientras no exista un sistema formal de identidades
@@ -54,11 +55,13 @@ Definir reglas, riesgos y checklist de seguridad para el proyecto y para el sist
 - variables de entorno revisadas
 - `SUPABASE_SERVICE_ROLE_KEY` solo queda en backend o entorno server-side
 - `ONBOARDING_DISPATCH_WEBHOOK_URL` y `N8N_WEBHOOK_BASE_URL` apuntan al entorno correcto
+- la ruta real del workflow n8n coincide con `ONBOARDING_DISPATCH_WEBHOOK_URL`
 - CORS revisado
 - endpoints administrativos protegidos
 - integraciones externas documentadas
 - tablas y cambios de datos revisados
 - no hay placeholders confundidos con produccion
+- validacion real posterior al despliegue con `correlation_id` comprobable en `automation_events` y `ejecuciones_workflows`
 
 ## Pendiente de validar
 

@@ -9,6 +9,29 @@ const DEFAULT_DISPATCH_TARGET = "internal_pending";
 const WEBHOOK_DISPATCH_TARGET = "n8n_webhook";
 const ONBOARDING_WEBHOOK_VERSION = "v1";
 
+function buildWebhookFailureContext(response) {
+  if (!response) {
+    return {};
+  }
+
+  let responseBody = null;
+
+  if (response.data && typeof response.data === "object") {
+    responseBody = JSON.stringify(response.data);
+  } else if (typeof response.rawText === "string" && response.rawText.trim()) {
+    responseBody = response.rawText.trim();
+  }
+
+  if (responseBody && responseBody.length > 300) {
+    responseBody = `${responseBody.slice(0, 300)}...`;
+  }
+
+  return {
+    statusCode: typeof response.status === "number" ? response.status : null,
+    responseBody,
+  };
+}
+
 function buildOnboardingActivatedEventPayload({ cliente, detail, attemptedAt, activationDate }) {
   return {
     trigger: "backoffice_activation",
@@ -139,7 +162,11 @@ async function dispatchToWebhook({ cliente, correlationId, attemptedAt, activati
     });
 
     if (!response.ok) {
-      throw new Error(`Webhook respondio con HTTP ${response.status}.`);
+      const error = new Error(`Webhook respondio con HTTP ${response.status}.`);
+      const failureContext = buildWebhookFailureContext(response);
+      error.statusCode = failureContext.statusCode;
+      error.responseBody = failureContext.responseBody;
+      throw error;
     }
 
     log("info", "Onboarding webhook dispatch completed", {
@@ -173,6 +200,8 @@ async function dispatchToWebhook({ cliente, correlationId, attemptedAt, activati
       webhookTarget,
       eventName: "onboarding_activated",
       error: error && error.message ? error.message : "unknown_error",
+      statusCode: error && typeof error.statusCode === "number" ? error.statusCode : null,
+      responseBody: error && typeof error.responseBody === "string" ? error.responseBody : null,
     });
 
     return {

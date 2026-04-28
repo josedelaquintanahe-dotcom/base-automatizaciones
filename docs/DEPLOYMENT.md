@@ -39,6 +39,22 @@ Reunir una guia base de despliegue sin asumir mas alla de lo detectado en el rep
 - frontend: `VITE_API_URL`
 - integraciones: URLs y credenciales separadas por entorno
 
+## Comprobacion minima tras cambios de despliegue del backend
+
+Si cambia `render.yaml`, cualquier variable de entorno de Render o la ruta de un webhook real:
+
+1. comprobar `GET /api/health`,
+2. activar onboarding desde backoffice sobre un cliente listo,
+3. guardar el `correlation_id` devuelto por backend,
+4. confirmar fila en `automation_events`,
+5. confirmar fila en `ejecuciones_workflows`,
+6. verificar el mismo `correlation_id` y estado `completed`.
+
+Control especifico actual:
+
+- `ONBOARDING_DISPATCH_WEBHOOK_URL` debe apuntar a `https://quinttanaaa.app.n8n.cloud/webhook/onboarding_activated`
+- `render.yaml` y la configuracion manual del servicio en Render deben permanecer sincronizados
+
 ## Alcance confirmado del despliegue versionado
 
 - `render.yaml` cubre solo el backend Express

@@ -1,9 +1,11 @@
 "use strict";
 
+const { getOnboardingDispatchConfigInfo, getServerConfig } = require("../config/server-config");
 const { getSystemStatus: getSystemStatusRepository } = require("../repositories/system.repository");
 
 async function getSystemStatusService(context = {}) {
   const repositoryResult = await getSystemStatusRepository();
+  const onboardingDispatch = getOnboardingDispatchConfigInfo(getServerConfig());
 
   return {
     status: repositoryResult.status,
@@ -18,6 +20,7 @@ async function getSystemStatusService(context = {}) {
     fallback: Boolean(repositoryResult.fallback),
     missingVariables: repositoryResult.missingVariables || [],
     validationErrors: repositoryResult.validationErrors || [],
+    onboardingDispatch,
     count: typeof repositoryResult.count === "number" ? repositoryResult.count : null,
     error: repositoryResult.error || null,
     note: repositoryResult.note,

@@ -4,6 +4,7 @@ const DEFAULT_PORT = 3000;
 const DEFAULT_NODE_ENV = "development";
 const DEFAULT_BASE_API_PATH = "/api";
 const DEFAULT_PRODUCTION_HOST = "0.0.0.0";
+const EXPECTED_ONBOARDING_WEBHOOK_SUFFIX = "/webhook/onboarding_activated";
 const ALLOWED_NODE_ENVS = new Set(["development", "staging", "production", "test"]);
 const REQUIRED_INTEGRATION_VARS = [
   "SUPABASE_URL",
@@ -120,6 +121,33 @@ function readOptionalWebhookUrl(value) {
   return webhookUrl;
 }
 
+function normalizeUrlPathname(value) {
+  return String(value || "").trim().replace(/\/+$/, "");
+}
+
+function getOnboardingDispatchConfigInfo(config = getServerConfig()) {
+  const webhookUrl = config && typeof config.onboardingDispatchWebhookUrl === "string"
+    ? config.onboardingDispatchWebhookUrl
+    : null;
+
+  if (!webhookUrl) {
+    return {
+      configured: false,
+      pathStatus: "not_configured",
+    };
+  }
+
+  const parsedUrl = new URL(webhookUrl);
+  const normalizedPathname = normalizeUrlPathname(parsedUrl.pathname);
+  const normalizedExpectedSuffix = normalizeUrlPathname(EXPECTED_ONBOARDING_WEBHOOK_SUFFIX);
+
+  return {
+    configured: true,
+    pathStatus:
+      normalizedPathname.endsWith(normalizedExpectedSuffix) ? "expected" : "unexpected",
+  };
+}
+
 function getServerConfig() {
   const nodeEnv = readNodeEnv(process.env.NODE_ENV);
 
@@ -136,6 +164,7 @@ function getServerConfig() {
 function validateEnvironmentConfig(config) {
   const errors = [];
   const warnings = [];
+  const onboardingDispatchConfig = config ? getOnboardingDispatchConfigInfo(config) : null;
 
   if (!config || !Number.isInteger(config.port)) {
     errors.push("PORT no esta definido correctamente.");
@@ -202,6 +231,16 @@ function validateEnvironmentConfig(config) {
     );
   }
 
+  if (
+    onboardingDispatchConfig &&
+    onboardingDispatchConfig.configured &&
+    onboardingDispatchConfig.pathStatus === "unexpected"
+  ) {
+    warnings.push(
+      `ONBOARDING_DISPATCH_WEBHOOK_URL esta configurada, pero su ruta no coincide con la esperada para onboarding_activated (${EXPECTED_ONBOARDING_WEBHOOK_SUFFIX}). Revisa Render y n8n antes de activar onboarding real.`,
+    );
+  }
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -211,5 +250,6 @@ function validateEnvironmentConfig(config) {
 
 module.exports = {
   getServerConfig,
+  getOnboardingDispatchConfigInfo,
   validateEnvironmentConfig,
 };

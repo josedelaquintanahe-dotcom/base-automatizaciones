@@ -2,7 +2,7 @@
 
 ## Estado general
 
-Estado actual: operativo en base documental y tecnica, con frontend y backend funcionales y sistema de agentes de Codex ya estructurado y en fase de validacion operativa.
+Estado actual: operativo en base documental y tecnica, con frontend y backend funcionales, sistema de agentes de Codex estructurado y flujo real de onboarding validado extremo a extremo.
 
 ## Lo detectado en el repositorio
 
@@ -19,7 +19,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - base arquitectonica documentada
 - decisiones tecnicas registradas
 - modelo SQL documentado para Supabase
-- flujo de onboarding con trazabilidad backend -> `automation_events` -> n8n -> `ejecuciones_workflows`
+- flujo de onboarding con trazabilidad backend -> `automation_events` -> n8n -> `ejecuciones_workflows`, validado en entorno real el 28 de abril de 2026
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -28,7 +28,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - coexistencia de documentacion en espanol y nueva documentacion operativa en nombres canonicos
 - posibles duplicados documentales a revisar manualmente
 - carpeta historica `context_legacy/` tras la normalizacion del contexto principal
-- prueba real extremo a extremo sujeta a credenciales, entorno y tablas disponibles
+- coexistencia de configuracion versionada en `render.yaml` y configuracion manual en Render, con riesgo de deriva si no se sincronizan tras futuros cambios
 
 ## Estado por areas
 
@@ -53,8 +53,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado y trazable
-- Pendiente: ampliar catalogo de workflows y auditoria operativa
+- Validado: workflow `onboarding_activated` documentado, ejecutable y confirmado en trazabilidad real con `ejecuciones_workflows`
+- Pendiente: ampliar catalogo de workflows y endurecer auditoria operativa
 
 ### Sistema de agentes Codex
 
@@ -64,4 +64,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Ejecutar una revision documental transversal final y, si no aparecen contradicciones nuevas, preparar el siguiente bloque seguro sobre validacion operativa o revision de cambios acumulados sin tocar logica del proyecto.
+Preparar el siguiente bloque seguro sobre ampliacion y endurecimiento del flujo de onboarding: mas observabilidad, mas catalogo de workflows y controles operativos para evitar deriva entre Render, n8n y Supabase.

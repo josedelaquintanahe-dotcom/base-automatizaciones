@@ -171,3 +171,77 @@ Se adopta `workflow_name = "onboarding_activated"` para la fila tecnica de `ejec
 
 Motivo:
 El nombre logico debe coincidir con el evento operacional que ya viaja por el backend y por `automation_events`, mientras que la version del documento puede evolucionar sin romper consultas operativas por `correlation_id` o por workflow.
+
+## 2026-04-27
+
+### D-024. La configuracion publica y la invocacion a n8n deben alinearse con el backend real
+
+Se adopta que `.env.example` refleje todas las variables que el backend lee realmente, incluyendo las opcionales de backoffice y dispatch hacia n8n, y que las llamadas HTTP a n8n se encapsulen en `src/backend/clients/n8n.client.js` en lugar de quedar repartidas en servicios.
+
+Motivo:
+Reduce deriva entre documentacion y runtime, facilita preparar entornos locales o productivos sin omisiones y deja una capa reutilizable para auditar, probar y evolucionar integraciones con n8n sin duplicar logica HTTP.
+
+### D-025. Se incorpora una base minima de lint por paquete sin acoplar frontend y backend
+
+Se adopta una configuracion minima de ESLint independiente para `src/backend` y `src/frontend`, con scripts propios por paquete y comandos documentados desde la raiz, sin forzar por ahora un workspace unico en la raiz del repositorio.
+
+Motivo:
+Permite verificar calidad estatica de forma inmediata con bajo riesgo de refactor estructural, mantiene la separacion actual del repositorio y deja margen para consolidar tooling mas adelante si el proyecto lo necesita.
+
+### D-026. El sistema operativo de agentes de Codex se consolida sobre Markdown versionado
+
+Se adopta `CONTEXT.md`, `AGENTS.md`, `.codex/skills/` y `.codex/playbooks/` como capa documental operativa del sistema de agentes de Codex en este repositorio. Los archivos existentes deben conservarse, ordenarse y completarse sin sustituir la logica del producto, y los documentos base de `docs/` deben reflejar tanto el estado detectado como la arquitectura prevista.
+
+Motivo:
+Permite convertir instrucciones dispersas en un sistema coherente de trabajo, reusable y auditable para futuros agentes, sin mezclar la operativa de Codex con cambios de backend, frontend o workflows productivos.
+
+## 2026-04-28
+
+### D-027. La documentacion canonica de arquitectura, seguridad y despliegue debe basarse en hechos verificados del repo
+
+Se adopta que `docs/ARCHITECTURE.md`, `docs/SECURITY.md` y `docs/DEPLOYMENT.md` describan solo estructura, variables, comandos y proveedores comprobables desde el repositorio o desde validaciones ya realizadas. Cuando exista una opcion futura no confirmada, debe marcarse como `Pendiente de validar` y no como estado operativo actual.
+
+Motivo:
+Evita deriva entre la documentacion canonica y el estado real del proyecto, reduce ambiguedad para futuros agentes y mantiene una separacion clara entre arquitectura detectada, arquitectura prevista y operacion todavia no confirmada.
+
+### D-028. Tras la primera validacion del sistema de agentes, el foco documental pasa de consolidacion a sincronizacion operativa
+
+Se adopta que, una vez verificados `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md` y la base de `.codex/`, la documentacion canonica deje de describir el sistema de agentes como solo "iniciado" o "pendiente de consolidar" y pase a tratarlo como una capa ya estructurada, sujeta a sincronizacion y validacion continua.
+
+Motivo:
+Evita contradicciones entre el contexto principal y los documentos de estado, y deja claro que el siguiente trabajo seguro ya no es crear la base del sistema, sino mantenerla alineada con la evolucion real del repositorio.
+
+### D-029. Los documentos historicos en espanol se conservan, pero deben marcar su vigencia y alinearse con la capa canonica
+
+Se adopta que archivos como `docs/arquitectura.md`, `docs/seguridad.md`, `docs/plan.md`, `docs/modelo-seguridad.md` y `docs/entornos.md` se mantengan como contexto historico y complementario, pero incorporen notas de vigencia y ajustes de estado cuando la capa canonica (`CONTEXT.md`, `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`, `docs/ARCHITECTURE.md`, `docs/SECURITY.md`, `docs/DEPLOYMENT.md`) ya refleje mejor la realidad actual del repositorio.
+
+Motivo:
+Permite conservar informacion util previa sin dejar contradicciones activas sobre integraciones reales, despliegue confirmado o papel actual de componentes todavia pendientes de validar como Rendel.com o Vercel productivo.
+
+### D-030. La carpeta `docs/` tendra un indice explicito para distinguir capa canonica, historica y de apoyo
+
+Se adopta `docs/README.md` como mapa de lectura de la documentacion del proyecto. Este indice debe indicar prioridad de lectura, documentos canonicos, documentos historicos/complementarios y duplicidades controladas.
+
+Motivo:
+Reduce ambiguedad para futuros agentes y mantenedores, evita que cada revision tenga que reinterpretar manualmente que documento manda sobre otro y permite conservar el historico sin bloquear la operativa diaria.
+
+### D-031. La entrada al repositorio debe repetir el mismo orden operativo de lectura para agentes nuevos
+
+Se adopta que `README.md` y `docs/README.md` reflejen de forma explicita el mismo orden minimo de lectura definido en `AGENTS.md`: `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md` y despues la documentacion especifica del bloque a tocar.
+
+Motivo:
+Evita que un agente nuevo tenga que inferir el orden correcto entre varios documentos de entrada y reduce errores de contexto al iniciar revisiones documentales o tecnicas.
+
+### D-032. La documentacion de apoyo de workflows y despliegue debe distinguir entre guia reutilizable y estado operativo confirmado
+
+Se adopta que `workflows/README.md`, `deployment/README.md` y checklists asociados conserven su valor como guia reutilizable, pero incorporen notas de vigencia y situacion actual cuando el repositorio ya tenga backend, frontend, integracion real con Supabase o flujos activos documentados en n8n.
+
+Motivo:
+Evita que documentos de apoyo mas antiguos contradigan a la capa canonica de `docs/` y reduce ambiguedad sobre que partes son patron general y que partes reflejan el estado real ya verificado del proyecto.
+
+### D-033. La documentacion comercial y backend de apoyo debe reflejar el backend real y separar agentes Codex de agentes externos
+
+Se adopta que `docs/SALES_PLAYBOOK.md`, `docs/backend-node.md`, `docs/backend-patterns.md` y `agents/README.md` conserven su valor como guia, pero sin contradecir el estado real del backend actual ni mezclar el sistema de agentes de Codex con una futura capa de agentes externos como Rendel.com.
+
+Motivo:
+Evita mensajes tecnicos ya obsoletos, aclara el alcance actual del repositorio y reduce ambiguedad para futuros agentes o mantenedores al distinguir entre lo ya operativo y lo todavia pendiente de validar.

@@ -1,0 +1,67 @@
+# ROADMAP.md
+
+## Objetivo del roadmap
+
+Ordenar el trabajo del proyecto por fases realistas, separando estado detectado, consolidacion documental y siguientes hitos tecnicos.
+
+## Fase 1. Consolidacion operativa del repositorio
+
+Estado: muy avanzada
+
+Objetivos:
+
+- consolidar `CONTEXT.md` y `AGENTS.md`,
+- normalizar skills y playbooks de `.codex/`,
+- mantener `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` alineados,
+- dejar reglas claras para diagnostico, QA, seguridad y Git.
+
+Pendiente residual:
+
+- validar el sistema de agentes en uso real sobre mas bloques documentales,
+- revisar duplicidades entre documentacion historica en espanol y documentos canonicos nuevos.
+
+## Fase 2. Estabilizacion funcional de la base actual
+
+Estado: parcialmente hecho
+
+Objetivos:
+
+- mantener backend y frontend con lint, test y build reproducibles,
+- revisar trazabilidad completa de onboarding,
+- reforzar documentacion tecnica de arquitectura, seguridad y despliegue.
+
+## Fase 3. Expansion de automatizaciones
+
+Estado: pendiente
+
+Objetivos:
+
+- ampliar workflows n8n mas alla de `onboarding_activated`,
+- definir patrones de error, reintentos, logs y fallback manual,
+- documentar credenciales, entradas y salidas por workflow.
+
+## Fase 4. Consolidacion comercial y de despliegue
+
+Estado: pendiente
+
+Objetivos:
+
+- fortalecer `docs/SALES_PLAYBOOK.md`,
+- consolidar preparacion de despliegue en Render, Vercel, Supabase y n8n,
+- dejar prompts reutilizables para siguientes bloques de trabajo.
+
+## Prioridades actuales
+
+1. Mantener documentacion operativa alineada con el repo.
+2. Evitar deriva entre codigo, skills, playbooks y docs base.
+3. Validar el sistema de agentes con diagnosticos seguros antes de cambios funcionales nuevos.
+
+## Dependencias
+
+- `docs/PROJECT_STATUS.md` debe reflejar el estado real antes de planificar nuevos hitos.
+- Los cambios funcionales importantes deben apoyarse en seguridad, QA y documentacion.
+- El orquestador debe usar solo skills necesarias para cada bloque.
+
+## Siguiente paso recomendado
+
+Usar un ultimo ciclo de consistencia documental transversal para confirmar que la capa canonica ya esta cerrada y, despues, pasar a un bloque seguro de validacion operativa o revision de cambios acumulados.

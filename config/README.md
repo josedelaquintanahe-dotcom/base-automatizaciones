@@ -19,15 +19,28 @@ Reglas:
 ## Obligatorias para arrancar el backend
 
 - `NODE_ENV`
+- `HOST`
 - `PORT`
 - `BASE_API_PATH`
+- `CORS_ALLOWED_ORIGINS`
+- `JWT_SECRET`
+- `ENCRYPTION_KEY`
+- `BACKOFFICE_API_TOKEN`
+- `ONBOARDING_DISPATCH_WEBHOOK_URL`
 
 Nota:
-si no se informan manualmente, el backend actual puede arrancar con valores seguros por defecto en local:
+si no se informan manualmente, el backend actual puede arrancar con valores seguros por defecto en local para una parte de estas variables:
 
 - `NODE_ENV=development`
 - `PORT=3000`
 - `BASE_API_PATH=/api`
+
+En local:
+
+- `HOST` puede quedar vacio,
+- `CORS_ALLOWED_ORIGINS` puede quedar vacio porque el backend aplica defaults de desarrollo,
+- `JWT_SECRET`, `BACKOFFICE_API_TOKEN` y `ONBOARDING_DISPATCH_WEBHOOK_URL` pueden faltar si no se ejecutan flujos reales dependientes de ellos,
+- `ENCRYPTION_KEY` deberia configurarse si se van a usar operaciones reales de cifrado.
 
 ## Obligatorias en staging y produccion
 
@@ -35,26 +48,38 @@ si no se informan manualmente, el backend actual puede arrancar con valores segu
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `N8N_WEBHOOK_BASE_URL`
-- `RENDEL_API_KEY`
-- `VERCEL_PROJECT_ID`
-- `VERCEL_ORG_ID`
-- `VERCEL_TOKEN`
+- `JWT_SECRET`
+- `ENCRYPTION_KEY`
+- `BACKOFFICE_API_TOKEN`
+- `CORS_ALLOWED_ORIGINS`
 
 ## Opcionales en local y test
 
-En `development` y `test`, las variables de integracion anteriores pueden faltar mientras no se inicien integraciones reales. El backend arranca, pero muestra advertencias claras.
+En `development` y `test`, las variables de integracion pueden faltar mientras no se inicien integraciones reales. El backend arranca, pero muestra advertencias claras.
 
 ### Backend Node.js
 
 - `NODE_ENV`
+- `HOST`
 - `PORT`
 - `BASE_API_PATH`
+- `CORS_ALLOWED_ORIGINS`
+- `JWT_SECRET`
+- `ENCRYPTION_KEY`
+- `BACKOFFICE_API_TOKEN`
+- `ONBOARDING_DISPATCH_WEBHOOK_URL`
 
 Proposito:
 
 - `NODE_ENV`: define el entorno de ejecucion del backend, por ejemplo `development`, `staging` o `production`.
+- `HOST`: host explicito de escucha; en `staging` y `production` el backend usa `0.0.0.0` por defecto si no se define.
 - `PORT`: puerto local o persistente en el que escucha el servidor Express.
 - `BASE_API_PATH`: prefijo base de las rutas HTTP del backend, por ejemplo `/api`.
+- `CORS_ALLOWED_ORIGINS`: lista separada por comas de origenes permitidos; en `development` existen defaults seguros para `localhost`.
+- `JWT_SECRET`: secreto usado por autenticacion o validaciones internas del backend.
+- `ENCRYPTION_KEY`: clave requerida por las utilidades de cifrado del backend.
+- `BACKOFFICE_API_TOKEN`: bearer token reservado para endpoints administrativos internos.
+- `ONBOARDING_DISPATCH_WEBHOOK_URL`: URL absoluta opcional del webhook real de onboarding en n8n.
 
 ### Supabase
 
@@ -71,10 +96,12 @@ Proposito:
 ### n8n
 
 - `N8N_WEBHOOK_BASE_URL`
+- `ONBOARDING_DISPATCH_WEBHOOK_URL`
 
 Proposito:
 
 - `N8N_WEBHOOK_BASE_URL`: URL base de webhooks de n8n para invocacion de workflows desde backend o despliegue.
+- `ONBOARDING_DISPATCH_WEBHOOK_URL`: webhook especifico y versionado para el evento `onboarding_activated`.
 
 ### Rendel
 
@@ -107,7 +134,7 @@ Proposito:
 
 ### Staging
 
-- deben existir todas las variables de integracion,
+- deben existir todas las variables obligatorias del backend,
 - se deben usar credenciales y endpoints propios de staging,
 - el backend no debe arrancar con configuracion incompleta.
 
@@ -131,7 +158,7 @@ Configuracion base cerrada para desarrollo local y preparada para separar `local
 
 Implementado:
 
-- `.env.example` completo,
+- `.env.example` alineado con las variables reales del backend,
 - defaults seguros para arranque local,
 - validacion de entorno en el backend.
 

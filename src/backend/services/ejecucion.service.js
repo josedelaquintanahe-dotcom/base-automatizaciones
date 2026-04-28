@@ -1,6 +1,7 @@
 "use strict";
 
 const { log } = require("../app/logger");
+const { triggerN8nWebhookPath } = require("../clients/n8n.client");
 const { createSupabaseClient } = require("../clients/supabase.client");
 const { desencriptar } = require("../utils/encryption");
 
@@ -12,16 +13,6 @@ function createServiceError(message, statusCode = 500) {
 
 function getBackendSupabaseClient() {
   return createSupabaseClient({ keyType: "service_role" });
-}
-
-function getWebhookBaseUrl() {
-  const baseUrl = process.env.N8N_WEBHOOK_BASE_URL;
-
-  if (typeof baseUrl !== "string" || !baseUrl.trim()) {
-    throw createServiceError("Falta N8N_WEBHOOK_BASE_URL para ejecutar workflows.", 500);
-  }
-
-  return baseUrl.replace(/\/+$/, "");
 }
 
 async function getAutomatizacionByWorkflow(clienteId, workflowId) {
@@ -144,23 +135,12 @@ async function ejecutarWorkflowService(cliente_id, workflow_id, datos) {
       datos: datos && typeof datos === "object" ? datos : {},
       credenciales,
     };
-    const webhookUrl = `${getWebhookBaseUrl()}/cliente-${cliente_id.trim()}-${workflow_id.trim()}`;
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(payload),
+    const response = await triggerN8nWebhookPath({
+      path: `cliente-${cliente_id.trim()}-${workflow_id.trim()}`,
+      payload,
     });
     const duracionMs = Date.now() - startedAt;
-    const responseText = await response.text();
-    let resultado = responseText;
-
-    try {
-      resultado = responseText ? JSON.parse(responseText) : null;
-    } catch (error) {
-      resultado = responseText;
-    }
+    const resultado = response.data;
 
     if (!response.ok) {
       await registrarEjecucionService(

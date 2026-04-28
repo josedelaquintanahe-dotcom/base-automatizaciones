@@ -1,6 +1,7 @@
 "use strict";
 
 const { log } = require("../app/logger");
+const { getSafeN8nTarget, postN8nWebhook } = require("../clients/n8n.client");
 const { getServerConfig } = require("../config/server-config");
 const { registerBackendEvent } = require("../repositories/event-log.repository");
 
@@ -83,15 +84,6 @@ function getWebhookDispatchUrl() {
   return getServerConfig().onboardingDispatchWebhookUrl;
 }
 
-function getSafeWebhookTarget(webhookUrl) {
-  try {
-    const parsedUrl = new URL(webhookUrl);
-    return `${parsedUrl.origin}${parsedUrl.pathname}`;
-  } catch (error) {
-    return "invalid_webhook_url";
-  }
-}
-
 function buildTransientEvent({
   eventName,
   clienteId,
@@ -113,7 +105,7 @@ function buildTransientEvent({
   };
 }
 
-async function dispatchToWebhook({ cliente, correlationId, event, attemptedAt, activationDate, detail }) {
+async function dispatchToWebhook({ cliente, correlationId, attemptedAt, activationDate, detail }) {
   try {
     const webhookUrl = getWebhookDispatchUrl();
 
@@ -128,7 +120,7 @@ async function dispatchToWebhook({ cliente, correlationId, event, attemptedAt, a
       activationDate,
       correlationId,
     });
-    const webhookTarget = getSafeWebhookTarget(webhookUrl);
+    const webhookTarget = getSafeN8nTarget(webhookUrl);
 
     log("info", "Onboarding webhook dispatch started", {
       correlationId,
@@ -138,13 +130,12 @@ async function dispatchToWebhook({ cliente, correlationId, event, attemptedAt, a
       eventVersion: payload.version,
     });
 
-    const response = await fetch(webhookUrl, {
-      method: "POST",
+    const response = await postN8nWebhook({
+      url: webhookUrl,
+      payload,
       headers: {
-        "content-type": "application/json",
         "x-correlation-id": correlationId || "",
       },
-      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -173,7 +164,7 @@ async function dispatchToWebhook({ cliente, correlationId, event, attemptedAt, a
     const webhookTarget =
       typeof process.env.ONBOARDING_DISPATCH_WEBHOOK_URL === "string" &&
       process.env.ONBOARDING_DISPATCH_WEBHOOK_URL.trim()
-        ? getSafeWebhookTarget(process.env.ONBOARDING_DISPATCH_WEBHOOK_URL.trim())
+        ? getSafeN8nTarget(process.env.ONBOARDING_DISPATCH_WEBHOOK_URL.trim())
         : "not_configured";
 
     log("error", "Onboarding webhook dispatch failed", {
@@ -239,7 +230,6 @@ async function dispatchOnboardingActivated({ cliente, detail, attemptedAt, activ
   const webhookDispatch = await dispatchToWebhook({
     cliente,
     correlationId,
-    event: transientEvent,
     attemptedAt,
     activationDate,
     detail,

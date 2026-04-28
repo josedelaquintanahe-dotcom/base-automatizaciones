@@ -36,8 +36,10 @@ Variables utilizadas:
 Responsabilidad:
 
 - leer configuracion base de webhooks o entrada a n8n,
-- validar si la URL base existe,
-- preparar una futura capa de invocacion de workflows sin ejecutarla todavia.
+- validar si la URL base existe y es valida,
+- construir URLs de webhook a partir de una base comun,
+- ejecutar llamadas HTTP reutilizables hacia webhooks de n8n,
+- evitar que los servicios repitan `fetch`, normalizacion de respuesta o saneado de destinos.
 
 ## Cliente base de Rendel
 
@@ -65,12 +67,19 @@ El cliente actual usa el SDK oficial de Supabase, pero de forma controlada:
 - no usa credenciales reales,
 - mantiene la integracion encapsulada dentro de `clients/`.
 
-Los clientes de `n8n` y `Rendel` quedan preparados de forma estructural:
+El cliente de `n8n` ya se usa como adaptador reutilizable:
 
-- leen variables de entorno,
-- validan configuracion minima,
-- exponen placeholders de diagnostico,
-- no abren conexiones ni ejecutan llamadas externas todavia.
+- lee variables de entorno,
+- valida configuracion minima,
+- encapsula llamadas HTTP hacia webhooks,
+- expone informacion de diagnostico sin mezclarla con logica de negocio.
+
+El cliente de `Rendel` permanece en estado estructural:
+
+- lee variables de entorno,
+- valida configuracion minima,
+- expone placeholder de diagnostico,
+- no abre conexiones ni ejecuta llamadas externas todavia.
 
 ## Uso recomendado
 
@@ -82,7 +91,7 @@ Patron recomendado:
 - `checkSupabaseConnectivity()` para verificacion tecnica real contra Supabase,
 - `validateSupabaseClientConfig()` para validaciones previas,
 - `createSupabaseClientPlaceholder()` para diagnostico de configuracion sin operar contra Supabase.
-- `validateN8nClientConfig()` y `createN8nClientPlaceholder()` para n8n.
+- `validateN8nClientConfig()`, `buildN8nWebhookUrl()` y `postN8nWebhook()` para n8n.
 - `validateRendelClientConfig()` y `createRendelClientPlaceholder()` para Rendel.
 
 ## Regla arquitectonica

@@ -263,7 +263,7 @@ function buildAutomationReadiness({ cliente, activeCredentials, activeToken, lat
   };
 }
 
-function buildActivationSummary({ cliente, automationReadiness }) {
+function buildActivationSummary({ automationReadiness }) {
   const blockedReasons = Array.isArray(automationReadiness.missing_requirements)
     ? automationReadiness.missing_requirements
     : [];
@@ -370,7 +370,6 @@ async function obtenerClienteBackofficeService(cliente_id) {
           ultima_factura: latestInvoice,
         },
         activation: buildActivationSummary({
-          cliente,
           automationReadiness,
         }),
       },

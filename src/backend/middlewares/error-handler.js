@@ -24,8 +24,6 @@ function errorHandlerMiddleware(err, req, res, _next) {
     statusCode,
   });
 
-  const isDev = process.env.NODE_ENV !== "production";
-
   res.status(statusCode).json({
     status: "error",
     error: statusCode === 500 ? "internal_server_error" : "request_failed",

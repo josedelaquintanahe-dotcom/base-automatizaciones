@@ -79,6 +79,8 @@ Comandos:
 
 - `npm run dev`
 - `npm start`
+- `npm run lint`
+- `npm test`
 
 Endpoint de salud esperado:
 

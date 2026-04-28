@@ -1,5 +1,15 @@
 # Plan tecnico inicial
 
+## Estado de vigencia
+
+Este documento se conserva como plan historico de arranque. El orden operativo vigente del trabajo vive en `docs/ROADMAP.md`.
+
+Nota de alineacion 2026-04-28:
+
+- parte de las fases iniciales ya se ha materializado en backend, frontend, Supabase, n8n y sistema de agentes,
+- este plan debe leerse como marco de intencion y no como fotografia exacta del estado actual,
+- cuando haya conflicto, prevalecen `CONTEXT.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md`.
+
 ## Proposito del plan
 
 Este documento debe servir como referencia previa antes de implementar cambios estructurales importantes en el repositorio. Su objetivo es fijar una arquitectura esperada, identificar dependencias necesarias y definir un orden de implementacion que reduzca acoplamientos, retrabajo y deriva tecnica.
@@ -200,4 +210,12 @@ sistema operable y medible en entornos reales.
 
 ## Estado actual
 
-Plan base definido para guiar la evolucion del repositorio antes de cualquier cambio estructural importante.
+Plan base definido y parcialmente superado por la implementacion y documentacion ya existentes.
+
+Situacion actual resumida:
+
+- existe backend Node.js + Express funcional,
+- existe frontend React + Vite funcional,
+- Supabase ya esta integrado en backend,
+- n8n ya tiene un workflow inicial documentado y trazable,
+- el sistema de agentes de Codex ya esta estructurado y en validacion operativa.

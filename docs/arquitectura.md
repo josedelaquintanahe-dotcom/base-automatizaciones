@@ -1,5 +1,16 @@
 # Arquitectura del sistema
 
+## Estado de vigencia
+
+Este documento se conserva como referencia historica y de patrones. La fotografia canonica actual del repositorio vive en `docs/ARCHITECTURE.md`.
+
+Nota de alineacion 2026-04-28:
+
+- el backend Node.js + Express y el frontend React + Vite ya existen y son funcionales,
+- Supabase ya tiene integracion real en backend,
+- n8n ya participa mediante el workflow `onboarding_activated`,
+- Rendel.com y el despliegue productivo definitivo de frontend siguen `Pendiente de validar`.
+
 ## Vision general
 
 Esta base define una arquitectura modular para automatizaciones empresariales donde cada dominio tecnico tiene una responsabilidad clara, desacoplada y reutilizable. La arquitectura actual se apoya en seis bloques:
@@ -7,8 +18,8 @@ Esta base define una arquitectura modular para automatizaciones empresariales do
 - Supabase como capa de datos y servicios gestionados,
 - Node.js como backend principal de aplicacion,
 - n8n como motor de orquestacion,
-- Rendel.com como capa de agentes,
-- Vercel como despliegue serverless y frontend,
+- Rendel.com como capa de agentes `Pendiente de validar`,
+- Vercel como opcion de despliegue y exposicion `Pendiente de validar` como flujo operativo actual,
 - Codex como mantenimiento estructural del repositorio.
 
 El objetivo no es solo organizar un proyecto concreto, sino establecer un patron repetible para futuros sistemas de automatizacion.
@@ -24,13 +35,12 @@ La arquitectura esta definida y la base backend Express ya existe a nivel local 
 - clientes base para Supabase, n8n y Rendel,
 - estructura por capas `routes`, `controllers`, `services`, `repositories`, `clients`, `middlewares` y `config`.
 
-Todavia no estan implementadas:
+Siguen pendientes de validar o completar:
 
-- consultas de negocio reales contra Supabase,
-- llamadas reales a n8n,
-- invocaciones reales a Rendel.com,
+- integraciones reales con Rendel.com,
 - despliegue productivo del backend persistente,
-- integraciones funcionales de extremo a extremo.
+- despliegue productivo definitivo del frontend,
+- integraciones funcionales de extremo a extremo adicionales mas alla del flujo inicial de onboarding.
 
 ## Separacion modular por dominios
 

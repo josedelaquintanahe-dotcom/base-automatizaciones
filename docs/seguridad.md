@@ -1,5 +1,9 @@
 # Seguridad
 
+## Estado de vigencia
+
+Este documento complementa a `docs/SECURITY.md`. La capa canonica de seguridad actual vive alli; aqui se conservan criterios mas narrativos y orientados a backend.
+
 ## Proposito
 
 Este documento complementa el modelo general de seguridad y se centra en la futura capa backend Node.js.
@@ -86,7 +90,9 @@ La base de seguridad backend ya cubre:
 - bloqueo por configuracion incompleta en `staging` y `production`,
 - `correlation_id`,
 - logging estructurado minimo,
-- manejo centralizado de errores.
+- manejo centralizado de errores,
+- proteccion minima de endpoints administrativos mediante `BACKOFFICE_API_TOKEN`,
+- salida controlada hacia webhook de onboarding cuando `ONBOARDING_DISPATCH_WEBHOOK_URL` esta configurada.
 
 Todavia no cubre:
 

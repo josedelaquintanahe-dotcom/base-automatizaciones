@@ -1,5 +1,9 @@
 # Entornos
 
+## Estado de vigencia
+
+Este documento sigue siendo util como referencia de separacion por entornos. Debe leerse junto con `docs/DEPLOYMENT.md`, que resume el estado canonico de despliegue hoy confirmado.
+
 ## Proposito
 
 Este documento define la separacion esperada entre entorno local, staging y produccion para reducir riesgos tempranos, facilitar validacion progresiva y mantener trazabilidad operativa.
@@ -208,5 +212,7 @@ Base documental definida para separar local, staging y produccion antes de inici
 Situacion actual:
 
 - el backend esta preparado para ejecucion local,
+- el frontend esta preparado para ejecucion local y build,
 - staging y produccion estan definidos a nivel documental y de validacion de entorno,
-- no existen todavia integraciones reales activadas entre capas.
+- existe un flujo inicial documentado entre backend, Supabase y n8n,
+- el despliegue productivo definitivo de frontend y el pipeline CI/CD siguen `Pendiente de validar`.

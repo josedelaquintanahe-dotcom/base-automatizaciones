@@ -1,5 +1,9 @@
 # Deployment
 
+## Estado de vigencia
+
+Este documento se conserva como guia de despliegue y patrones de convivencia entre backend persistente y opciones serverless. La fotografia canonica actual vive en `docs/DEPLOYMENT.md`.
+
 Esta carpeta define la estructura base para despliegues en Vercel y Render dentro de proyectos de automatizacion empresarial.
 
 ## Objetivo
@@ -10,6 +14,8 @@ Esta carpeta define la estructura base para despliegues en Vercel y Render dentr
 - mantener coherencia con Supabase, Node.js, n8n y la arquitectura modular del repositorio.
 
 ## Estructura Vercel recomendada
+
+`Pendiente de validar` como flujo realmente usado en este repositorio.
 
 - `src/`
 - `src/app/` o `src/pages/`
@@ -165,4 +171,7 @@ Situacion actual:
 - la estrategia de despliegue esta documentada,
 - el backend Express existe y funciona en local,
 - el backend queda preparado para despliegue persistente en Render mediante `render.yaml`,
-- no se han activado integraciones reales con Supabase, n8n o Rendel desde entorno desplegado.
+- existe integracion real con Supabase en backend a nivel de codigo,
+- existe un flujo documentado backend -> n8n para `onboarding_activated`,
+- la activacion de entornos desplegados con integraciones reales sigue `Pendiente de validar`,
+- el despliegue operativo definitivo de frontend y cualquier uso real de Rendel siguen `Pendiente de validar`.

@@ -30,6 +30,7 @@ Checklist previa a despliegue para validar configuracion, permisos y trazabilida
 
 ## Vercel
 
+- [ ] Este bloque aplica solo si el entorno objetivo usa Vercel.
 - [ ] El entorno destino es el correcto: preview o produccion.
 - [ ] Las variables de entorno cargadas en Vercel corresponden al entorno esperado.
 - [ ] Los endpoints serverless expuestos estan documentados.
@@ -37,6 +38,7 @@ Checklist previa a despliegue para validar configuracion, permisos y trazabilida
 
 ## Rendel
 
+- [ ] Este bloque aplica solo si el entorno objetivo usa Rendel o agentes externos reales.
 - [ ] Los agentes del entorno correcto estan identificados.
 - [ ] Las entradas y salidas del agente estan documentadas.
 - [ ] Los limites y responsabilidades del agente estan definidos.

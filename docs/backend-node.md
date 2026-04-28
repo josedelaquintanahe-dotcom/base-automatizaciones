@@ -1,5 +1,9 @@
 # Backend Node.js
 
+## Estado de vigencia
+
+Este documento se conserva como apoyo conceptual para backend. La referencia canonica del estado actual vive en `docs/ARCHITECTURE.md`, `docs/PROJECT_STATUS.md` y `src/backend/README.md`.
+
 ## Proposito
 
 Este documento explica por que Node.js se adopta como backend principal del sistema y como encaja dentro de la arquitectura existente.
@@ -95,9 +99,15 @@ La base backend ya esta preparada para desarrollo local con:
 - logging estructurado basico,
 - clientes base estructurales para Supabase, n8n y Rendel.
 
-Todavia no incluye:
+Ya incluye:
 
-- logica de negocio real conectada a datos,
-- integraciones externas activas,
+- logica de negocio real para clientes, ejecuciones y dispatcher de onboarding,
+- integracion real con Supabase en backend,
+- salida documentada hacia n8n por webhook,
+- proteccion minima de endpoints administrativos con `BACKOFFICE_API_TOKEN`.
+
+Todavia no incluye o queda `Pendiente de validar`:
+
 - autenticacion de backend,
+- integraciones reales con Rendel.com,
 - despliegue persistente configurado en un entorno real.

@@ -1,5 +1,9 @@
 # Workflows
 
+## Estado de vigencia
+
+Este documento se conserva como guia reutilizable para nombrado y estructura de workflows. La referencia canonica resumida del estado actual vive en `docs/N8N_WORKFLOWS.md`.
+
 Esta carpeta define la estructura estandar para documentar y organizar workflows de n8n dentro de proyectos de automatizacion empresarial.
 
 ## Objetivo
@@ -132,3 +136,9 @@ Guia base definida para documentar y estandarizar workflows n8n en futuros proye
 Workflow preparado actualmente:
 
 - `onboarding__webhook__onboarding_activated__v1`
+
+Situacion actual detectada:
+
+- existe documentacion operativa detallada para `onboarding__webhook__onboarding_activated__v1`,
+- el workflow logico `onboarding_activated` esta documentado y creado en n8n Cloud,
+- la trazabilidad prevista reutiliza `correlation_id` y conecta `automation_events` con `ejecuciones_workflows`.

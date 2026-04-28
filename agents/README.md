@@ -1,6 +1,10 @@
 # Agents
 
-Esta carpeta define la estructura estandar para documentar agentes automatizados creados con Rendel.com dentro de proyectos de automatizacion empresarial.
+## Estado de vigencia
+
+Este documento se conserva como guia para una futura capa de agentes externos. No sustituye al sistema actual de agentes de Codex definido en `CONTEXT.md`, `AGENTS.md` y `.codex/`.
+
+Esta carpeta define una estructura estandar posible para documentar agentes automatizados externos, incluyendo Rendel.com, dentro de proyectos de automatizacion empresarial.
 
 ## Objetivo
 
@@ -112,4 +116,10 @@ Ejemplos:
 
 ## Estado actual
 
-Guia base definida para documentar y estandarizar agentes automatizados creados con Rendel.com en futuros proyectos de automatizacion empresarial.
+Guia base definida para documentar y estandarizar agentes automatizados externos en futuros proyectos de automatizacion empresarial.
+
+Situacion actual:
+
+- el sistema de agentes operativo hoy en este repositorio es el de Codex en `.codex/`,
+- el uso real de Rendel.com sigue `Pendiente de validar`,
+- esta carpeta se mantiene como referencia complementaria y no como fuente canonica del sistema de agentes actual.

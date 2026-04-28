@@ -1,5 +1,9 @@
 # Modelo de seguridad
 
+## Estado de vigencia
+
+Este documento conserva el marco general de seguridad. La referencia canonica resumida y operativa actual es `docs/SECURITY.md`.
+
 ## Proposito
 
 Este documento define la base de seguridad del repositorio y del futuro sistema de automatizacion. Su objetivo es reducir riesgos tempranos, establecer limites claros entre capas y preparar una evolucion auditable.
@@ -36,8 +40,8 @@ Aplicacion por capa:
 - Node.js: acceso limitado a las integraciones y operaciones necesarias
 - Supabase: permisos limitados por tabla, funcion y entorno
 - n8n: credenciales separadas por workflow y servicio cuando sea viable
-- Rendel.com: agentes con acceso solo al contexto necesario
-- Vercel: funciones y variables limitadas al caso de uso
+- Rendel.com: agentes con acceso solo al contexto necesario si ese componente se confirma en uso real
+- Vercel: funciones y variables limitadas al caso de uso si ese despliegue se confirma para frontend o serverless
 - Codex: cambios dentro del repositorio y documentacion de decisiones
 
 ## Registro de eventos
@@ -138,4 +142,11 @@ tareas de clasificacion, analisis, generacion o apoyo contextual.
 
 ## Estado actual
 
-Modelo base definido para endurecer seguridad del repositorio antes de iniciar integraciones reales.
+Modelo base definido y parcialmente aterrizado en el repositorio actual.
+
+Situacion detectada:
+
+- existen validaciones de entorno y controles de arranque en backend,
+- existe trazabilidad tecnica con `correlation_id`, `automation_events` y `ejecuciones_workflows`,
+- existe una proteccion minima de backoffice con bearer token,
+- siguen pendientes de validar RLS avanzada, politicas completas de secretos y despliegue definitivo por entorno.

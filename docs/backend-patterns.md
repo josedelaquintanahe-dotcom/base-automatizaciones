@@ -1,5 +1,9 @@
 # Patrones backend recomendados
 
+## Estado de vigencia
+
+Este documento describe patrones recomendados y parcialmente ya aplicados. Debe leerse junto con `docs/ARCHITECTURE.md` y `src/backend/README.md`.
+
 ## Proposito
 
 Este documento define patrones backend recomendados para la futura implementacion en Node.js.
@@ -106,14 +110,12 @@ Implementado:
 
 - enrutado Express modular,
 - controladores ligeros,
-- servicios basicos,
-- repositories de ejemplo,
-- clients estructurales,
+- servicios activos de negocio,
+- repositories para trazabilidad y soporte,
+- clients estructurales y adaptadores reutilizables,
 - middlewares para trazabilidad, errores y logging.
 
 Pendiente:
 
-- casos de uso reales,
-- acceso a datos de negocio,
-- integraciones externas activas,
+- integraciones externas adicionales mas alla de Supabase y webhook n8n,
 - validacion avanzada de inputs por dominio.

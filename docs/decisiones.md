@@ -245,3 +245,10 @@ Se adopta que `docs/SALES_PLAYBOOK.md`, `docs/backend-node.md`, `docs/backend-pa
 
 Motivo:
 Evita mensajes tecnicos ya obsoletos, aclara el alcance actual del repositorio y reduce ambiguedad para futuros agentes o mantenedores al distinguir entre lo ya operativo y lo todavia pendiente de validar.
+
+### D-034. El webhook de dispatch de onboarding en Render se fijara desde `render.yaml` con la ruta real activa de n8n
+
+Se adopta declarar `ONBOARDING_DISPATCH_WEBHOOK_URL` en `render.yaml` con el valor absoluto del workflow activo `onboarding_activated` de n8n Cloud. Este valor no se trata como secreto y debe mantenerse versionado para evitar deriva entre la URL documentada, la URL configurada en despliegue y la ruta real que escucha el workflow.
+
+Motivo:
+La validacion operativa ha confirmado que el backend desplegado estaba enviando a una ruta con guion medio (`onboarding-activated`) mientras el workflow activo de n8n escucha en la ruta con guion bajo (`onboarding_activated`). Gestionar esta variable desde el blueprint reduce riesgo de deriva manual y permite reproducir el entorno correcto tras cada sync del despliegue.

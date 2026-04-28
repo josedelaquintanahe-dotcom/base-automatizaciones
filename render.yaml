@@ -27,3 +27,5 @@ services:
         sync: false
       - key: BACKOFFICE_API_TOKEN
         sync: false
+      - key: ONBOARDING_DISPATCH_WEBHOOK_URL
+        value: https://quinttanaaa.app.n8n.cloud/webhook/onboarding_activated

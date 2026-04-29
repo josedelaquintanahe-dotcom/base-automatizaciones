@@ -34,7 +34,7 @@ No debe recalcular estados desde credenciales reales en esta fase. Solo debe rev
   "check_status": "completed",
   "result_summary": "Readiness del payload sigue consistente",
   "next_action": "Continuar con onboarding_credentials_metadata_checked",
-  "output_payload": {
+  "sanitized_result": {
     "ready": true,
     "missing_requirements_count": 0,
     "onboarding_status": "listo_para_automatizar"
@@ -58,4 +58,4 @@ No debe recalcular estados desde credenciales reales en esta fase. Solo debe rev
 ## Validacion esperada
 
 - fila tecnica en `ejecuciones_workflows`
-- `output_payload.ready = true`
+- `sanitized_result.ready = true`

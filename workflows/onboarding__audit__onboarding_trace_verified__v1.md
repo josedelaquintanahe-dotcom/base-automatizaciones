@@ -10,8 +10,10 @@ Es el bloque de menor riesgo y mayor valor inmediato porque cierra explicitament
 
 ## Trigger
 
-- tipo recomendado: `Execute Workflow` desde `onboarding_activated` o `webhook` interno controlado
-- origen esperado: workflow `onboarding_activated`
+- tipo canonico: webhook `POST` interno/controlado
+- ruta activa: `/webhook/onboarding_trace_verified`
+- origen esperado: flujo tecnico derivado de `onboarding_activated`
+- estado actual: blueprint SDK validado, workflow publicado en n8n Cloud (`yqr1wDX4aDS9JyH5`) y validado en ejecucion real el 29 de abril de 2026
 
 ## Input esperado
 
@@ -35,7 +37,7 @@ Es el bloque de menor riesgo y mayor valor inmediato porque cierra explicitament
   "check_status": "completed",
   "result_summary": "Evento onboarding_activated localizado en automation_events",
   "next_action": "Continuar con onboarding_readiness_revalidated",
-  "output_payload": {
+  "sanitized_result": {
     "matched_event_name": "onboarding_activated",
     "dispatch_status": "accepted"
   }
@@ -46,6 +48,10 @@ Es el bloque de menor riesgo y mayor valor inmediato porque cierra explicitament
 
 - lectura de `automation_events`
 - escritura tecnica en `ejecuciones_workflows`
+
+Nota:
+
+El resultado sanitario persistido en la tabla actual debe viajar dentro de `input_payload.sanitized_result`.
 
 ## Riesgos
 
@@ -59,5 +65,12 @@ Es el bloque de menor riesgo y mayor valor inmediato porque cierra explicitament
 ## Validacion esperada
 
 - fila en `ejecuciones_workflows` con `workflow_name = onboarding_trace_verified`
-- `output_payload.dispatch_status = accepted`
+- `sanitized_result.dispatch_status = accepted`
 - mismo `correlation_id` que el workflow padre
+
+## Validacion tecnica ya realizada
+
+- validacion SDK oficial de n8n: correcta
+- prueba segura con datos fijados en n8n Cloud: correcta
+- script operativo preparado para validacion real: `scripts/verify-onboarding-trace-workflow.ps1`
+- validacion en ejecucion real con trazabilidad por `correlation_id`: correcta

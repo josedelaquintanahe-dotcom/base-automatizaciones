@@ -32,7 +32,7 @@ Verificar solo metadatos operativos de credenciales y token ya presentes en el p
   "check_status": "completed",
   "result_summary": "Metadatos de credenciales y token coherentes",
   "next_action": "Continuar con onboarding_dispatch_health_checked",
-  "output_payload": {
+  "sanitized_result": {
     "credenciales_activas": 2,
     "tipos_credencial": ["gmail", "api"],
     "token_operativo_activo": true
@@ -56,4 +56,4 @@ Verificar solo metadatos operativos de credenciales y token ya presentes en el p
 ## Validacion esperada
 
 - fila tecnica en `ejecuciones_workflows`
-- sin secretos en `output_payload`
+- sin secretos en `sanitized_result`

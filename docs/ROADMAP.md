@@ -52,8 +52,8 @@ Objetivos:
 
 Secuencia inmediata priorizada:
 
-1. `onboarding_trace_verified`
-2. `onboarding_readiness_revalidated`
+1. `onboarding_trace_verified` - publicado y validado en ejecucion real
+2. `onboarding_readiness_revalidated` - siguiente bloque inmediato
 3. `onboarding_credentials_metadata_checked`
 4. `onboarding_dispatch_health_checked`
 5. `onboarding_sanitized_report_compiled`
@@ -82,4 +82,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Usar un bloque seguro para implementar `onboarding_trace_verified`, validar su trazabilidad con `correlation_id` y mantener el resto de la secuencia como backlog tecnico inmediato.
+Implementar `onboarding_readiness_revalidated`, validarlo con el mismo `correlation_id` y mantener la secuencia restante como backlog inmediato.

@@ -38,7 +38,7 @@ En esta fase no debe requerir credenciales nuevas ni acceso privilegiado adicion
   "check_status": "completed",
   "result_summary": "onboardingDispatch configurado y con path esperado",
   "next_action": "Continuar con onboarding_sanitized_report_compiled",
-  "output_payload": {
+  "sanitized_result": {
     "configured": true,
     "pathStatus": "expected"
   }
@@ -61,4 +61,4 @@ En esta fase no debe requerir credenciales nuevas ni acceso privilegiado adicion
 ## Validacion esperada
 
 - fila tecnica en `ejecuciones_workflows`
-- `output_payload.pathStatus = expected`
+- `sanitized_result.pathStatus = expected`

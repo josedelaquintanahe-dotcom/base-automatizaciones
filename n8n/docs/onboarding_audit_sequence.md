@@ -45,7 +45,7 @@ Definir la siguiente secuencia de 5 workflows de n8n de bajo riesgo despues de `
 }
 ```
 
-### Output sanitario comun
+### Resultado sanitario comun
 
 ```json
 {
@@ -57,7 +57,7 @@ Definir la siguiente secuencia de 5 workflows de n8n de bajo riesgo despues de `
   "check_status": "completed",
   "result_summary": "texto breve",
   "next_action": "texto breve o null",
-  "output_payload": {
+  "sanitized_result": {
     "sanitized": true
   }
 }
@@ -66,7 +66,8 @@ Definir la siguiente secuencia de 5 workflows de n8n de bajo riesgo despues de `
 ## Reglas comunes
 
 - `check_status` debe limitarse a `received`, `completed` o `error`,
-- `output_payload` no debe incluir secretos, tokens completos, ni `valor_encriptado`,
+- `sanitized_result` no debe incluir secretos, tokens completos, ni `valor_encriptado`,
+- si el workflow persiste el resultado tecnico, debe hacerlo dentro de `input_payload` porque la tabla actual `ejecuciones_workflows` no incluye `output_payload`,
 - cualquier lookup adicional debe usar tablas ya presentes y solo columnas necesarias,
 - los workflows no deben mutar `clientes`, `facturas`, `tokens`, `credenciales_cliente` ni `automatizaciones` en esta fase,
 - la idempotencia recomendada es `workflow_name + correlation_id`.
@@ -83,11 +84,17 @@ Definir la siguiente secuencia de 5 workflows de n8n de bajo riesgo despues de `
 
 | Workflow | Trigger recomendado | Lecturas | Escrituras | Validacion minima |
 | --- | --- | --- | --- | --- |
-| `onboarding_trace_verified` | `Execute Workflow` desde `onboarding_activated` | `automation_events` | `ejecuciones_workflows` | confirmar evento `onboarding_activated` por `correlation_id` |
+| `onboarding_trace_verified` | webhook `POST` interno/controlado | `automation_events` | `ejecuciones_workflows` | confirmar evento `onboarding_activated` por `correlation_id` |
 | `onboarding_readiness_revalidated` | `Execute Workflow` | payload sanitario recibido | `ejecuciones_workflows` | `ready = true` y `missing_requirements = []` |
 | `onboarding_credentials_metadata_checked` | `Execute Workflow` | payload sanitario recibido | `ejecuciones_workflows` | `credenciales_activas > 0` y `token_operativo_activo = true` |
 | `onboarding_dispatch_health_checked` | `Execute Workflow` | snapshot sanitario de `system/status` | `ejecuciones_workflows` | `configured = true` y `pathStatus = expected` |
 | `onboarding_sanitized_report_compiled` | `Execute Workflow` | outputs sanitarios previos | `ejecuciones_workflows` | `all_checks_passed = true` |
+
+## Estado actual del primer workflow
+
+- `onboarding_trace_verified`: blueprint SDK validado en `n8n/workflows/onboarding_trace_verified.workflow.ts`
+- workflowId actual en n8n Cloud: `yqr1wDX4aDS9JyH5`
+- workflow publicado y validado en ejecucion real el 29 de abril de 2026
 
 ## Query de validacion recomendada
 

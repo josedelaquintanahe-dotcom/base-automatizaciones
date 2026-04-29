@@ -23,6 +23,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - smoke test operativo versionado en `scripts/verify-onboarding-flow.ps1`
 - export JSON sanitario del workflow real en `n8n/workflows/onboarding_activated.active.json`
 - secuencia de 5 workflows de auditoria post-onboarding definida y preparada documentalmente
+- blueprint SDK validado para `onboarding_trace_verified` en `n8n/workflows/onboarding_trace_verified.workflow.ts`
+- workflow `onboarding_trace_verified` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -56,8 +58,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue
-- Pendiente: implementar y activar la secuencia auditiva post-onboarding ya preparada
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; `onboarding_trace_verified` publicado, con respuesta HTTP alineada y validado en ejecucion real por `correlation_id`
+- Pendiente: implementar `onboarding_readiness_revalidated` y mantener el resto de la secuencia auditiva como backlog inmediato
 
 ### Sistema de agentes Codex
 
@@ -67,4 +69,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Implementar el primer workflow de la secuencia auditiva post-onboarding (`onboarding_trace_verified`) sobre la base ya documentada y preparada.
+Implementar `onboarding_readiness_revalidated` reutilizando el mismo patron: blueprint validado, borrador en n8n, script operativo y validacion real por `correlation_id`.

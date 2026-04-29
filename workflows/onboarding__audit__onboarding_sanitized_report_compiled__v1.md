@@ -36,7 +36,7 @@ No debe mutar tablas de negocio. Solo consolidar evidencia tecnica.
   "check_status": "completed",
   "result_summary": "Secuencia de auditoria post-onboarding consolidada",
   "next_action": "Lista para futura ampliacion funcional de bajo riesgo",
-  "output_payload": {
+  "sanitized_result": {
     "checks": [
       "onboarding_trace_verified",
       "onboarding_readiness_revalidated",
@@ -64,4 +64,4 @@ No debe mutar tablas de negocio. Solo consolidar evidencia tecnica.
 ## Validacion esperada
 
 - fila tecnica en `ejecuciones_workflows`
-- `output_payload.all_checks_passed = true`
+- `sanitized_result.all_checks_passed = true`

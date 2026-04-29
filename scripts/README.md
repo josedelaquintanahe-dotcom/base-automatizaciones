@@ -64,3 +64,41 @@ Falla con codigo distinto de cero si:
 - `health` no responde `ok`,
 - `onboardingDispatch` no aparece configurado y con `pathStatus = expected`,
 - el smoke test real no termina con trazabilidad completa.
+
+### `verify-onboarding-trace-workflow.ps1`
+
+Verifica el primer workflow de auditoria post-onboarding una vez exista un `correlation_id` valido y el workflow este activo:
+
+1. resuelve la URL del webhook de `onboarding_trace_verified`,
+2. envia un payload tecnico con `correlation_id`, `cliente_id` y `event_name = onboarding_activated`,
+3. consulta `ejecuciones_workflows` en Supabase,
+4. confirma que `onboarding_trace_verified` persiste una fila con `status = completed`.
+
+## Entradas
+
+- `CorrelationId` obligatorio
+- `ClientId` obligatorio
+- `EnvFile` opcional, por defecto `src/backend/.env.local`
+- `WorkflowWebhookUrl` opcional; si no se pasa, se compone desde `N8N_WEBHOOK_BASE_URL`
+- `PollAttempts` opcional
+- `PollDelaySeconds` opcional
+
+## Salida
+
+- resumen JSON con estado HTTP, webhook usado, `correlation_id` y persistencia detectada
+- codigo de salida distinto de cero si la validacion falla
+
+## Dependencias
+
+- PowerShell
+- `curl.exe`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `N8N_WEBHOOK_BASE_URL` si no se pasa `WorkflowWebhookUrl`
+
+## Reglas
+
+- usarlo solo cuando `onboarding_trace_verified` este activo o cuando se quiera comprobar su endpoint real,
+- soporta entornos donde `N8N_WEBHOOK_BASE_URL` apunte al endpoint MCP; en ese caso normaliza la URL publica del webhook,
+- no fijar `correlation_id` ni `cliente_id` reales dentro del script,
+- preferir un `correlation_id` obtenido de una activacion de onboarding recien validada.

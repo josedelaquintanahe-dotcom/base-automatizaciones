@@ -35,6 +35,22 @@ Documentacion base:
 - `n8n/docs/onboarding_audit_sequence.md`
 - `workflows/onboarding__audit__*.md`
 - `n8n/workflows/*.planned.json`
+- `n8n/workflows/onboarding_trace_verified.workflow.ts`
+
+### Estado actual de la secuencia auditiva
+
+#### `onboarding_trace_verified`
+
+- documento fuente: `workflows/onboarding__audit__onboarding_trace_verified__v1.md`
+- blueprint tecnico: `n8n/workflows/onboarding_trace_verified.workflow.ts`
+- placeholder tecnico: `n8n/workflows/onboarding_trace_verified.planned.json`
+- workflowId en n8n Cloud: `yqr1wDX4aDS9JyH5`
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- trigger canonico: webhook `POST` interno/controlado
+- ruta activa: `/webhook/onboarding_trace_verified`
+- objetivo: confirmar que `onboarding_activated` quedo persistido en `automation_events` con el mismo `correlation_id`
+- persistencia esperada: `ejecuciones_workflows` con resultado sanitario dentro de `input_payload`
+- script operativo previsto para validacion real: `scripts/verify-onboarding-trace-workflow.ps1`
 
 ## Controles operativos minimos
 

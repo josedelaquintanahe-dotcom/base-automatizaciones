@@ -304,9 +304,37 @@ Se adopta que los siguientes cinco workflows de n8n tras `onboarding_activated` 
 Motivo:
 El proyecto ya ha validado la trazabilidad extrema a extrema y cuenta con smoke tests operativos. El siguiente paso con mejor relacion valor/riesgo es ampliar observabilidad y evidencia reutilizable sin tocar sistemas externos ni introducir efectos de negocio irreversibles.
 
-### D-042. Los workflows de auditoria post-onboarding compartiran un contrato tecnico comun y output sanitario
+### D-042. Los workflows de auditoria post-onboarding compartiran un contrato tecnico comun y resultado sanitario embebido
 
-Se adopta que estos workflows reutilicen un contrato comun basado en `correlation_id`, `workflow_name`, `workflow_version`, `check_name`, `check_status`, `result_summary`, `next_action` y `output_payload` sanitario, evitando secretos, credenciales desencriptadas o mutaciones de negocio.
+Se adopta que estos workflows reutilicen un contrato comun basado en `correlation_id`, `workflow_name`, `workflow_version`, `check_name`, `check_status`, `result_summary`, `next_action` y `sanitized_result`, evitando secretos, credenciales desencriptadas o mutaciones de negocio. Dado que la implementacion actual de `ejecuciones_workflows` no tiene columna `output_payload`, el resultado sanitario debe viajar en la respuesta del workflow y, si se persiste, hacerlo dentro de `input_payload`.
 
 Motivo:
 Un contrato comun simplifica validacion, documentacion, smoke tests y futura consolidacion en reportes tecnicos, a la vez que reduce el riesgo de deriva entre workflows parecidos y evita ampliar privilegios antes de tiempo.
+
+### D-043. `onboarding_trace_verified` se implementara primero como blueprint SDK validado y borrador inactivo con trigger webhook interno
+
+Se adopta que el primer workflow de la secuencia, `onboarding_trace_verified`, quede materializado en el repositorio como blueprint SDK validado (`n8n/workflows/onboarding_trace_verified.workflow.ts`) y en n8n Cloud como borrador inactivo antes de cualquier activacion o encadenamiento con otros workflows. Para esta primera version, el trigger canonico sera un webhook `POST` interno y controlado con la ruta `onboarding_trace_verified`.
+
+Motivo:
+Este enfoque reduce riesgo operativo al separar tres estados distintos: definicion funcional, blueprint tecnico validado y workflow creado en n8n. Tambien evita introducir todavia dependencias de orquestacion entre workflows mientras se comprueba que el patron tecnico de lectura en `automation_events` y escritura en `ejecuciones_workflows` es estable.
+
+### D-044. La validacion real de `onboarding_trace_verified` tendra script operativo propio antes de activarse
+
+Se adopta preparar un script PowerShell reutilizable para invocar `onboarding_trace_verified` con un `correlation_id` ya conocido y verificar su persistencia tecnica en `ejecuciones_workflows` antes de activar el workflow en n8n Cloud.
+
+Motivo:
+El patron del proyecto ya ha demostrado que los scripts operativos reducen friccion, aceleran diagnostico y evitan comprobaciones manuales dispersas. Preparar este control antes de la activacion permite una salida mas segura cuando el workflow pase de borrador a ejecucion real.
+
+### D-045. `onboarding_trace_verified` solo se publicara tras validar blueprint, borrador y prueba segura
+
+Se adopta publicar `onboarding_trace_verified` en n8n Cloud solo cuando se cumplan estos cuatro controles previos: blueprint SDK validado, borrador creado, prueba segura con datos fijados y script operativo de validacion real disponible en el repositorio.
+
+Motivo:
+La publicacion de un workflow nuevo cambia el perimetro operativo de la instancia n8n. Exigir estos controles antes de activarlo mantiene el mismo nivel de rigor que ya se aplico al flujo `onboarding_activated` y reduce riesgo de activar endpoints incompletos o mal verificados.
+
+### D-046. Los scripts de validacion de n8n resolveran de forma segura bases webhook y bases MCP
+
+Se adopta que los scripts operativos que invoquen workflows de n8n acepten una `WorkflowWebhookUrl` explicita y, si componen la URL desde `N8N_WEBHOOK_BASE_URL`, sepan normalizar tambien bases mal orientadas a `mcp-server/http`.
+
+Motivo:
+La misma instancia de n8n puede exponer URLs distintas para MCP y para webhooks publicos. Si el script asume una sola forma de base, puede dar falsos fallos operativos aunque el workflow este bien publicado y accesible.

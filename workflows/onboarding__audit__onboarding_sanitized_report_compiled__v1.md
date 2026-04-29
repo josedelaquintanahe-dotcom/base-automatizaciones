@@ -6,13 +6,16 @@ Consolidar un informe sanitario final del bloque de onboarding, reuniendo los re
 
 ## Trigger
 
-- tipo recomendado: `Execute Workflow`
-- origen esperado: despues de `onboarding_dispatch_health_checked`
+- tipo canonico: webhook `POST` interno/controlado
+- ruta activa: `/webhook/onboarding_sanitized_report_compiled`
+- origen esperado: script operativo o flujo tecnico derivado de `onboarding_activated`
+- estado actual: blueprint SDK validado, workflow publicado en n8n Cloud (`RBItrrOrI3M7OFyU`) y validado en ejecucion real el 29 de abril de 2026
 
 ## Input esperado
 
-- contrato comun definido en `n8n/docs/onboarding_audit_sequence.md`
-- referencias sanitarias a los checks anteriores
+- payload minimo:
+  - `correlation_id`
+  - `cliente_id`
 
 ## Logica esperada
 
@@ -21,6 +24,12 @@ Consolidar un informe sanitario final del bloque de onboarding, reuniendo los re
   - lista de checks ejecutados
   - resultado de cada check
   - `next_action` humana sugerida
+
+- leer desde `ejecuciones_workflows` los workflows:
+  - `onboarding_trace_verified`
+  - `onboarding_readiness_revalidated`
+  - `onboarding_credentials_metadata_checked`
+  - `onboarding_dispatch_health_checked`
 
 No debe mutar tablas de negocio. Solo consolidar evidencia tecnica.
 
@@ -50,6 +59,7 @@ No debe mutar tablas de negocio. Solo consolidar evidencia tecnica.
 
 ## Sistemas afectados
 
+- lectura de `ejecuciones_workflows`
 - escritura tecnica en `ejecuciones_workflows`
 
 ## Riesgos
@@ -65,3 +75,10 @@ No debe mutar tablas de negocio. Solo consolidar evidencia tecnica.
 
 - fila tecnica en `ejecuciones_workflows`
 - `sanitized_result.all_checks_passed = true`
+
+## Validacion tecnica ya realizada
+
+- validacion SDK oficial de n8n: correcta
+- prueba segura con datos fijados en n8n Cloud: correcta
+- script operativo preparado para validacion real: `scripts/verify-onboarding-report-workflow.ps1`
+- validacion en ejecucion real con trazabilidad por `correlation_id`: correcta

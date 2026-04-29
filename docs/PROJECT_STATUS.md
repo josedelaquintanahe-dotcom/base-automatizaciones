@@ -27,6 +27,9 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - workflow `onboarding_trace_verified` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
 - workflow `onboarding_readiness_revalidated` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
 - workflow `onboarding_credentials_metadata_checked` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- workflow `onboarding_dispatch_health_checked` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- workflow `onboarding_sanitized_report_compiled` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- secuencia auditiva completa ejecutada en real con un solo `correlation_id` el 29 de abril de 2026
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -60,8 +63,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; `onboarding_trace_verified`, `onboarding_readiness_revalidated` y `onboarding_credentials_metadata_checked` publicados y validados en ejecucion real por `correlation_id`
-- Pendiente: implementar `onboarding_dispatch_health_checked` y mantener el resto de la secuencia auditiva como backlog inmediato
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados y validados en ejecucion real por `correlation_id`, incluida la secuencia completa
+- Pendiente: definir y construir la primera automatizacion real de negocio sobre esta base ya validada
 
 ### Sistema de agentes Codex
 
@@ -71,4 +74,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Implementar `onboarding_dispatch_health_checked` reutilizando el mismo patron: blueprint validado, borrador en n8n, script operativo y validacion real por `correlation_id`.
+Definir e implementar la primera automatizacion real de negocio reutilizando esta cadena auditiva como prerequisito operativo.

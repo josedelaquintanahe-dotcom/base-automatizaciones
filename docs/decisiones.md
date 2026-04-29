@@ -352,3 +352,17 @@ Se adopta que `onboarding_credentials_metadata_checked` lea `automation_events.p
 
 Motivo:
 La documentacion inicial simplificaba el payload como si `operational_summary` fuese plano. Implementar contra ese shape falso generaria checks inconsistentes. Alinear el workflow con el contrato real del backend evita deriva y mantiene la validacion de bajo riesgo, sin acceder a secretos ni recalcular estados desde tablas sensibles.
+
+### D-049. `onboarding_dispatch_health_checked` usara un snapshot sanitario explicito de `/api/system/status`
+
+Se adopta que `onboarding_dispatch_health_checked` reciba por webhook un `system_status_snapshot` sanitario y minimo, obtenido fuera del workflow desde el backend desplegado, en lugar de abrir una llamada HTTP nueva desde n8n al propio backend.
+
+Motivo:
+Este enfoque mantiene bajo el riesgo, evita dependencias de red adicionales dentro del workflow y reutiliza el mismo snapshot sanitario que ya usan los scripts operativos del proyecto para validar `onboardingDispatch`.
+
+### D-050. `onboarding_sanitized_report_compiled` consolidara desde `ejecuciones_workflows` y no desde memoria inter-workflow
+
+Se adopta que `onboarding_sanitized_report_compiled` lea las filas tecnicas ya persistidas en `ejecuciones_workflows` para el mismo `correlation_id` y consolide sobre esa evidencia, en lugar de depender de que otros workflows le reenvien outputs completos en memoria.
+
+Motivo:
+La tabla tecnica ya es la fuente de trazabilidad del sistema. Consolidar desde ahi reduce acoplamiento entre workflows, simplifica la validacion real de la secuencia completa y mantiene el criterio de bajo riesgo y alta auditabilidad.

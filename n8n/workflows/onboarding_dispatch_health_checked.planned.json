@@ -4,8 +4,8 @@
   "workflow_version": "v1",
   "pattern": "post_onboarding_audit",
   "trigger": {
-    "type": "execute_workflow",
-    "parent_workflow": "onboarding_credentials_metadata_checked"
+    "type": "webhook",
+    "path": "onboarding_dispatch_health_checked"
   },
   "idempotency_key": "workflow_name + correlation_id",
   "reads": [

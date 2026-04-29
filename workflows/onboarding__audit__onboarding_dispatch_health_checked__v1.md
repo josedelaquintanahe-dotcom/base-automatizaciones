@@ -6,23 +6,25 @@ Dejar evidencia tecnica de que el backend sigue exponiendo un estado seguro de d
 
 ## Trigger
 
-- tipo recomendado: `Execute Workflow` o `webhook` interno tecnico
-- origen esperado: despues de `onboarding_credentials_metadata_checked`
+- tipo canonico: webhook `POST` interno/controlado
+- ruta activa: `/webhook/onboarding_dispatch_health_checked`
+- origen esperado: script operativo o flujo tecnico derivado de `onboarding_activated`
+- estado actual: blueprint SDK validado, workflow publicado en n8n Cloud (`az9xt6p2FnwDCEsF`) y validado en ejecucion real el 29 de abril de 2026
 
 ## Input esperado
 
-- contrato comun definido en `n8n/docs/onboarding_audit_sequence.md`
-- opcionalmente un bloque sanitario adicional con `system_status_snapshot`
+- payload minimo:
+  - `correlation_id`
+  - `cliente_id`
+  - `event_name = onboarding_activated`
+  - `system_status_snapshot`
 
 ## Logica esperada
 
-Opcion preferida de bajo riesgo:
-
-- reutilizar un snapshot sanitario del `system/status` ya obtenido por backend o por el preflight operativo
-
-Opcion alternativa futura:
-
-- consultar un endpoint interno seguro si se habilita un contrato backend especifico para ello
+- reutilizar un snapshot sanitario explicito de `/api/system/status`
+- verificar que:
+  - `system_status_snapshot.onboardingDispatch.configured = true`
+  - `system_status_snapshot.onboardingDispatch.pathStatus = expected`
 
 En esta fase no debe requerir credenciales nuevas ni acceso privilegiado adicional.
 
@@ -47,6 +49,7 @@ En esta fase no debe requerir credenciales nuevas ni acceso privilegiado adicion
 
 ## Sistemas afectados
 
+- sin lecturas adicionales en backend desde n8n
 - escritura tecnica en `ejecuciones_workflows`
 
 ## Riesgos
@@ -62,3 +65,10 @@ En esta fase no debe requerir credenciales nuevas ni acceso privilegiado adicion
 
 - fila tecnica en `ejecuciones_workflows`
 - `sanitized_result.pathStatus = expected`
+
+## Validacion tecnica ya realizada
+
+- validacion SDK oficial de n8n: correcta
+- prueba segura con datos fijados en n8n Cloud: correcta
+- script operativo preparado para validacion real: `scripts/verify-onboarding-dispatch-workflow.ps1`
+- validacion en ejecucion real con trazabilidad por `correlation_id`: correcta

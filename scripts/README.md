@@ -176,3 +176,33 @@ Verifica el tercer workflow de auditoria post-onboarding usando el payload real 
 - soporta entornos donde `N8N_WEBHOOK_BASE_URL` apunte al endpoint MCP; en ese caso normaliza la URL publica del webhook,
 - no fijar `correlation_id` ni `cliente_id` reales dentro del script,
 - preferir un `correlation_id` obtenido de una activacion de onboarding recien validada.
+
+### `verify-onboarding-dispatch-workflow.ps1`
+
+Verifica el cuarto workflow de auditoria post-onboarding usando un snapshot sanitario real del backend:
+
+1. consulta `GET /api/system/status`,
+2. construye un payload tecnico con `correlation_id`, `cliente_id`, `event_name` y `system_status_snapshot`,
+3. invoca `onboarding_dispatch_health_checked`,
+4. confirma que persiste una fila con `status = completed`.
+
+### `verify-onboarding-report-workflow.ps1`
+
+Verifica el workflow final de consolidacion sanitaria:
+
+1. invoca `onboarding_sanitized_report_compiled` con `correlation_id` y `cliente_id`,
+2. confirma que el workflow consolida la secuencia previa en `ejecuciones_workflows`,
+3. valida `all_checks_passed = true` de forma indirecta a traves de la persistencia y la respuesta.
+
+### `run-onboarding-audit-sequence.ps1`
+
+Punto de entrada operativo para ejecutar la secuencia auditiva completa:
+
+1. lanza `run-onboarding-operational-check.ps1` para generar un `correlation_id` nuevo,
+2. ejecuta en orden:
+   - `verify-onboarding-trace-workflow.ps1`
+   - `verify-onboarding-readiness-workflow.ps1`
+   - `verify-onboarding-credentials-workflow.ps1`
+   - `verify-onboarding-dispatch-workflow.ps1`
+   - `verify-onboarding-report-workflow.ps1`
+3. devuelve un resumen JSON completo de la cadena real.

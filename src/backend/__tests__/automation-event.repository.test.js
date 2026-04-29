@@ -13,6 +13,7 @@ const {
 const {
   createAutomationEvent,
   getAutomationEventsRepositoryStatus,
+  updateAutomationEvent,
 } = require("../repositories/automation-event.repository");
 
 describe("automation-event.repository", () => {
@@ -101,6 +102,50 @@ describe("automation-event.repository", () => {
       payload: { ok: true },
     });
 
+    expect(result.persisted).toBe(true);
+    expect(result.record.id).toBe("evt_001");
+  });
+
+  test("actualiza el evento cuando Supabase esta disponible", async () => {
+    validateSupabaseClientConfig.mockReturnValue({
+      isValid: true,
+      missing: [],
+      errors: [],
+    });
+
+    const single = jest.fn().mockResolvedValue({
+      data: {
+        id: "evt_001",
+        event_name: "onboarding_activated",
+        cliente_id: "cli_001",
+        correlation_id: "corr-001",
+        event_timestamp: "2026-04-17T12:00:00.000Z",
+        dispatch_mode: "pending_integration",
+        dispatch_status: "failed",
+        destination: "n8n_webhook",
+        error_message: "network_error",
+        payload: { ok: true },
+        created_at: "2026-04-17T12:00:01.000Z",
+      },
+      error: null,
+    });
+    const select = jest.fn().mockReturnValue({ single });
+    const eq = jest.fn().mockReturnValue({ select });
+    const update = jest.fn().mockReturnValue({ eq });
+    createSupabaseClient.mockReturnValue({
+      from: jest.fn().mockReturnValue({ update }),
+    });
+
+    const result = await updateAutomationEvent("evt_001", {
+      dispatch_status: "failed",
+      error_message: "network_error",
+    });
+
+    expect(update).toHaveBeenCalledWith({
+      dispatch_status: "failed",
+      error_message: "network_error",
+    });
+    expect(eq).toHaveBeenCalledWith("id", "evt_001");
     expect(result.persisted).toBe(true);
     expect(result.record.id).toBe("evt_001");
   });

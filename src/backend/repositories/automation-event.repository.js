@@ -75,7 +75,76 @@ async function createAutomationEvent(record) {
   }
 }
 
+async function updateAutomationEvent(eventId, patch) {
+  const validation = validateSupabaseClientConfig({ keyType: "service_role" });
+
+  if (!validation.isValid) {
+    log("warn", "Automation event update skipped", {
+      reason: "supabase_config_incomplete",
+      missingVariables: validation.missing,
+      validationErrors: validation.errors,
+      eventId: eventId || null,
+    });
+
+    return {
+      persisted: false,
+      provider: "supabase",
+      skipped: true,
+      reason: "supabase_config_incomplete",
+      record: null,
+    };
+  }
+
+  if (!eventId) {
+    return {
+      persisted: false,
+      provider: "supabase",
+      skipped: true,
+      reason: "missing_event_id",
+      record: null,
+    };
+  }
+
+  try {
+    const supabase = createSupabaseClient({ keyType: "service_role" });
+    const { data, error } = await supabase
+      .from("automation_events")
+      .update(patch)
+      .eq("id", eventId)
+      .select(
+        "id, event_name, cliente_id, correlation_id, event_timestamp, dispatch_mode, dispatch_status, destination, error_message, payload, created_at",
+      )
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      persisted: true,
+      provider: "supabase",
+      skipped: false,
+      reason: null,
+      record: data,
+    };
+  } catch (error) {
+    log("error", "Automation event update failed", {
+      eventId,
+      error: error && error.message ? error.message : "unknown_error",
+    });
+
+    return {
+      persisted: false,
+      provider: "supabase",
+      skipped: false,
+      reason: error && error.message ? error.message : "unknown_error",
+      record: null,
+    };
+  }
+}
+
 module.exports = {
   createAutomationEvent,
   getAutomationEventsRepositoryStatus,
+  updateAutomationEvent,
 };

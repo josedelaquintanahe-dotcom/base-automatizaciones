@@ -17,13 +17,20 @@ $ErrorActionPreference = "Stop"
 function Invoke-CurlJson {
   param([string]$Url)
 
-  $raw = & curl.exe -sS $Url
+  $scriptPath = Join-Path $PSScriptRoot "http-json.mjs"
+  $raw = & node.exe $scriptPath --method GET --url $Url
 
   if (-not $raw) {
     return $null
   }
 
-  return $raw | ConvertFrom-Json
+  $response = $raw | ConvertFrom-Json
+
+  if (-not $response.body) {
+    return $null
+  }
+
+  return $response.body
 }
 
 $healthUrl = "$($BackendBaseUrl.TrimEnd('/'))/api/health"

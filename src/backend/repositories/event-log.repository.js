@@ -1,7 +1,7 @@
 "use strict";
 
 const { log } = require("../app/logger");
-const { createAutomationEvent } = require("./automation-event.repository");
+const { createAutomationEvent, updateAutomationEvent } = require("./automation-event.repository");
 
 async function registerBackendEvent({
   eventName,
@@ -72,6 +72,52 @@ async function registerBackendEvent({
   return event;
 }
 
+async function updateBackendEventDispatch({
+  eventId,
+  dispatchMode = null,
+  dispatchStatus = null,
+  destination = null,
+  errorMessage = null,
+}) {
+  if (!eventId) {
+    return {
+      id: null,
+      provider: "backend_log",
+      persisted: false,
+      skipped: true,
+      reason: "missing_event_id",
+    };
+  }
+
+  const patch = {};
+
+  if (dispatchMode !== null) {
+    patch.dispatch_mode = dispatchMode;
+  }
+
+  if (dispatchStatus !== null) {
+    patch.dispatch_status = dispatchStatus;
+  }
+
+  if (destination !== null) {
+    patch.destination = destination;
+  }
+
+  patch.error_message = errorMessage || null;
+
+  const persistence = await updateAutomationEvent(eventId, patch);
+
+  return {
+    id: eventId,
+    provider: persistence.provider || "backend_log",
+    persisted: Boolean(persistence.persisted),
+    skipped: Boolean(persistence.skipped),
+    reason: persistence.reason || null,
+    record: persistence.record || null,
+  };
+}
+
 module.exports = {
   registerBackendEvent,
+  updateBackendEventDispatch,
 };

@@ -52,6 +52,22 @@ function Assert-RequiredEnv {
   }
 }
 
+function Convert-HeaderListToMap {
+  param([string[]]$Headers)
+
+  $map = @{}
+
+  foreach ($header in $Headers) {
+    $parts = $header -split ":", 2
+
+    if ($parts.Length -eq 2) {
+      $map[$parts[0].Trim()] = $parts[1].Trim()
+    }
+  }
+
+  return $map
+}
+
 function Invoke-CurlJson {
   param(
     [string]$Url,
@@ -60,17 +76,18 @@ function Invoke-CurlJson {
     [string]$Body = ""
   )
 
-  $arguments = @("-sS", "-X", $Method, $Url)
+  $scriptPath = Join-Path $PSScriptRoot "http-json.mjs"
+  $arguments = @($scriptPath, "--method", $Method, "--url", $Url)
 
   foreach ($header in $Headers) {
-    $arguments += @("-H", $header)
+    $arguments += @("--header", $header)
   }
 
   if ($Body) {
-    $arguments += @("--data-raw", $Body)
+    $arguments += @("--body", $Body)
   }
 
-  $raw = & curl.exe @arguments
+  $raw = & node.exe @arguments
 
   if (-not $raw) {
     return $null
@@ -83,11 +100,13 @@ function Assert-OnboardingDispatchPreflight {
   param([string]$BaseUrl)
 
   $statusUrl = "$($BaseUrl.TrimEnd('/'))/api/system/status"
-  $statusPayload = Invoke-CurlJson -Url $statusUrl -Headers @()
+  $statusResponse = Invoke-CurlJson -Url $statusUrl -Headers @()
 
-  if (-not $statusPayload) {
+  if (-not $statusResponse -or -not $statusResponse.body) {
     throw "No se recibio respuesta valida de $statusUrl"
   }
+
+  $statusPayload = $statusResponse.body
 
   if ($statusPayload.status -ne "ok") {
     throw "El preflight operativo ha fallado: /api/system/status no devuelve status=ok."
@@ -119,27 +138,29 @@ function Invoke-Activation {
 
   $url = "$($BaseUrl.TrimEnd('/'))/api/clientes/backoffice/$TargetClientId/activar-onboarding"
 
-  $raw = & curl.exe -sS -X POST $url `
-    -H "Authorization: Bearer $env:BACKOFFICE_API_TOKEN" `
-    -H "Content-Type: application/json" `
-    -w "`nHTTPSTATUS:%{http_code}"
-
-  $status = ($raw -split "HTTPSTATUS:")[-1].Trim()
-  $body = ($raw -split "HTTPSTATUS:")[0].Trim() | ConvertFrom-Json
+  $response = Invoke-CurlJson -Url $url -Method "POST" -Headers @(
+    "Authorization: Bearer $env:BACKOFFICE_API_TOKEN"
+  ) -Body "{}"
 
   return @{
-    Status = [int]$status
-    Body = $body
+    Status = [int]$response.status
+    Body = $response.body
   }
 }
 
 function Get-SupabaseRows {
   param([string]$Url)
 
-  return Invoke-CurlJson -Url $Url -Headers @(
+  $response = Invoke-CurlJson -Url $Url -Headers @(
     "apikey: $env:SUPABASE_SERVICE_ROLE_KEY",
     "Authorization: Bearer $env:SUPABASE_SERVICE_ROLE_KEY"
   )
+
+  if (-not $response -or -not $response.body) {
+    return @()
+  }
+
+  return $response.body
 }
 
 Set-EnvFromFile -Path $EnvFile
@@ -169,16 +190,25 @@ $execUrl = "$supabaseBaseUrl/rest/v1/ejecuciones_workflows?select=correlation_id
 
 $eventRows = @()
 $execRows = @()
+$primaryWorkflowRow = $null
 
 for ($attempt = 1; $attempt -le $PollAttempts; $attempt++) {
   $eventRows = @(Get-SupabaseRows -Url $eventUrl)
   $execRows = @(Get-SupabaseRows -Url $execUrl)
 
   if ($eventRows.Count -gt 0 -and $execRows.Count -gt 0) {
-    break
+    $primaryWorkflowRow = $execRows | Where-Object { $_.workflow_name -eq "onboarding_activated" } | Select-Object -First 1
+
+    if ($primaryWorkflowRow) {
+      break
+    }
   }
 
   Start-Sleep -Seconds $PollDelaySeconds
+}
+
+if (-not $primaryWorkflowRow -and $execRows.Count -gt 0) {
+  $primaryWorkflowRow = $execRows | Where-Object { $_.workflow_name -eq "onboarding_activated" } | Select-Object -First 1
 }
 
 $result = [pscustomobject]@{
@@ -190,8 +220,8 @@ $result = [pscustomobject]@{
   automation_events = $eventRows.Count
   automation_dispatch_status = if ($eventRows.Count -gt 0) { $eventRows[0].dispatch_status } else { $null }
   ejecuciones_workflows = $execRows.Count
-  workflow_status = if ($execRows.Count -gt 0) { $execRows[0].status } else { $null }
-  workflow_name = if ($execRows.Count -gt 0) { $execRows[0].workflow_name } else { $null }
+  workflow_status = if ($primaryWorkflowRow) { $primaryWorkflowRow.status } else { $null }
+  workflow_name = if ($primaryWorkflowRow) { $primaryWorkflowRow.workflow_name } else { $null }
 }
 
 $result | ConvertTo-Json -Depth 4

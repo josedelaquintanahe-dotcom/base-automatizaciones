@@ -3,10 +3,14 @@
 jest.mock("../app/logger", () => ({ log: jest.fn() }));
 jest.mock("../repositories/event-log.repository", () => ({
   registerBackendEvent: jest.fn(),
+  updateBackendEventDispatch: jest.fn(),
 }));
 
 const { log } = require("../app/logger");
-const { registerBackendEvent } = require("../repositories/event-log.repository");
+const {
+  registerBackendEvent,
+  updateBackendEventDispatch,
+} = require("../repositories/event-log.repository");
 const { dispatchOnboardingActivated } = require("../services/onboarding-dispatcher.service");
 
 describe("dispatchOnboardingActivated", () => {
@@ -103,6 +107,7 @@ describe("dispatchOnboardingActivated", () => {
       destination: "internal_pending",
       delivery_status: "accepted",
     });
+    expect(updateBackendEventDispatch).not.toHaveBeenCalled();
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
@@ -176,16 +181,27 @@ describe("dispatchOnboardingActivated", () => {
         destination: "n8n_webhook",
       }),
     );
+    expect(updateBackendEventDispatch).not.toHaveBeenCalled();
   });
 
   test("si el webhook falla no rompe el dispatcher y devuelve estado de entrega fallido", async () => {
     process.env.ONBOARDING_DISPATCH_WEBHOOK_URL = "https://n8n.example.com/webhook/onboarding";
     global.fetch.mockRejectedValue(new Error("network_error"));
     registerBackendEvent.mockResolvedValue({
+      id: "evt_001",
       event_name: "onboarding_activated",
       correlation_id: "corr-100",
-      provider: "backend_log",
-      persisted: false,
+      provider: "supabase",
+      persisted: true,
+    });
+    updateBackendEventDispatch.mockResolvedValue({
+      persisted: true,
+      record: {
+        dispatch_mode: "pending_integration",
+        dispatch_status: "failed",
+        destination: "n8n_webhook",
+        error_message: "El webhook de onboarding fallo. Revisar logs y reintentar integracion.",
+      },
     });
 
     const result = await dispatchOnboardingActivated(buildDispatchInput());
@@ -199,6 +215,14 @@ describe("dispatchOnboardingActivated", () => {
     });
     expect(registerBackendEvent).toHaveBeenCalledWith(
       expect.objectContaining({
+        dispatchMode: "webhook",
+        dispatchStatus: "accepted",
+        destination: "n8n_webhook",
+      }),
+    );
+    expect(updateBackendEventDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventId: "evt_001",
         dispatchMode: "pending_integration",
         dispatchStatus: "failed",
         destination: "n8n_webhook",

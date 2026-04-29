@@ -94,36 +94,28 @@ function Invoke-JsonRequest {
     [string]$Body = ""
   )
 
-  $arguments = @("-sS", "-X", $Method, $Url)
+  $scriptPath = Join-Path $PSScriptRoot "http-json.mjs"
+  $arguments = @($scriptPath, "--method", $Method, "--url", $Url)
 
   foreach ($header in $Headers) {
-    $arguments += @("-H", $header)
+    $arguments += @("--header", $header)
   }
 
   if ($Body) {
-    $arguments += @("--data-raw", $Body)
+    $arguments += @("--body", $Body)
   }
 
-  $arguments += @("-w", "`nHTTPSTATUS:%{http_code}")
+  $raw = & node.exe @arguments
 
-  $raw = & curl.exe @arguments
-
-  $status = ($raw -split "HTTPSTATUS:")[-1].Trim()
-  $bodyRaw = ($raw -split "HTTPSTATUS:")[0].Trim()
-  $bodyJson = $null
-
-  if ($bodyRaw) {
-    try {
-      $bodyJson = $bodyRaw | ConvertFrom-Json
-    }
-    catch {
-      $bodyJson = $bodyRaw
-    }
+  if (-not $raw) {
+    return [pscustomobject]@{ Status = 0; Body = $null }
   }
+
+  $response = $raw | ConvertFrom-Json
 
   return [pscustomobject]@{
-    Status = [int]$status
-    Body = $bodyJson
+    Status = [int]$response.status
+    Body = $response.body
   }
 }
 

@@ -3,7 +3,10 @@
 const { log } = require("../app/logger");
 const { getSafeN8nTarget, postN8nWebhook } = require("../clients/n8n.client");
 const { getServerConfig } = require("../config/server-config");
-const { registerBackendEvent } = require("../repositories/event-log.repository");
+const {
+  registerBackendEvent,
+  updateBackendEventDispatch,
+} = require("../repositories/event-log.repository");
 
 const DEFAULT_DISPATCH_TARGET = "internal_pending";
 const WEBHOOK_DISPATCH_TARGET = "n8n_webhook";
@@ -255,33 +258,75 @@ async function dispatchOnboardingActivated({ cliente, detail, attemptedAt, activ
     eventTimestamp: attemptedAt,
     payload: eventPayload,
   });
-
-  const webhookDispatch = await dispatchToWebhook({
-    cliente,
-    correlationId,
-    attemptedAt,
-    activationDate,
-    detail,
-  });
-  const dispatch =
-    webhookDispatch ||
+  const predictedWebhookDispatch = getWebhookDispatchUrl()
+    ? {
+        mode: "webhook",
+        automated: true,
+        target: "automatizacion_onboarding",
+        next_step: "Webhook de onboarding en curso.",
+        destination: WEBHOOK_DISPATCH_TARGET,
+        delivery_status: "accepted",
+        webhook_target: getSafeN8nTarget(getWebhookDispatchUrl()),
+      }
+    : null;
+  const predictedDispatch =
+    predictedWebhookDispatch ||
     (await dispatchToInternalPending({
       clienteId: cliente.id,
       correlationId,
       event: transientEvent,
     }));
-  const event = await registerBackendEvent({
+  const registeredEvent = await registerBackendEvent({
     eventName: transientEvent.event_name,
     clienteId: transientEvent.cliente_id,
     correlationId,
     eventTimestamp: transientEvent.event_timestamp,
-    dispatchMode: dispatch.mode,
-    dispatchStatus: dispatch.delivery_status,
-    destination: dispatch.destination,
-    errorMessage: dispatch.delivery_status === "failed" ? dispatch.next_step : null,
+    dispatchMode: predictedDispatch.mode,
+    dispatchStatus: predictedDispatch.delivery_status,
+    destination: predictedDispatch.destination,
+    errorMessage: predictedDispatch.delivery_status === "failed" ? predictedDispatch.next_step : null,
     payload: transientEvent.payload,
     status: "accepted",
   });
+
+  const webhookDispatch = predictedWebhookDispatch
+    ? await dispatchToWebhook({
+        cliente,
+        correlationId,
+        attemptedAt,
+        activationDate,
+        detail,
+      })
+    : null;
+  const dispatch = webhookDispatch || predictedDispatch;
+  let event = registeredEvent;
+
+  if (
+    registeredEvent &&
+    registeredEvent.persisted &&
+    registeredEvent.id &&
+    (dispatch.mode !== predictedDispatch.mode ||
+      dispatch.delivery_status !== predictedDispatch.delivery_status ||
+      dispatch.destination !== predictedDispatch.destination)
+  ) {
+    const updatedEvent = await updateBackendEventDispatch({
+      eventId: registeredEvent.id,
+      dispatchMode: dispatch.mode,
+      dispatchStatus: dispatch.delivery_status,
+      destination: dispatch.destination,
+      errorMessage: dispatch.delivery_status === "failed" ? dispatch.next_step : null,
+    });
+
+    if (updatedEvent.persisted && updatedEvent.record) {
+      event = {
+        ...registeredEvent,
+        dispatch_mode: updatedEvent.record.dispatch_mode,
+        dispatch_status: updatedEvent.record.dispatch_status,
+        destination: updatedEvent.record.destination,
+        error_message: updatedEvent.record.error_message,
+      };
+    }
+  }
 
   return {
     event,

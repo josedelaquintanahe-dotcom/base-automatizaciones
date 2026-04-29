@@ -34,7 +34,8 @@ Verifica el flujo real de onboarding contra un backend desplegado:
 ## Dependencias
 
 - PowerShell
-- `curl.exe`
+- `node.exe`
+- `scripts/http-json.mjs`
 - variables reales de `BACKOFFICE_API_TOKEN`, `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`
 
 ## Reglas
@@ -91,7 +92,8 @@ Verifica el primer workflow de auditoria post-onboarding una vez exista un `corr
 ## Dependencias
 
 - PowerShell
-- `curl.exe`
+- `node.exe`
+- `scripts/http-json.mjs`
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `N8N_WEBHOOK_BASE_URL` si no se pasa `WorkflowWebhookUrl`
@@ -206,3 +208,21 @@ Punto de entrada operativo para ejecutar la secuencia auditiva completa:
    - `verify-onboarding-dispatch-workflow.ps1`
    - `verify-onboarding-report-workflow.ps1`
 3. devuelve un resumen JSON completo de la cadena real.
+
+### `verify-onboarding-automated-audit-chain.ps1`
+
+Verifica la nueva automatizacion real de onboarding usando un unico disparo desde backend:
+
+1. ejecuta `verify-onboarding-flow.ps1` para activar onboarding y obtener un `correlation_id` nuevo,
+2. espera a que `onboarding_activated` encadene por si mismo los 5 workflows auditivos,
+3. consulta `ejecuciones_workflows` en Supabase,
+4. confirma que estos 6 workflows terminan en `completed` para el mismo `correlation_id`:
+   - `onboarding_activated`
+   - `onboarding_trace_verified`
+   - `onboarding_readiness_revalidated`
+   - `onboarding_credentials_metadata_checked`
+   - `onboarding_dispatch_health_checked`
+   - `onboarding_sanitized_report_compiled`
+5. valida que el reporte final deje `all_checks_passed = true`.
+
+Este es el script recomendado para comprobar que la automatizacion de onboarding ya no se limita al webhook inicial y que la cadena auditiva completa se ejecuta automaticamente.

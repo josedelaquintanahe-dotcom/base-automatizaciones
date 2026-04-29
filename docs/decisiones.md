@@ -366,3 +366,24 @@ Se adopta que `onboarding_sanitized_report_compiled` lea las filas tecnicas ya p
 
 Motivo:
 La tabla tecnica ya es la fuente de trazabilidad del sistema. Consolidar desde ahi reduce acoplamiento entre workflows, simplifica la validacion real de la secuencia completa y mantiene el criterio de bajo riesgo y alta auditabilidad.
+
+### D-051. `onboarding_activated` pasara a encadenar automaticamente la secuencia auditiva post-onboarding
+
+Se adopta que el workflow real `onboarding_activated`, ya activado como webhook oficial del backend, deje de limitarse a registrar su propia recepcion tecnica y pase a disparar de forma automatica `onboarding_trace_verified`, `onboarding_readiness_revalidated`, `onboarding_credentials_metadata_checked`, `onboarding_dispatch_health_checked` y `onboarding_sanitized_report_compiled` para el mismo `correlation_id`.
+
+Motivo:
+Es la forma de mayor valor y menor riesgo para convertir la activacion de onboarding en la primera automatizacion real de negocio operativa del proyecto sin introducir credenciales nuevas ni depender de acciones externas irreversibles.
+
+### D-052. La cadena automatica de auditoria no bloqueara la aceptacion principal del webhook de onboarding
+
+Se adopta que `onboarding_activated` siga respondiendo `202` al backend cuando el payload principal sea valido y su fila tecnica inicial quede registrada, aunque alguno de los workflows auditivos posteriores falle. En ese caso, la propia fila tecnica de `onboarding_activated` debe quedar en `error` y la respuesta del webhook debe incluir un resumen sanitario del fallo de la cadena.
+
+Motivo:
+El backend ya trata este dispatch como una accion operativa best effort y no conviene degradar la activacion administrativa del cliente por una incidencia posterior de diagnostico. Mantener la aceptacion principal y reflejar el error en trazabilidad tecnica preserva continuidad operativa y facilita soporte por `correlation_id`.
+
+### D-053. `automation_events` debe persistirse antes del webhook n8n cuando el propio workflow depende de esa trazabilidad
+
+Se adopta que el backend registre la fila de `automation_events` antes de invocar el webhook real `onboarding_activated` cuando la cadena automatica de n8n dependa de leer ese mismo evento por `correlation_id`. Si el dispatch externo falla, el backend debe actualizar despues el estado de entrega persistido en lugar de diferir toda la insercion al final.
+
+Motivo:
+La cadena automatica descubrio una dependencia circular: `onboarding_activated` intentaba disparar workflows que leen `automation_events`, pero el backend solo escribia esa fila despues de recibir la respuesta de n8n. En ese orden, los workflows hijos nunca podian verla dentro del mismo request. Registrar primero y corregir despues el estado de entrega resuelve la carrera sin romper la trazabilidad operativa.

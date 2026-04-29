@@ -338,3 +338,10 @@ Se adopta que los scripts operativos que invoquen workflows de n8n acepten una `
 
 Motivo:
 La misma instancia de n8n puede exponer URLs distintas para MCP y para webhooks publicos. Si el script asume una sola forma de base, puede dar falsos fallos operativos aunque el workflow este bien publicado y accesible.
+
+### D-047. `onboarding_readiness_revalidated` reutilizara `correlation_id` pero leera el payload origen desde `automation_events`
+
+Se adopta que `onboarding_readiness_revalidated` mantenga un trigger webhook interno/controlado y reciba un payload minimo con `correlation_id`, `cliente_id` y `event_name`. La revalidacion de readiness se hara leyendo el `payload` del evento `onboarding_activated` en `automation_events`, en lugar de depender de que otro workflow le reenvie todo el contrato sanitario.
+
+Motivo:
+Este enfoque conserva la trazabilidad por `correlation_id`, evita duplicar payloads grandes entre workflows y hace que la validacion real siga siendo operable desde scripts sin introducir todavia una orquestacion `Execute Workflow` entre piezas nuevas.

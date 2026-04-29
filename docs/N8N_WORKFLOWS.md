@@ -52,6 +52,19 @@ Documentacion base:
 - persistencia esperada: `ejecuciones_workflows` con resultado sanitario dentro de `input_payload`
 - script operativo previsto para validacion real: `scripts/verify-onboarding-trace-workflow.ps1`
 
+#### `onboarding_readiness_revalidated`
+
+- documento fuente: `workflows/onboarding__audit__onboarding_readiness_revalidated__v1.md`
+- blueprint tecnico: `n8n/workflows/onboarding_readiness_revalidated.workflow.ts`
+- placeholder tecnico: `n8n/workflows/onboarding_readiness_revalidated.planned.json`
+- workflowId en n8n Cloud: `NxCOMdciTp8QkDtb`
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- trigger canonico: webhook `POST` interno/controlado
+- ruta activa: `/webhook/onboarding_readiness_revalidated`
+- objetivo: revalidar las condiciones sanitarias de readiness usando el payload persistido del evento `onboarding_activated`
+- persistencia esperada: `ejecuciones_workflows` con resultado sanitario dentro de `input_payload`
+- script operativo previsto para validacion real: `scripts/verify-onboarding-readiness-workflow.ps1`
+
 ## Controles operativos minimos
 
 - mantener alineados `render.yaml`, Render y la ruta activa del workflow real,

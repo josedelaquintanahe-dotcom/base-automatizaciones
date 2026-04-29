@@ -294,3 +294,19 @@ Se adopta mantener en `n8n/workflows/` una exportacion JSON sanitaria del workfl
 
 Motivo:
 Una vez validado un workflow real en produccion, dejarlo solo en la UI de n8n Cloud crea un punto ciego operativo. Versionar una exportacion sanitaria mejora trazabilidad, revision tecnica y recuperabilidad sin exponer secretos ni depender solo de la instancia remota.
+
+## 2026-04-29
+
+### D-041. La siguiente fase funcional priorizara workflows de auditoria post-onboarding antes de efectos externos
+
+Se adopta que los siguientes cinco workflows de n8n tras `onboarding_activated` pertenezcan a una secuencia de auditoria y verificacion operativa de bajo riesgo: `onboarding_trace_verified`, `onboarding_readiness_revalidated`, `onboarding_credentials_metadata_checked`, `onboarding_dispatch_health_checked` y `onboarding_sanitized_report_compiled`.
+
+Motivo:
+El proyecto ya ha validado la trazabilidad extrema a extrema y cuenta con smoke tests operativos. El siguiente paso con mejor relacion valor/riesgo es ampliar observabilidad y evidencia reutilizable sin tocar sistemas externos ni introducir efectos de negocio irreversibles.
+
+### D-042. Los workflows de auditoria post-onboarding compartiran un contrato tecnico comun y output sanitario
+
+Se adopta que estos workflows reutilicen un contrato comun basado en `correlation_id`, `workflow_name`, `workflow_version`, `check_name`, `check_status`, `result_summary`, `next_action` y `output_payload` sanitario, evitando secretos, credenciales desencriptadas o mutaciones de negocio.
+
+Motivo:
+Un contrato comun simplifica validacion, documentacion, smoke tests y futura consolidacion en reportes tecnicos, a la vez que reduce el riesgo de deriva entre workflows parecidos y evita ampliar privilegios antes de tiempo.

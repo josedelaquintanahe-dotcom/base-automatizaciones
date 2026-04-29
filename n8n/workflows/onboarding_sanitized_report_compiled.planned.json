@@ -1,0 +1,20 @@
+{
+  "status": "planned",
+  "workflow_name": "onboarding_sanitized_report_compiled",
+  "workflow_version": "v1",
+  "pattern": "post_onboarding_audit",
+  "trigger": {
+    "type": "execute_workflow",
+    "parent_workflow": "onboarding_dispatch_health_checked"
+  },
+  "idempotency_key": "workflow_name + correlation_id",
+  "reads": [
+    "previous_check_outputs"
+  ],
+  "writes": [
+    "ejecuciones_workflows"
+  ],
+  "output_contract": {
+    "sanitized": true
+  }
+}

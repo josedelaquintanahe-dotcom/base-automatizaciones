@@ -38,16 +38,25 @@ Hecho recientemente:
 - revalidacion completa del flujo tras despliegue el 29 de abril de 2026
 - versionado de `scripts/verify-onboarding-flow.ps1` para revalidacion operativa repetible
 - export JSON sanitario del workflow activo en `n8n/workflows/`
+- secuencia de 5 workflows de auditoria post-onboarding documentada y preparada
 
 ## Fase 3. Expansion de automatizaciones
 
-Estado: pendiente
+Estado: preparada documentalmente
 
 Objetivos:
 
 - ampliar workflows n8n mas alla de `onboarding_activated`,
 - definir patrones de error, reintentos, logs y fallback manual,
 - documentar credenciales, entradas y salidas por workflow.
+
+Secuencia inmediata priorizada:
+
+1. `onboarding_trace_verified`
+2. `onboarding_readiness_revalidated`
+3. `onboarding_credentials_metadata_checked`
+4. `onboarding_dispatch_health_checked`
+5. `onboarding_sanitized_report_compiled`
 
 ## Fase 4. Consolidacion comercial y de despliegue
 
@@ -73,4 +82,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Usar un bloque seguro para definir y documentar el siguiente workflow de bajo riesgo, reutilizando el patron de trazabilidad ya validado en onboarding.
+Usar un bloque seguro para implementar `onboarding_trace_verified`, validar su trazabilidad con `correlation_id` y mantener el resto de la secuencia como backlog tecnico inmediato.

@@ -1,0 +1,20 @@
+{
+  "status": "planned",
+  "workflow_name": "onboarding_trace_verified",
+  "workflow_version": "v1",
+  "pattern": "post_onboarding_audit",
+  "trigger": {
+    "type": "execute_workflow",
+    "parent_workflow": "onboarding_activated"
+  },
+  "idempotency_key": "workflow_name + correlation_id",
+  "reads": [
+    "automation_events"
+  ],
+  "writes": [
+    "ejecuciones_workflows"
+  ],
+  "output_contract": {
+    "sanitized": true
+  }
+}

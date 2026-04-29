@@ -20,6 +20,22 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - persistencia esperada: `automation_events` y `ejecuciones_workflows`
 - ruta activa validada: `/webhook/onboarding_activated`
 
+## Siguiente secuencia planificada
+
+Workflows de bajo riesgo preparados documentalmente para la siguiente fase:
+
+1. `onboarding_trace_verified`
+2. `onboarding_readiness_revalidated`
+3. `onboarding_credentials_metadata_checked`
+4. `onboarding_dispatch_health_checked`
+5. `onboarding_sanitized_report_compiled`
+
+Documentacion base:
+
+- `n8n/docs/onboarding_audit_sequence.md`
+- `workflows/onboarding__audit__*.md`
+- `n8n/workflows/*.planned.json`
+
 ## Controles operativos minimos
 
 - mantener alineados `render.yaml`, Render y la ruta activa del workflow real,
@@ -58,6 +74,7 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 ## Estado de versionado actual
 
 - export JSON sanitario versionado para `onboarding_activated`
+- placeholders tecnicos versionados para la secuencia de auditoria post-onboarding
 
 ## Pendiente de validar
 

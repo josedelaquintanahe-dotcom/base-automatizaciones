@@ -345,3 +345,10 @@ Se adopta que `onboarding_readiness_revalidated` mantenga un trigger webhook int
 
 Motivo:
 Este enfoque conserva la trazabilidad por `correlation_id`, evita duplicar payloads grandes entre workflows y hace que la validacion real siga siendo operable desde scripts sin introducir todavia una orquestacion `Execute Workflow` entre piezas nuevas.
+
+### D-048. `onboarding_credentials_metadata_checked` validara el shape real de `operational_summary` emitido por backend
+
+Se adopta que `onboarding_credentials_metadata_checked` lea `automation_events.payload.operational_summary` y use como contrato canonico las claves reales del backend: `credenciales.activas`, `credenciales.tipos_configurados` y `access.token_operativo_activo`.
+
+Motivo:
+La documentacion inicial simplificaba el payload como si `operational_summary` fuese plano. Implementar contra ese shape falso generaria checks inconsistentes. Alinear el workflow con el contrato real del backend evita deriva y mantiene la validacion de bajo riesgo, sin acceder a secretos ni recalcular estados desde tablas sensibles.

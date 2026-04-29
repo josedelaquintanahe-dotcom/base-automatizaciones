@@ -139,3 +139,40 @@ Verifica el segundo workflow de auditoria post-onboarding una vez exista un `cor
 - soporta entornos donde `N8N_WEBHOOK_BASE_URL` apunte al endpoint MCP; en ese caso normaliza la URL publica del webhook,
 - no fijar `correlation_id` ni `cliente_id` reales dentro del script,
 - preferir un `correlation_id` obtenido de una activacion de onboarding recien validada.
+
+### `verify-onboarding-credentials-workflow.ps1`
+
+Verifica el tercer workflow de auditoria post-onboarding usando el payload real persistido del evento origen:
+
+1. resuelve la URL del webhook de `onboarding_credentials_metadata_checked`,
+2. envia un payload tecnico minimo con `correlation_id`, `cliente_id` y `event_name`,
+3. deja que el workflow lea `automation_events.payload.operational_summary`,
+4. confirma que `onboarding_credentials_metadata_checked` persiste una fila con `status = completed`.
+
+## Entradas
+
+- `CorrelationId` obligatorio
+- `ClientId` obligatorio
+- `EnvFile` opcional, por defecto `src/backend/.env.local`
+- `WorkflowWebhookUrl` opcional; si no se pasa, se compone desde `N8N_WEBHOOK_BASE_URL`
+- `PollAttempts` opcional
+- `PollDelaySeconds` opcional
+
+## Salida
+
+- resumen JSON con estado HTTP, webhook usado, `correlation_id` y persistencia detectada
+- codigo de salida distinto de cero si la validacion falla
+
+## Dependencias
+
+- PowerShell
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `N8N_WEBHOOK_BASE_URL` si no se pasa `WorkflowWebhookUrl`
+
+## Reglas
+
+- usarlo cuando el workflow este activo o cuando se quiera comprobar su endpoint real,
+- soporta entornos donde `N8N_WEBHOOK_BASE_URL` apunte al endpoint MCP; en ese caso normaliza la URL publica del webhook,
+- no fijar `correlation_id` ni `cliente_id` reales dentro del script,
+- preferir un `correlation_id` obtenido de una activacion de onboarding recien validada.

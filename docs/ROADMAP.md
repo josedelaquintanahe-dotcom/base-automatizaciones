@@ -54,8 +54,8 @@ Secuencia inmediata priorizada:
 
 1. `onboarding_trace_verified` - publicado y validado en ejecucion real
 2. `onboarding_readiness_revalidated` - publicado y validado en ejecucion real
-3. `onboarding_credentials_metadata_checked` - siguiente bloque inmediato
-4. `onboarding_dispatch_health_checked`
+3. `onboarding_credentials_metadata_checked` - publicado y validado en ejecucion real
+4. `onboarding_dispatch_health_checked` - siguiente bloque inmediato
 5. `onboarding_sanitized_report_compiled`
 
 ## Fase 4. Consolidacion comercial y de despliegue
@@ -82,4 +82,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Implementar `onboarding_credentials_metadata_checked`, validarlo con el mismo `correlation_id` y mantener la secuencia restante como backlog inmediato.
+Implementar `onboarding_dispatch_health_checked`, validarlo con el mismo `correlation_id` y mantener la secuencia restante como backlog inmediato.

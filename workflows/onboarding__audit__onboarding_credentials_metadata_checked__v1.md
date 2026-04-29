@@ -6,19 +6,29 @@ Verificar solo metadatos operativos de credenciales y token ya presentes en el p
 
 ## Trigger
 
-- tipo recomendado: `Execute Workflow`
-- origen esperado: despues de `onboarding_readiness_revalidated`
+- tipo canonico: webhook `POST` interno/controlado
+- ruta activa: `/webhook/onboarding_credentials_metadata_checked`
+- origen esperado: flujo tecnico derivado de `onboarding_activated` mediante `correlation_id`
+- estado actual: blueprint SDK validado, workflow publicado en n8n Cloud (`GWjTrTPILaIRQ6ZO`) y validado en ejecucion real el 29 de abril de 2026
 
 ## Input esperado
 
-- contrato comun definido en `n8n/docs/onboarding_audit_sequence.md`
+- payload minimo:
+  - `correlation_id`
+  - `cliente_id`
+  - `event_name = onboarding_activated`
 
 ## Logica esperada
 
+- leer `automation_events` por `correlation_id` y `event_name = onboarding_activated`,
+- extraer del `payload` persistido:
+  - `operational_summary.credenciales.activas`
+  - `operational_summary.credenciales.tipos_configurados`
+  - `operational_summary.access.token_operativo_activo`
 - verificar que:
-  - `operational_summary.credenciales_activas > 0`
-  - `operational_summary.tipos_credencial` tenga al menos un tipo
-  - `operational_summary.token_operativo_activo = true`
+  - `operational_summary.credenciales.activas > 0`
+  - `operational_summary.credenciales.tipos_configurados` tenga al menos un tipo
+  - `operational_summary.access.token_operativo_activo = true`
 
 ## Output esperado
 
@@ -42,6 +52,7 @@ Verificar solo metadatos operativos de credenciales y token ya presentes en el p
 
 ## Sistemas afectados
 
+- lectura de `automation_events`
 - escritura tecnica en `ejecuciones_workflows`
 
 ## Riesgos
@@ -57,3 +68,10 @@ Verificar solo metadatos operativos de credenciales y token ya presentes en el p
 
 - fila tecnica en `ejecuciones_workflows`
 - sin secretos en `sanitized_result`
+
+## Validacion tecnica ya realizada
+
+- validacion SDK oficial de n8n: correcta
+- prueba segura con datos fijados en n8n Cloud: correcta
+- script operativo preparado para validacion real: `scripts/verify-onboarding-credentials-workflow.ps1`
+- validacion en ejecucion real con trazabilidad por `correlation_id`: correcta

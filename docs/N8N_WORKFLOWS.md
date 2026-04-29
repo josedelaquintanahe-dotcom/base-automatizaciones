@@ -36,6 +36,8 @@ Documentacion base:
 - `workflows/onboarding__audit__*.md`
 - `n8n/workflows/*.planned.json`
 - `n8n/workflows/onboarding_trace_verified.workflow.ts`
+- `n8n/workflows/onboarding_readiness_revalidated.workflow.ts`
+- `n8n/workflows/onboarding_credentials_metadata_checked.workflow.ts`
 
 ### Estado actual de la secuencia auditiva
 
@@ -64,6 +66,19 @@ Documentacion base:
 - objetivo: revalidar las condiciones sanitarias de readiness usando el payload persistido del evento `onboarding_activated`
 - persistencia esperada: `ejecuciones_workflows` con resultado sanitario dentro de `input_payload`
 - script operativo previsto para validacion real: `scripts/verify-onboarding-readiness-workflow.ps1`
+
+#### `onboarding_credentials_metadata_checked`
+
+- documento fuente: `workflows/onboarding__audit__onboarding_credentials_metadata_checked__v1.md`
+- blueprint tecnico: `n8n/workflows/onboarding_credentials_metadata_checked.workflow.ts`
+- placeholder tecnico: `n8n/workflows/onboarding_credentials_metadata_checked.planned.json`
+- workflowId en n8n Cloud: `GWjTrTPILaIRQ6ZO`
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- trigger canonico: webhook `POST` interno/controlado
+- ruta activa: `/webhook/onboarding_credentials_metadata_checked`
+- objetivo: verificar metadatos sanitarios de credenciales y token usando `automation_events.payload.operational_summary`
+- persistencia esperada: `ejecuciones_workflows` con resultado sanitario dentro de `input_payload`
+- script operativo previsto para validacion real: `scripts/verify-onboarding-credentials-workflow.ps1`
 
 ## Controles operativos minimos
 

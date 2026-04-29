@@ -26,6 +26,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - blueprint SDK validado para `onboarding_trace_verified` en `n8n/workflows/onboarding_trace_verified.workflow.ts`
 - workflow `onboarding_trace_verified` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
 - workflow `onboarding_readiness_revalidated` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- workflow `onboarding_credentials_metadata_checked` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -59,8 +60,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; `onboarding_trace_verified` y `onboarding_readiness_revalidated` publicados y validados en ejecucion real por `correlation_id`
-- Pendiente: implementar `onboarding_credentials_metadata_checked` y mantener el resto de la secuencia auditiva como backlog inmediato
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; `onboarding_trace_verified`, `onboarding_readiness_revalidated` y `onboarding_credentials_metadata_checked` publicados y validados en ejecucion real por `correlation_id`
+- Pendiente: implementar `onboarding_dispatch_health_checked` y mantener el resto de la secuencia auditiva como backlog inmediato
 
 ### Sistema de agentes Codex
 
@@ -70,4 +71,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Implementar `onboarding_credentials_metadata_checked` reutilizando el mismo patron: blueprint validado, borrador en n8n, script operativo y validacion real por `correlation_id`.
+Implementar `onboarding_dispatch_health_checked` reutilizando el mismo patron: blueprint validado, borrador en n8n, script operativo y validacion real por `correlation_id`.

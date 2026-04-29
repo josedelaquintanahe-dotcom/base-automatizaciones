@@ -86,7 +86,7 @@ Definir la siguiente secuencia de 5 workflows de n8n de bajo riesgo despues de `
 | --- | --- | --- | --- | --- |
 | `onboarding_trace_verified` | webhook `POST` interno/controlado | `automation_events` | `ejecuciones_workflows` | confirmar evento `onboarding_activated` por `correlation_id` |
 | `onboarding_readiness_revalidated` | webhook `POST` interno/controlado | `automation_events.payload` | `ejecuciones_workflows` | `ready = true` y `missing_requirements = []` |
-| `onboarding_credentials_metadata_checked` | `Execute Workflow` | payload sanitario recibido | `ejecuciones_workflows` | `credenciales_activas > 0` y `token_operativo_activo = true` |
+| `onboarding_credentials_metadata_checked` | webhook `POST` interno/controlado | `automation_events.payload.operational_summary` | `ejecuciones_workflows` | `credenciales_activas > 0` y `token_operativo_activo = true` |
 | `onboarding_dispatch_health_checked` | `Execute Workflow` | snapshot sanitario de `system/status` | `ejecuciones_workflows` | `configured = true` y `pathStatus = expected` |
 | `onboarding_sanitized_report_compiled` | `Execute Workflow` | outputs sanitarios previos | `ejecuciones_workflows` | `all_checks_passed = true` |
 
@@ -96,6 +96,7 @@ Definir la siguiente secuencia de 5 workflows de n8n de bajo riesgo despues de `
 - workflowId actual en n8n Cloud: `yqr1wDX4aDS9JyH5`
 - workflow publicado y validado en ejecucion real el 29 de abril de 2026
 - `onboarding_readiness_revalidated`: workflow publicado en n8n Cloud (`NxCOMdciTp8QkDtb`) y validado en ejecucion real el 29 de abril de 2026
+- `onboarding_credentials_metadata_checked`: workflow publicado en n8n Cloud (`GWjTrTPILaIRQ6ZO`) y validado en ejecucion real el 29 de abril de 2026
 
 ## Query de validacion recomendada
 

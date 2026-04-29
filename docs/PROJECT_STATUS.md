@@ -21,6 +21,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - modelo SQL documentado para Supabase
 - flujo de onboarding con trazabilidad backend -> `automation_events` -> n8n -> `ejecuciones_workflows`, validado en entorno real el 28 de abril de 2026 y revalidado tras despliegue el 29 de abril de 2026
 - smoke test operativo versionado en `scripts/verify-onboarding-flow.ps1`
+- export JSON sanitario del workflow real en `n8n/workflows/onboarding_activated.active.json`
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -54,7 +55,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue
 - Pendiente: ampliar catalogo de workflows y endurecer auditoria operativa
 
 ### Sistema de agentes Codex

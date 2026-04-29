@@ -141,4 +141,5 @@ Situacion actual detectada:
 
 - existe documentacion operativa detallada para `onboarding__webhook__onboarding_activated__v1`,
 - el workflow logico `onboarding_activated` esta documentado y creado en n8n Cloud,
+- existe una exportacion JSON sanitaria del workflow activo en `n8n/workflows/onboarding_activated.active.json`,
 - la trazabilidad prevista reutiliza `correlation_id` y conecta `automation_events` con `ejecuciones_workflows`.

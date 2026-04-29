@@ -1,0 +1,338 @@
+{
+  "export_origin": {
+    "source": "n8n_cloud_active_version",
+    "workflow_id": "QqO12d3rTkruIr7Y",
+    "workflow_name": "onboarding_activated",
+    "version_id": "341d0a1a-b1dc-4a63-ac93-2a4b5fc3ef8d",
+    "exported_on": "2026-04-29",
+    "notes": [
+      "Export sanitario versionado desde la version activa del workflow en n8n Cloud.",
+      "No incluye secretos reales ni valores de credenciales gestionadas por la instancia."
+    ]
+  },
+  "workflow": {
+    "name": "onboarding_activated",
+    "description": "Recibe el webhook onboarding_activated v1, valida el payload y registra la ejecucion tecnica en Supabase con correlation_id extremo a extremo.",
+    "settings": {
+      "executionOrder": "v1",
+      "availableInMCP": true,
+      "binaryMode": "separate"
+    },
+    "trigger": {
+      "baseUrl": "https://quinttanaaa.app.n8n.cloud/",
+      "productionPath": "/webhook/onboarding_activated",
+      "testPath": "/webhook-test/onboarding_activated",
+      "method": "POST",
+      "responseMode": "responseNode"
+    },
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "onboarding_activated",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "72a2d2d3-1093-4aff-a812-986daf5d7664",
+        "name": "Webhook - onboarding_activated",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          240,
+          304
+        ],
+        "webhookId": "41a76651-d873-4ff3-b195-3f0cd4877ade"
+      },
+      {
+        "parameters": {
+          "jsCode": "const incoming = $input.first().json;\nconst payload = incoming.body ?? incoming;\nconst errors = [];\n\nif (payload.event_name !== 'onboarding_activated') errors.push('event_name invalido');\nif (payload.version !== 'v1') errors.push('version invalida');\nif (!payload.correlation_id) errors.push('correlation_id requerido');\nif (!payload.cliente_id) errors.push('cliente_id requerido');\n\nreturn [\n  {\n    json: {\n      valid: errors.length === 0,\n      errors,\n      payload,\n      correlation_id: payload.correlation_id ?? null,\n      cliente_id: payload.cliente_id ?? null\n    }\n  }\n];"
+        },
+        "id": "575b0970-dacf-4524-b3a5-f47475184c20",
+        "name": "Code - Validar payload",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          528,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "conditions": [
+              {
+                "leftValue": "={{ $json.valid }}",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true"
+                },
+                "rightValue": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "3cf50bcc-3781-4caa-a79e-1c00f6506ec3",
+        "name": "IF - Payload valido",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          800,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "tableId": "ejecuciones_workflows",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "workflow_name",
+                "fieldValue": "onboarding_activated"
+              },
+              {
+                "fieldId": "execution_source",
+                "fieldValue": "n8n_webhook"
+              },
+              {
+                "fieldId": "correlation_id",
+                "fieldValue": "={{ $json.correlation_id }}"
+              },
+              {
+                "fieldId": "cliente_id",
+                "fieldValue": "={{ $json.cliente_id }}"
+              },
+              {
+                "fieldId": "status",
+                "fieldValue": "received"
+              },
+              {
+                "fieldId": "input_payload",
+                "fieldValue": "={{ $json.payload }}"
+              },
+              {
+                "fieldId": "started_at",
+                "fieldValue": "={{ $now.toISO() }}"
+              }
+            ]
+          }
+        },
+        "id": "7e72cf3b-75ee-49f5-a142-277513be062f",
+        "name": "Supabase - Insert ejecucion received",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1104,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "workflow_execution_id",
+                "name": "workflow_execution_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "correlation_id",
+                "name": "correlation_id",
+                "value": "={{ $(\"Code - Validar payload\").first().json.correlation_id }}",
+                "type": "string"
+              },
+              {
+                "id": "cliente_id",
+                "name": "cliente_id",
+                "value": "={{ $(\"Code - Validar payload\").first().json.cliente_id }}",
+                "type": "string"
+              },
+              {
+                "id": "payload",
+                "name": "payload",
+                "value": "={{ $(\"Code - Validar payload\").first().json.payload }}",
+                "type": "object"
+              },
+              {
+                "id": "final_status",
+                "name": "final_status",
+                "value": "completed",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "id": "f3555950-5a51-4029-b4b6-5e56b5d46d13",
+        "name": "Edit Fields - Contexto update",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1392,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "ejecuciones_workflows",
+          "matchType": "allFilters",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $json.workflow_execution_id }}"
+              },
+              {
+                "keyName": "correlation_id",
+                "condition": "eq",
+                "keyValue": "={{ $json.correlation_id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "status",
+                "fieldValue": "completed"
+              },
+              {
+                "fieldId": "finished_at",
+                "fieldValue": "={{ $now.toISO() }}"
+              }
+            ]
+          }
+        },
+        "id": "9b90d589-e7e4-4e71-9361-197612c58fa1",
+        "name": "Supabase - Update ejecucion completed",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1664,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": {
+            "accepted": true,
+            "workflow_name": "onboarding_activated",
+            "correlation_id": "={{ $(\"Code - Validar payload\").first().json.correlation_id }}"
+          },
+          "options": {
+            "responseCode": 202
+          }
+        },
+        "id": "63b11859-4681-4e5a-8c41-56aafa2bb81e",
+        "name": "Respond to Webhook - OK",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          1952,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": {
+            "accepted": false,
+            "workflow_name": "onboarding_activated",
+            "correlation_id": "={{ $json.correlation_id }}",
+            "errors": "={{ $json.errors }}"
+          },
+          "options": {
+            "responseCode": 400
+          }
+        },
+        "id": "4d6b220e-07d6-4c2b-b917-78bb479631c8",
+        "name": "Respond to Webhook - Bad Request",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          1104,
+          432
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook - onboarding_activated": {
+        "main": [
+          [
+            {
+              "node": "Code - Validar payload",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Validar payload": {
+        "main": [
+          [
+            {
+              "node": "IF - Payload valido",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF - Payload valido": {
+        "main": [
+          [
+            {
+              "node": "Supabase - Insert ejecucion received",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond to Webhook - Bad Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supabase - Insert ejecucion received": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields - Contexto update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields - Contexto update": {
+        "main": [
+          [
+            {
+              "node": "Supabase - Update ejecucion completed",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supabase - Update ejecucion completed": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook - OK",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

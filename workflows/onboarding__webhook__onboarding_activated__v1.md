@@ -6,6 +6,12 @@ Registrar en Supabase la recepcion y finalizacion tecnica del workflow logico `o
 
 Este bloque no requiere modificar backend, dispatcher, frontend, payload del webhook ni `automation_events`.
 
+## Artefactos relacionados
+
+- documento funcional principal: este archivo
+- export JSON sanitario del workflow activo: `n8n/workflows/onboarding_activated.active.json`
+- indice canonico resumido: `docs/N8N_WORKFLOWS.md`
+
 ## Trigger
 
 - tipo: `webhook`

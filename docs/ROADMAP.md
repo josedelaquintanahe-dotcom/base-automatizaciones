@@ -37,6 +37,7 @@ Hecho recientemente:
 - exposicion del resumen seguro `onboardingDispatch` en `/api/system/status`
 - revalidacion completa del flujo tras despliegue el 29 de abril de 2026
 - versionado de `scripts/verify-onboarding-flow.ps1` para revalidacion operativa repetible
+- export JSON sanitario del workflow activo en `n8n/workflows/`
 
 ## Fase 3. Expansion de automatizaciones
 

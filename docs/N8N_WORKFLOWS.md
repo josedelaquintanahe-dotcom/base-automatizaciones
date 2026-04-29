@@ -13,6 +13,7 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 ### `onboarding_activated`
 
 - documento fuente: `workflows/onboarding__webhook__onboarding_activated__v1.md`
+- export JSON sanitario: `n8n/workflows/onboarding_activated.active.json`
 - estado detectado: documentado en repositorio, creado en n8n Cloud y validado extremo a extremo el 28 de abril de 2026
 - trigger: webhook `POST`
 - objetivo: registrar trazabilidad tecnica de onboarding activado
@@ -51,10 +52,14 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - no dejar workflows sin documentar,
 - no mezclar nombres internos y nombres logicos sin explicacion,
 - no inventar credenciales ni exportar secretos,
+- tratar `n8n/workflows/*.json` como exportaciones tecnicas sanitarias, no como fuente funcional principal,
 - mantener alineado workflow real y documento fuente.
+
+## Estado de versionado actual
+
+- export JSON sanitario versionado para `onboarding_activated`
 
 ## Pendiente de validar
 
-- export JSON versionado en `n8n/workflows/` si se decide formalizar ese flujo
 - catalogo ampliado de workflows futuros
 - estrategia estable para versionar workflows reales entre repositorio y n8n Cloud

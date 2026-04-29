@@ -287,3 +287,10 @@ Se adopta que `scripts/verify-onboarding-flow.ps1` consulte `GET /api/system/sta
 
 Motivo:
 Activar onboarding cuando el propio backend ya informa de una configuracion no valida introduce ruido operativo y puede generar efectos innecesarios. El preflight temprano reduce riesgo, acelera diagnostico y refuerza el principio de fallo seguro antes de disparar automatizaciones reales.
+
+### D-040. Los workflows reales de n8n tendran exportacion JSON sanitaria versionada en el repo
+
+Se adopta mantener en `n8n/workflows/` una exportacion JSON sanitaria del workflow real activo cuando el flujo ya sea operativo y relevante para soporte o auditoria. Esta exportacion no sustituye a la documentacion funcional de `workflows/`, pero sirve como artefacto tecnico versionado para reducir deriva entre la instancia cloud y el repositorio.
+
+Motivo:
+Una vez validado un workflow real en produccion, dejarlo solo en la UI de n8n Cloud crea un punto ciego operativo. Versionar una exportacion sanitaria mejora trazabilidad, revision tecnica y recuperabilidad sin exponer secretos ni depender solo de la instancia remota.

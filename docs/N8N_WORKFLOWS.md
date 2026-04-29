@@ -25,6 +25,7 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - tratar `ONBOARDING_DISPATCH_WEBHOOK_URL` como la referencia exacta del workflow versionado o activo,
 - usar `N8N_WEBHOOK_BASE_URL` solo como base generica, no como sustituto del webhook especifico de onboarding,
 - repetir una prueba real con `correlation_id` verificable despues de cualquier cambio de webhook, credencial o entorno n8n,
+- usar `scripts/verify-onboarding-flow.ps1` como smoke test versionado cuando la validacion requiera activar onboarding real desde backend,
 - comprobar siempre:
   - fila en `automation_events`,
   - fila en `ejecuciones_workflows`,

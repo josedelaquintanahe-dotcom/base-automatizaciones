@@ -74,6 +74,36 @@ Los paquetes siguen separados en `src/backend` y `src/frontend`. Comandos recome
 - frontend test: `npm --prefix src/frontend test`
 - frontend build: `npm --prefix src/frontend run build`
 
+## Verificacion operativa de onboarding
+
+Para revalidar el flujo real `backend -> automation_events -> n8n -> ejecuciones_workflows` existe el script:
+
+- `scripts/verify-onboarding-flow.ps1`
+- `scripts/run-onboarding-operational-check.ps1`
+
+Ejemplo de uso desde la raiz:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-onboarding-flow.ps1 -ClientId "<uuid-del-cliente>"
+```
+
+El script:
+
+1. carga `src/backend/.env.local` por defecto,
+2. comprueba antes `/api/system/status`,
+3. activa onboarding contra el backend desplegado,
+4. recupera el `correlation_id`,
+5. consulta Supabase,
+6. falla con codigo distinto de cero si no aparece la trazabilidad completa o si `onboardingDispatch` no esta en estado esperado.
+
+Para una comprobacion post-despliegue mas completa:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-onboarding-operational-check.ps1 -ClientId "<uuid-del-cliente>"
+```
+
+Este wrapper valida `health`, `system/status` y el smoke test real del onboarding en una sola ejecucion.
+
 ## Flujo de mantenimiento
 
 1. Registrar cambios estructurales en `docs/decisiones.md`.

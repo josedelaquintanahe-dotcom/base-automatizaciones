@@ -34,6 +34,9 @@ Hecho recientemente:
 
 - validacion real de `backend -> automation_events -> n8n -> ejecuciones_workflows`
 - correccion del webhook de onboarding en Render para usar la ruta activa `onboarding_activated`
+- exposicion del resumen seguro `onboardingDispatch` en `/api/system/status`
+- revalidacion completa del flujo tras despliegue el 29 de abril de 2026
+- versionado de `scripts/verify-onboarding-flow.ps1` para revalidacion operativa repetible
 
 ## Fase 3. Expansion de automatizaciones
 
@@ -69,4 +72,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Usar un bloque seguro de diagnostico operativo del flujo de onboarding para definir mejoras concretas en observabilidad, reintentos, catalogo de workflows y controles de configuracion entre Render, Supabase y n8n.
+Usar un bloque seguro para definir y documentar el siguiente workflow de bajo riesgo, reutilizando el patron de trazabilidad ya validado en onboarding.

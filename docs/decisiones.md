@@ -266,3 +266,24 @@ Se adopta reforzar el backend de onboarding con advertencias de configuracion, r
 
 Motivo:
 En este flujo, un reintento ciego puede duplicar efectos en n8n si la primera llamada llego pero la respuesta se perdio. El problema detectado en produccion fue de configuracion, no de fiabilidad transitoria. Por eso conviene mejorar primero la observabilidad y la validacion de la URL real del webhook antes de introducir reintentos o semanticas de idempotencia mas complejas.
+
+### D-037. La verificacion real de onboarding se versionara como script PowerShell reutilizable
+
+Se adopta versionar una prueba operativa de onboarding en `scripts/verify-onboarding-flow.ps1`, compatible con Windows y parametrizada por `ClientId`, para validar de forma repetible el flujo `backend -> automation_events -> n8n -> ejecuciones_workflows` usando variables reales del entorno local sin exponer secretos en el repositorio.
+
+Motivo:
+La validacion manual ya ha demostrado valor, pero deja demasiado margen a errores operativos y pasos dispersos. Versionar el smoke test reduce friccion, mejora repetibilidad y permite revalidar despliegues o cambios de n8n con una sola comprobacion trazable.
+
+### D-038. La comprobacion operativa desplegada se concentrara en un solo script ejecutable
+
+Se adopta versionar un punto de entrada operativo unico en `scripts/run-onboarding-operational-check.ps1` para verificar `health`, `system/status` y el smoke test real de onboarding en la misma ejecucion, reutilizando el script de validacion ya existente.
+
+Motivo:
+La seguridad y la eficiencia operativa mejoran cuando la verificacion post-despliegue tiene una sola entrada reproducible. Esto reduce pasos manuales, evita olvidos al revisar `onboardingDispatch` y deja un flujo claro para revalidar Render, Supabase y n8n despues de cambios de entorno.
+
+### D-039. El smoke test base de onboarding fallara antes si el preflight operativo ya detecta mala configuracion
+
+Se adopta que `scripts/verify-onboarding-flow.ps1` consulte `GET /api/system/status` antes de activar onboarding y aborte si `onboardingDispatch` no aparece configurado o con `pathStatus = expected`.
+
+Motivo:
+Activar onboarding cuando el propio backend ya informa de una configuracion no valida introduce ruido operativo y puede generar efectos innecesarios. El preflight temprano reduce riesgo, acelera diagnostico y refuerza el principio de fallo seguro antes de disparar automatizaciones reales.

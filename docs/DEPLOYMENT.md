@@ -50,6 +50,20 @@ Si cambia `render.yaml`, cualquier variable de entorno de Render o la ruta de un
 5. confirmar fila en `ejecuciones_workflows`,
 6. verificar el mismo `correlation_id` y estado `completed`.
 
+Automatizacion recomendada:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-onboarding-flow.ps1 -ClientId "<uuid-del-cliente>"
+```
+
+Este script ya corta antes de activar onboarding si `/api/system/status` no devuelve `onboardingDispatch.configured = true` y `pathStatus = expected`.
+
+Wrapper recomendado para comprobacion completa:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-onboarding-operational-check.ps1 -ClientId "<uuid-del-cliente>"
+```
+
 Control especifico actual:
 
 - `ONBOARDING_DISPATCH_WEBHOOK_URL` debe apuntar a `https://quinttanaaa.app.n8n.cloud/webhook/onboarding_activated`

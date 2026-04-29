@@ -19,7 +19,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - base arquitectonica documentada
 - decisiones tecnicas registradas
 - modelo SQL documentado para Supabase
-- flujo de onboarding con trazabilidad backend -> `automation_events` -> n8n -> `ejecuciones_workflows`, validado en entorno real el 28 de abril de 2026
+- flujo de onboarding con trazabilidad backend -> `automation_events` -> n8n -> `ejecuciones_workflows`, validado en entorno real el 28 de abril de 2026 y revalidado tras despliegue el 29 de abril de 2026
+- smoke test operativo versionado en `scripts/verify-onboarding-flow.ps1`
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -41,7 +42,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### Backend
 
 - Estado: funcional
-- Validado: servicios, rutas, tests y adaptadores
+- Validado: servicios, rutas, tests, adaptadores y resumen operativo `onboardingDispatch` expuesto en `/api/system/status`
 - Pendiente: seguir reforzando integraciones y diagnostico
 
 ### Supabase
@@ -53,7 +54,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable y confirmado en trazabilidad real con `ejecuciones_workflows`
+- Validado: workflow `onboarding_activated` documentado, ejecutable y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue
 - Pendiente: ampliar catalogo de workflows y endurecer auditoria operativa
 
 ### Sistema de agentes Codex
@@ -64,4 +65,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Preparar el siguiente bloque seguro sobre ampliacion y endurecimiento del flujo de onboarding: mas observabilidad, mas catalogo de workflows y controles operativos para evitar deriva entre Render, n8n y Supabase.
+Preparar el siguiente bloque seguro sobre ampliacion controlada de automatizaciones, partiendo de la base ya validada de onboarding y reutilizando sus controles operativos.

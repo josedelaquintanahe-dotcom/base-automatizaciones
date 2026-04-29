@@ -14,15 +14,14 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 
 - documento fuente: `workflows/onboarding__webhook__onboarding_activated__v1.md`
 - export JSON sanitario: `n8n/workflows/onboarding_activated.active.json`
-- estado detectado: documentado en repositorio, creado en n8n Cloud y validado extremo a extremo el 28 de abril de 2026
+- blueprint tecnico actual: `n8n/workflows/onboarding_activated.workflow.ts`
+- estado detectado: documentado en repositorio, publicado en n8n Cloud y validado extremo a extremo con cadena auditiva automatica el 29 de abril de 2026
 - trigger: webhook `POST`
-- objetivo: registrar trazabilidad tecnica de onboarding activado
+- objetivo: registrar trazabilidad tecnica de onboarding activado y encadenar automaticamente la secuencia auditiva post-onboarding
 - persistencia esperada: `automation_events` y `ejecuciones_workflows`
 - ruta activa validada: `/webhook/onboarding_activated`
 
-## Siguiente secuencia planificada
-
-Workflows de bajo riesgo preparados documentalmente para la siguiente fase:
+## Secuencia auditiva publicada
 
 1. `onboarding_trace_verified`
 2. `onboarding_readiness_revalidated`
@@ -49,7 +48,7 @@ Documentacion base:
 - blueprint tecnico: `n8n/workflows/onboarding_trace_verified.workflow.ts`
 - placeholder tecnico: `n8n/workflows/onboarding_trace_verified.planned.json`
 - workflowId en n8n Cloud: `yqr1wDX4aDS9JyH5`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud, validado en ejecucion real y encadenado automaticamente desde `onboarding_activated`
 - trigger canonico: webhook `POST` interno/controlado
 - ruta activa: `/webhook/onboarding_trace_verified`
 - objetivo: confirmar que `onboarding_activated` quedo persistido en `automation_events` con el mismo `correlation_id`
@@ -62,7 +61,7 @@ Documentacion base:
 - blueprint tecnico: `n8n/workflows/onboarding_readiness_revalidated.workflow.ts`
 - placeholder tecnico: `n8n/workflows/onboarding_readiness_revalidated.planned.json`
 - workflowId en n8n Cloud: `NxCOMdciTp8QkDtb`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud, validado en ejecucion real y encadenado automaticamente desde `onboarding_activated`
 - trigger canonico: webhook `POST` interno/controlado
 - ruta activa: `/webhook/onboarding_readiness_revalidated`
 - objetivo: revalidar las condiciones sanitarias de readiness usando el payload persistido del evento `onboarding_activated`
@@ -75,7 +74,7 @@ Documentacion base:
 - blueprint tecnico: `n8n/workflows/onboarding_credentials_metadata_checked.workflow.ts`
 - placeholder tecnico: `n8n/workflows/onboarding_credentials_metadata_checked.planned.json`
 - workflowId en n8n Cloud: `GWjTrTPILaIRQ6ZO`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud, validado en ejecucion real y encadenado automaticamente desde `onboarding_activated`
 - trigger canonico: webhook `POST` interno/controlado
 - ruta activa: `/webhook/onboarding_credentials_metadata_checked`
 - objetivo: verificar metadatos sanitarios de credenciales y token usando `automation_events.payload.operational_summary`
@@ -88,7 +87,7 @@ Documentacion base:
 - blueprint tecnico: `n8n/workflows/onboarding_dispatch_health_checked.workflow.ts`
 - placeholder tecnico: `n8n/workflows/onboarding_dispatch_health_checked.planned.json`
 - workflowId en n8n Cloud: `az9xt6p2FnwDCEsF`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud, validado en ejecucion real y encadenado automaticamente desde `onboarding_activated`
 - trigger canonico: webhook `POST` interno/controlado
 - ruta activa: `/webhook/onboarding_dispatch_health_checked`
 - objetivo: validar un snapshot sanitario real de `/api/system/status` para `onboardingDispatch`
@@ -101,7 +100,7 @@ Documentacion base:
 - blueprint tecnico: `n8n/workflows/onboarding_sanitized_report_compiled.workflow.ts`
 - placeholder tecnico: `n8n/workflows/onboarding_sanitized_report_compiled.planned.json`
 - workflowId en n8n Cloud: `RBItrrOrI3M7OFyU`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud, validado en ejecucion real y encadenado automaticamente desde `onboarding_activated`
 - trigger canonico: webhook `POST` interno/controlado
 - ruta activa: `/webhook/onboarding_sanitized_report_compiled`
 - objetivo: consolidar en un informe sanitario final la secuencia completa de auditoria por `correlation_id`

@@ -158,20 +158,6 @@ const loadSystemStatus = node({
   },
 });
 
-const waitForAutomationEvent = node({
-  type: 'n8n-nodes-base.wait',
-  version: 1.1,
-  config: {
-    name: 'Wait - Automation event visible',
-    parameters: {
-      resume: 'timeInterval',
-      amount: 15,
-      unit: 'seconds',
-    },
-    position: [1968, 192],
-  },
-});
-
 const callTraceWorkflow = node({
   type: 'n8n-nodes-base.httpRequest',
   version: 4.4,
@@ -196,7 +182,7 @@ const callTraceWorkflow = node({
         },
       },
     },
-    position: [2256, 192],
+    position: [1968, 192],
   },
 });
 
@@ -224,7 +210,7 @@ const callReadinessWorkflow = node({
         },
       },
     },
-    position: [2544, 192],
+    position: [2256, 192],
   },
 });
 
@@ -252,7 +238,7 @@ const callCredentialsWorkflow = node({
         },
       },
     },
-    position: [2832, 192],
+    position: [2544, 192],
   },
 });
 
@@ -280,7 +266,7 @@ const callDispatchWorkflow = node({
         },
       },
     },
-    position: [3120, 192],
+    position: [2832, 192],
   },
 });
 
@@ -308,7 +294,7 @@ const callReportWorkflow = node({
         },
       },
     },
-    position: [3408, 192],
+    position: [3120, 192],
   },
 });
 
@@ -375,7 +361,7 @@ return [
 ];
       `,
     },
-    position: [3696, 192],
+    position: [3408, 192],
   },
 });
 
@@ -403,7 +389,7 @@ const isChainComplete = ifElse({
       },
       options: {},
     },
-    position: [3976, 192],
+    position: [3688, 192],
   },
 });
 
@@ -440,7 +426,7 @@ const updateCompleted = node({
         ],
       },
     },
-    position: [4256, 96],
+    position: [3968, 96],
   },
 });
 
@@ -457,7 +443,7 @@ const respondCompleted = node({
         responseCode: 202,
       },
     },
-    position: [4536, 96],
+    position: [4248, 96],
   },
 });
 
@@ -494,7 +480,7 @@ const updateError = node({
         ],
       },
     },
-    position: [4256, 288],
+    position: [3968, 288],
   },
 });
 
@@ -511,7 +497,7 @@ const respondAcceptedWithWarning = node({
         responseCode: 202,
       },
     },
-    position: [4536, 288],
+    position: [4248, 288],
   },
 });
 
@@ -541,7 +527,6 @@ export default workflow('onboarding-activated-v2', 'onboarding_activated')
         insertExecution
           .to(buildExecutionContext)
           .to(loadSystemStatus)
-          .to(waitForAutomationEvent)
           .to(callTraceWorkflow)
           .to(callReadinessWorkflow)
           .to(callCredentialsWorkflow)

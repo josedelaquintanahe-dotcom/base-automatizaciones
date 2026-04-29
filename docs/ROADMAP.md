@@ -38,11 +38,11 @@ Hecho recientemente:
 - revalidacion completa del flujo tras despliegue el 29 de abril de 2026
 - versionado de `scripts/verify-onboarding-flow.ps1` para revalidacion operativa repetible
 - export JSON sanitario del workflow activo en `n8n/workflows/`
-- secuencia de 5 workflows de auditoria post-onboarding documentada y preparada
+- secuencia de 5 workflows de auditoria post-onboarding documentada, publicada y validada de forma automatica desde `onboarding_activated`
 
 ## Fase 3. Expansion de automatizaciones
 
-Estado: preparada documentalmente
+Estado: cerrada para la base auditiva
 
 Objetivos:
 
@@ -52,11 +52,11 @@ Objetivos:
 
 Secuencia inmediata priorizada:
 
-1. `onboarding_trace_verified` - publicado y validado en ejecucion real
-2. `onboarding_readiness_revalidated` - publicado y validado en ejecucion real
-3. `onboarding_credentials_metadata_checked` - publicado y validado en ejecucion real
-4. `onboarding_dispatch_health_checked` - publicado y validado en ejecucion real
-5. `onboarding_sanitized_report_compiled` - publicado y validado en ejecucion real
+1. `onboarding_trace_verified` - publicado, validado y encadenado automaticamente
+2. `onboarding_readiness_revalidated` - publicado, validado y encadenado automaticamente
+3. `onboarding_credentials_metadata_checked` - publicado, validado y encadenado automaticamente
+4. `onboarding_dispatch_health_checked` - publicado, validado y encadenado automaticamente
+5. `onboarding_sanitized_report_compiled` - publicado, validado y encadenado automaticamente
 
 ## Fase 4. Consolidacion comercial y de despliegue
 
@@ -72,7 +72,7 @@ Objetivos:
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Endurecer la operacion real de onboarding y ampliar automatizaciones sobre una base ya validada.
+3. Construir la primera automatizacion real de negocio sobre una base ya validada.
 
 ## Dependencias
 
@@ -82,4 +82,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Definir e implementar la primera automatizacion real de negocio reutilizando la secuencia auditiva ya cerrada como base operativa.
+Definir e implementar la primera automatizacion real de negocio reutilizando la secuencia auditiva automatizada ya cerrada como base operativa.

@@ -2,9 +2,9 @@
 
 ## Objetivo
 
-Registrar en Supabase la recepcion y finalizacion tecnica del workflow logico `onboarding_activated`, reutilizando `correlation_id` extremo a extremo.
+Registrar en Supabase la recepcion y finalizacion tecnica del workflow logico `onboarding_activated`, reutilizando `correlation_id` extremo a extremo y encadenando automaticamente la secuencia auditiva post-onboarding.
 
-Este bloque no requiere modificar backend, dispatcher, frontend, payload del webhook ni `automation_events`.
+Este bloque ya no debe leerse como un simple receptor tecnico. La version activa depende de que backend persista `automation_events` antes de invocar el webhook y usa ese registro para disparar los checks auditivos posteriores.
 
 ## Artefactos relacionados
 

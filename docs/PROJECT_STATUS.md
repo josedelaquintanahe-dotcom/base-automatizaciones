@@ -30,6 +30,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - workflow `onboarding_dispatch_health_checked` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
 - workflow `onboarding_sanitized_report_compiled` publicado en n8n Cloud y validado en ejecucion real el 29 de abril de 2026
 - secuencia auditiva completa ejecutada en real con un solo `correlation_id` el 29 de abril de 2026
+- `onboarding_activated` actualizado para encadenar automaticamente los 5 workflows auditivos y validado en ejecucion real el 29 de abril de 2026 con `all_checks_passed = true`
+- backend ajustado para persistir `automation_events` antes del webhook n8n y actualizar despues el estado de entrega cuando sea necesario
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -63,7 +65,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados y validados en ejecucion real por `correlation_id`, incluida la secuencia completa
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa
 - Pendiente: definir y construir la primera automatizacion real de negocio sobre esta base ya validada
 
 ### Sistema de agentes Codex

@@ -4,6 +4,11 @@
 
 Definir la siguiente secuencia de 5 workflows de n8n de bajo riesgo despues de `onboarding_activated`, reutilizando el patron de trazabilidad ya validado en el proyecto.
 
+Estado actual:
+- los 5 workflows ya estan publicados y validados en ejecucion real,
+- `onboarding_activated` los encadena automaticamente para el mismo `correlation_id`,
+- la dependencia con `automation_events` se resuelve porque backend persiste ese evento antes de invocar el webhook de n8n.
+
 ## Principios
 
 - no introducir efectos externos irreversibles,

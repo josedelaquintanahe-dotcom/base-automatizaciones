@@ -68,11 +68,17 @@ Objetivos:
 - consolidar preparacion de despliegue en Render, Vercel, Supabase y n8n,
 - dejar prompts reutilizables para siguientes bloques de trabajo.
 
+Hecho recientemente:
+
+- revalidacion remota de `automation_client_health_snapshot` completada el 30 de abril de 2026 contra backend desplegado, n8n y Supabase
+- provisionado idempotente y ejecucion por `n8n_workflow_id` confirmados en entorno desplegado
+- persistencia verificada en `ejecuciones` y `ejecuciones_workflows` con el mismo `correlation_id`
+
 ## Prioridades actuales
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Desplegar y validar la primera automatizacion real de negocio ya preparada sobre una base ya validada.
+3. Definir y cerrar la siguiente automatizacion real de negocio partiendo del patron ya validado.
 
 ## Dependencias
 
@@ -82,4 +88,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Desplegar el backend con el nuevo contrato de provisionado y ejecutar la validacion real extremo a extremo de `automation_client_health_snapshot`.
+Definir la siguiente automatizacion real de bajo riesgo y ejecutarla con el mismo patron operativo: workflow documentado, webhook n8n publicado, script de verificacion y trazabilidad extremo a extremo.

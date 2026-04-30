@@ -35,6 +35,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - backend ajustado para persistir `automation_events` antes del webhook n8n y actualizar despues el estado de entrega cuando sea necesario
 - backend preparado para provisionar y ejecutar una automatizacion base real por `n8n_workflow_id` usando payload sanitario
 - workflow `automation_client_health_snapshot` publicado en n8n Cloud y validado en prueba segura manual el 30 de abril de 2026
+- workflow `automation_client_health_snapshot` validado extremo a extremo contra el backend desplegado, n8n y Supabase el 30 de abril de 2026
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -68,8 +69,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa
-- Pendiente: desplegar backend con el nuevo contrato de provisionado y ejecutar la primera validacion real extremo a extremo de `automation_client_health_snapshot`
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa; `automation_client_health_snapshot` esta publicado en n8n Cloud y validado en ejecucion real extremo a extremo desde el backend desplegado
+- Pendiente: ampliar el patron hacia nuevas automatizaciones funcionales reales y mantener sincronizada la configuracion versionada de Render con la configuracion efectiva desplegada
 
 ### Sistema de agentes Codex
 
@@ -79,4 +80,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Desplegar y validar en real `automation_client_health_snapshot` desde backend usando el nuevo contrato de provisionado y ejecucion por `n8n_workflow_id`.
+Definir e implementar la siguiente automatizacion real de negocio reutilizando el patron ya validado de `automation_client_health_snapshot`, con trazabilidad por `correlation_id`, script operativo y validacion extremo a extremo.

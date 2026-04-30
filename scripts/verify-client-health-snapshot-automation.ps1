@@ -109,9 +109,7 @@ if (-not $automationId -or -not $workflowId) {
 }
 
 $executeUrl = "$baseUrl/api/automatizaciones/backoffice/$ClientId/$workflowId/ejecutar"
-$executeResponse = Invoke-HttpJson -Method "POST" -Url $executeUrl -Body @{
-  scope = "operational_check"
-} -Headers @($authHeader)
+$executeResponse = Invoke-HttpJson -Method "POST" -Url $executeUrl -Headers @($authHeader)
 
 if (-not $executeResponse.ok -or -not $executeResponse.body.success) {
   throw "Fallo al ejecutar la automatizacion base."

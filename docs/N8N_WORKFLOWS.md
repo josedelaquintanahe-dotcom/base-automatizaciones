@@ -48,7 +48,7 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - documento fuente: `workflows/automation__internal__automation_client_first_run_handoff__v1.md`
 - blueprint tecnico actual: `n8n/workflows/automation_client_first_run_handoff.workflow.ts`
 - workflowId en n8n Cloud: `yuzgtl8KkFBRIti9`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real desde backend local con servicios reales
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado en ejecucion real desde backend local y desde backend desplegado
 - trigger: webhook `POST`
 - objetivo: generar un paquete operativo de preflight y rollback para la primera ejecucion real controlada del cliente
 - persistencia esperada: `ejecuciones` en backend y `ejecuciones_workflows` en n8n

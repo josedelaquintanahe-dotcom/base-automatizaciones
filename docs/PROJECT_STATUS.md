@@ -40,6 +40,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - workflow `automation_client_next_actions_brief` validado extremo a extremo contra el backend desplegado, n8n y Supabase el 30 de abril de 2026
 - workflow `automation_client_first_run_handoff` publicado en n8n Cloud y validado en prueba segura manual el 30 de abril de 2026
 - workflow `automation_client_first_run_handoff` validado extremo a extremo desde backend local con servicios reales el 30 de abril de 2026
+- workflow `automation_client_first_run_handoff` validado extremo a extremo contra el backend desplegado, n8n y Supabase el 30 de abril de 2026
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -74,7 +75,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 - Estado: integrado por webhooks y documentacion
 - Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa; `automation_client_health_snapshot` esta publicado en n8n Cloud y validado en ejecucion real extremo a extremo desde el backend desplegado; `automation_client_next_actions_brief` esta publicado en n8n Cloud y validado en ejecucion real extremo a extremo desde el backend desplegado
-- Pendiente: revalidar `automation_client_first_run_handoff` contra el backend desplegado tras su publicacion y seguir ampliando el patron hacia automatizaciones con efecto operativo controlado
+- Pendiente: seguir ampliando el patron hacia automatizaciones con efecto operativo controlado
 
 ### Sistema de agentes Codex
 
@@ -84,4 +85,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Revalidar `automation_client_first_run_handoff` contra el backend desplegado y usarlo como puente hacia la primera automatizacion con efecto operativo controlado.
+Definir la primera automatizacion con efecto operativo controlado apoyandose en el handoff ya validado.

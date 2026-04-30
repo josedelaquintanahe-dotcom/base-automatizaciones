@@ -41,6 +41,14 @@ describe("n8n.client", () => {
     );
   });
 
+  test("normaliza una base MCP a la base publica de webhooks", () => {
+    process.env.N8N_WEBHOOK_BASE_URL = "https://n8n.example.com/mcp-server/http";
+
+    expect(buildN8nWebhookUrl("automation_client_health_snapshot")).toBe(
+      "https://n8n.example.com/webhook/automation_client_health_snapshot",
+    );
+  });
+
   test("normaliza el target seguro del webhook", () => {
     expect(getSafeN8nTarget("https://n8n.example.com/webhook/onboarding?foo=bar")).toBe(
       "https://n8n.example.com/webhook/onboarding",

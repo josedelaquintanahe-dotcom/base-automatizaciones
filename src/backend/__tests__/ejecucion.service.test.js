@@ -11,29 +11,26 @@ const { obtenerClienteBackofficeService } = require("../services/cliente.service
 const { ejecutarWorkflowService } = require("../services/ejecucion.service");
 
 function buildSupabaseMock({ automatizacion }) {
+  const automatizacionesQuery = {
+    eq: jest.fn().mockReturnThis(),
+    or: jest.fn().mockReturnThis(),
+    limit() {
+      return {
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: automatizacion,
+          error: null,
+        }),
+      };
+    },
+  };
+
   return {
+    __automatizacionesQuery: automatizacionesQuery,
     from(table) {
       if (table === "automatizaciones") {
         return {
           select() {
-            return {
-              eq() {
-                return {
-                  or() {
-                    return {
-                      limit() {
-                        return {
-                          maybeSingle: jest.fn().mockResolvedValue({
-                            data: automatizacion,
-                            error: null,
-                          }),
-                        };
-                      },
-                    };
-                  },
-                };
-              },
-            };
+            return automatizacionesQuery;
           },
           update() {
             return {
@@ -146,6 +143,51 @@ describe("ejecutarWorkflowService", () => {
     expect(triggerN8nWebhookPath.mock.calls[0][0].payload.credenciales).toBeUndefined();
     expect(result.correlation_id).toBe("corr-001");
     expect(result.workflow_target).toBe("automation_client_health_snapshot");
+  });
+
+  test("acepta workflow_id textual sin intentar forzar comparacion invalida sobre UUID", async () => {
+    const supabaseMock = buildSupabaseMock({
+      automatizacion: {
+        id: "auto_003",
+        cliente_id: "cli_003",
+        nombre: "Snapshot sanitario del cliente",
+        n8n_workflow_id: "automation_client_health_snapshot",
+        estado: "activo",
+      },
+    });
+    createSupabaseClient.mockReturnValue(supabaseMock);
+    obtenerClienteBackofficeService.mockResolvedValue({
+      cliente: {
+        id: "cli_003",
+        nombre_empresa: "Empresa Test",
+        plan: "empresarial",
+        estado: "activo",
+      },
+      operational_summary: {
+        onboarding_status: "listo_para_automatizar",
+      },
+      automation_readiness: {
+        ready: true,
+        missing_requirements: [],
+        next_recommended_action: "Ejecutar automatizacion base.",
+      },
+    });
+    triggerN8nWebhookPath.mockResolvedValue({
+      ok: true,
+      status: 202,
+      data: {
+        accepted: true,
+      },
+    });
+
+    await ejecutarWorkflowService("cli_003", "automation_client_health_snapshot", {}, {
+      correlationId: "corr-003",
+    });
+
+    const query = supabaseMock.__automatizacionesQuery;
+    expect(query.eq).toHaveBeenCalledWith("cliente_id", "cli_003");
+    expect(query.eq).toHaveBeenCalledWith("n8n_workflow_id", "automation_client_health_snapshot");
+    expect(query.or).not.toHaveBeenCalled();
   });
 
   test("bloquea la ejecucion si la automatizacion no esta activa", async () => {

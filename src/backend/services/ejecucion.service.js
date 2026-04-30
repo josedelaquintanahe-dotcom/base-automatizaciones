@@ -15,17 +15,28 @@ function getBackendSupabaseClient() {
   return createSupabaseClient({ keyType: "service_role" });
 }
 
+function isUuidLike(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    String(value || "").trim(),
+  );
+}
+
 async function getAutomatizacionByWorkflow(clienteId, workflowId) {
   const supabase = getBackendSupabaseClient();
   const normalizedClienteId = clienteId.trim();
   const normalizedWorkflowId = workflowId.trim();
-  const { data, error } = await supabase
+  let query = supabase
     .from("automatizaciones")
     .select("id, cliente_id, nombre, n8n_workflow_id, estado")
-    .eq("cliente_id", normalizedClienteId)
-    .or(`id.eq.${normalizedWorkflowId},n8n_workflow_id.eq.${normalizedWorkflowId}`)
-    .limit(1)
-    .maybeSingle();
+    .eq("cliente_id", normalizedClienteId);
+
+  if (isUuidLike(normalizedWorkflowId)) {
+    query = query.or(`id.eq.${normalizedWorkflowId},n8n_workflow_id.eq.${normalizedWorkflowId}`);
+  } else {
+    query = query.eq("n8n_workflow_id", normalizedWorkflowId);
+  }
+
+  const { data, error } = await query.limit(1).maybeSingle();
 
   if (error) {
     throw createServiceError(`No se pudo localizar la automatizacion: ${error.message}`);

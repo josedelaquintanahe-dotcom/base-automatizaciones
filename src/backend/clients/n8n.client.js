@@ -16,7 +16,26 @@ function isValidAbsoluteUrl(value) {
 }
 
 function normalizeBaseUrl(value) {
-  return String(value || "").trim().replace(/\/+$/, "");
+  const normalized = String(value || "").trim().replace(/\/+$/, "");
+
+  if (!normalized) {
+    return "";
+  }
+
+  try {
+    const parsedUrl = new URL(normalized);
+
+    if (parsedUrl.pathname.endsWith("/mcp-server/http")) {
+      parsedUrl.pathname = parsedUrl.pathname.replace(/\/mcp-server\/http$/, "/webhook");
+      parsedUrl.search = "";
+      parsedUrl.hash = "";
+      return parsedUrl.toString().replace(/\/+$/, "");
+    }
+  } catch (error) {
+    return normalized;
+  }
+
+  return normalized;
 }
 
 function validateN8nClientConfig(options = {}) {

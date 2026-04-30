@@ -401,3 +401,10 @@ Se adopta que `ejecutarWorkflowService` invoque el webhook n8n usando el `n8n_wo
 
 Motivo:
 La estrategia anterior basada en rutas compuestas `cliente-<cliente_id>-<workflow_id>` no escala bien hacia workflows reales versionados ni deja un contrato estable entre backend y n8n. Usar `n8n_workflow_id` como destino canonico y un payload sanitario reduce riesgo, mejora trazabilidad y evita exponer secretos innecesarios en la primera automatizacion real ejecutable.
+
+### D-056. El cliente backend de n8n normalizara bases webhook mal orientadas al endpoint MCP
+
+Se adopta que `src/backend/clients/n8n.client.js` convierta automaticamente bases `N8N_WEBHOOK_BASE_URL` que apunten a `.../mcp-server/http` en la base publica `.../webhook` antes de componer rutas de automatizacion genericas.
+
+Motivo:
+La operativa real del proyecto ya demostro que la misma instancia n8n expone URL de MCP y URL de webhooks publicos. Para scripts ya se habia resuelto esta divergencia, pero la ejecucion backend de automatizaciones reales seguia dependiendo de una base que podia devolver 404 aun con el workflow bien publicado. Normalizar en el adaptador reduce deriva y evita fallos silenciosos en nuevas automatizaciones.

@@ -94,9 +94,7 @@ foreach ($requiredKey in @("BACKOFFICE_API_TOKEN", "SUPABASE_URL", "SUPABASE_SER
 $baseUrl = $BackendBaseUrl.TrimEnd("/")
 $authHeader = "Authorization: Bearer $env:BACKOFFICE_API_TOKEN"
 $provisionUrl = "$baseUrl/api/automatizaciones/backoffice/$ClientId/provisionar-base"
-$provisionResponse = Invoke-HttpJson -Method "POST" -Url $provisionUrl -Body @{
-  template = "client_health_snapshot"
-} -Headers @($authHeader)
+$provisionResponse = Invoke-HttpJson -Method "POST" -Url $provisionUrl -Headers @($authHeader)
 
 if (-not $provisionResponse.ok -or -not $provisionResponse.body.success) {
   throw "Fallo al provisionar la automatizacion base."

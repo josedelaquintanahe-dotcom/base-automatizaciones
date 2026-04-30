@@ -143,7 +143,7 @@ foreach ($requiredKey in @("BACKOFFICE_API_TOKEN", "SUPABASE_URL", "SUPABASE_SER
 
 $baseUrl = $BackendBaseUrl.TrimEnd("/")
 $authHeader = "Bearer $env:BACKOFFICE_API_TOKEN"
-$templateKey = "client_next_actions_brief"
+$templateKey = "client_first_run_handoff"
 $provisionUrl = "$baseUrl/api/automatizaciones/backoffice/$ClientId/provisionar-base"
 $provisionResponse = Invoke-BackendJson -Method "POST" -Url $provisionUrl -Headers @{
   Authorization = $authHeader
@@ -167,7 +167,9 @@ $executeUrl = "$baseUrl/api/automatizaciones/backoffice/$ClientId/$workflowId/ej
 $executeResponse = Invoke-BackendJson -Method "POST" -Url $executeUrl -Headers @{
   Authorization = $authHeader
 } -Body @{
-  scope = "next_actions"
+  scope = "first_run_handoff"
+  candidate_automation = "pendiente_definir"
+  run_window = "manual_controlled"
 }
 
 if (-not $executeResponse.ok -or -not $executeResponse.body.success) {
@@ -182,7 +184,7 @@ if (-not $correlationId) {
 }
 
 $supabaseBaseUrl = $env:SUPABASE_URL.TrimEnd("/")
-$workflowUrl = "$supabaseBaseUrl/rest/v1/ejecuciones_workflows?select=workflow_name,status,correlation_id,input_payload,created_at,finished_at&workflow_name=eq.automation_client_next_actions_brief&correlation_id=eq.$correlationId&order=created_at.desc&limit=1"
+$workflowUrl = "$supabaseBaseUrl/rest/v1/ejecuciones_workflows?select=workflow_name,status,correlation_id,input_payload,created_at,finished_at&workflow_name=eq.automation_client_first_run_handoff&correlation_id=eq.$correlationId&order=created_at.desc&limit=1"
 $executionLogUrl = "$supabaseBaseUrl/rest/v1/ejecuciones?select=automatizacion_id,estado,resultado,error_mensaje,fecha_ejecucion,duracion_ms&automatizacion_id=eq.$automationId&order=fecha_ejecucion.desc&limit=1"
 
 $workflowRows = @()

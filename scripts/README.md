@@ -261,3 +261,25 @@ Dependencias adicionales:
 
 - `BACKOFFICE_API_TOKEN`
 - backend desplegado con soporte para `template=client_next_actions_brief`
+
+### `verify-client-first-run-handoff-automation.ps1`
+
+Verifica la siguiente automatizacion interna preparada para primer arranque controlado:
+
+1. provisiona de forma idempotente la automatizacion base `client_first_run_handoff`,
+2. la ejecuta desde backoffice con `candidate_automation` y `run_window`,
+3. recoge el `correlation_id`,
+4. confirma:
+   - fila `exito` en `ejecuciones`,
+   - fila `completed` en `ejecuciones_workflows`,
+   - mismo `correlation_id`,
+   - `preflight_checklist` y `rollback_notes` en el resultado sanitario.
+
+Dependencias adicionales:
+
+- `BACKOFFICE_API_TOKEN`
+- backend desplegado con soporte para `template=client_first_run_handoff`
+
+Nota de compatibilidad:
+
+- las llamadas al backend usan `Invoke-WebRequest -UseBasicParsing` para funcionar tambien en Windows PowerShell clasico

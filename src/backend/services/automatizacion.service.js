@@ -23,6 +23,15 @@ const BASE_AUTOMATION_TEMPLATES = {
     n8n_workflow_id: "automation_client_next_actions_brief",
     estado: "activo",
   },
+  client_first_run_handoff: {
+    template_key: "client_first_run_handoff",
+    nombre: "Handoff operativo de primer arranque",
+    descripcion:
+      "Genera un paquete operativo interno para preparar la primera ejecucion real controlada del cliente.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_first_run_handoff",
+    estado: "activo",
+  },
 };
 
 function createServiceError(message, statusCode = 500) {

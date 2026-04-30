@@ -422,3 +422,17 @@ Se adopta `automation_client_next_actions_brief` como la siguiente automatizacio
 
 Motivo:
 Las alternativas mas obvias eran repetir un resumen sanitario muy parecido al snapshot ya existente o entrar prematuramente en automatizaciones con efectos externos. Un brief de siguientes pasos aporta valor operativo nuevo, reutiliza el mismo contrato seguro, no exige credenciales nuevas y sirve como puente entre la base tecnica ya validada y futuras automatizaciones de cliente mas sensibles.
+
+### D-059. La siguiente pieza interna priorizara un handoff operativo para la primera ejecucion real del cliente
+
+Se adopta `automation_client_first_run_handoff` como la siguiente automatizacion interna a preparar en repositorio. Su objetivo es transformar el `client_snapshot` sanitario y el contexto de ejecucion solicitado en un paquete operativo de primer arranque: checklist de preflight, criterio go/no-go, notas de rollback y foco recomendado para la siguiente automatizacion con efecto de negocio.
+
+Motivo:
+Despues de `automation_client_health_snapshot` y `automation_client_next_actions_brief`, el siguiente salto con mejor valor/riesgo no es otro resumen, sino una pieza que acerque la operativa a una ejecucion real controlada. Un handoff de primer arranque conserva el patron seguro, no exige credenciales nuevas y reduce improvisacion antes de la primera automatizacion con efectos externos.
+
+### D-060. Los scripts de verificacion de automatizaciones reales deben usar `Invoke-WebRequest -UseBasicParsing` en Windows PowerShell
+
+Se adopta que los scripts PowerShell de verificacion que invoquen endpoints backend usen `Invoke-WebRequest -UseBasicParsing` cuando deban ejecutarse en Windows PowerShell clasico.
+
+Motivo:
+La validacion real de `automation_client_first_run_handoff` detecto un falso fallo local en el provisionado por una limitacion del motor de Internet Explorer embebido en Windows PowerShell. El backend respondia correctamente, pero el script interpretaba la llamada como error. Forzar `-UseBasicParsing` evita ese falso negativo y mantiene compatibilidad real con el entorno Windows objetivo del proyecto.

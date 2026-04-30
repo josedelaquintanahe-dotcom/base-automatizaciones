@@ -147,4 +147,32 @@ describe("provisionarAutomatizacionBaseService", () => {
       "automation_client_next_actions_brief",
     );
   });
+
+  test("permite provisionar el handoff operativo de primer arranque por template explicito", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_004" },
+        insertedAutomation: {
+          id: "auto_004",
+          cliente_id: "cli_004",
+          nombre: "Handoff operativo de primer arranque",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_first_run_handoff",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService(
+      "cli_004",
+      "client_first_run_handoff",
+    );
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_first_run_handoff");
+    expect(result.automatizacion.n8n_workflow_id).toBe(
+      "automation_client_first_run_handoff",
+    );
+  });
 });

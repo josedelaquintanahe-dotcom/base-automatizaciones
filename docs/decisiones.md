@@ -408,3 +408,10 @@ Se adopta que `src/backend/clients/n8n.client.js` convierta automaticamente base
 
 Motivo:
 La operativa real del proyecto ya demostro que la misma instancia n8n expone URL de MCP y URL de webhooks publicos. Para scripts ya se habia resuelto esta divergencia, pero la ejecucion backend de automatizaciones reales seguia dependiendo de una base que podia devolver 404 aun con el workflow bien publicado. Normalizar en el adaptador reduce deriva y evita fallos silenciosos en nuevas automatizaciones.
+
+### D-057. `N8N_WEBHOOK_BASE_URL` tambien debe fijarse desde `render.yaml` para evitar deriva en automatizaciones genericas
+
+Se adopta declarar `N8N_WEBHOOK_BASE_URL` en `render.yaml` con la base publica de webhooks de la instancia n8n Cloud (`https://quinttanaaa.app.n8n.cloud/webhook`), igual que ya se hizo con `ONBOARDING_DISPATCH_WEBHOOK_URL`.
+
+Motivo:
+La validacion remota de `automation_client_health_snapshot` ha confirmado que el backend desplegado seguia alcanzando una URL de n8n que devolvia `404 No workspace here`, mientras el workflow publicado respondia correctamente cuando se invocaba con la base publica adecuada. Fijar esta variable en el blueprint de Render reduce configuracion manual oculta y evita divergencias entre backend desplegado, scripts operativos y workflows reales.

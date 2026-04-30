@@ -20,7 +20,7 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: N8N_WEBHOOK_BASE_URL
-        sync: false
+        value: https://quinttanaaa.app.n8n.cloud/webhook
       - key: JWT_SECRET
         sync: false
       - key: ENCRYPTION_KEY

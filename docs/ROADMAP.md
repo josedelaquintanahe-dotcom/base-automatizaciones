@@ -74,12 +74,13 @@ Hecho recientemente:
 - provisionado idempotente y ejecucion por `n8n_workflow_id` confirmados en entorno desplegado
 - persistencia verificada en `ejecuciones` y `ejecuciones_workflows` con el mismo `correlation_id`
 - `automation_client_next_actions_brief` definido, documentado, publicado en n8n Cloud y validado en prueba segura manual el 30 de abril de 2026
+- `automation_client_next_actions_brief` validado extremo a extremo el 30 de abril de 2026 contra backend desplegado, n8n y Supabase
 
 ## Prioridades actuales
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Validar `automation_client_next_actions_brief` desde backend desplegado y seguir ampliando el catalogo de automatizaciones reales de bajo riesgo.
+3. Definir y cerrar la siguiente automatizacion real de negocio partiendo del patron ya validado.
 
 ## Dependencias
 
@@ -89,4 +90,4 @@ Hecho recientemente:
 
 ## Siguiente paso recomendado
 
-Validar `automation_client_next_actions_brief` desde backend desplegado con el mismo patron operativo: provisionado, ejecucion, script de verificacion y trazabilidad extremo a extremo.
+Definir la siguiente automatizacion real de bajo riesgo y ejecutarla con el mismo patron operativo: workflow documentado, webhook n8n publicado, script de verificacion y trazabilidad extremo a extremo.

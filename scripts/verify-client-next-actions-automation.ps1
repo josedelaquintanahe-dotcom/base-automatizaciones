@@ -62,6 +62,56 @@ function Invoke-HttpJson {
   return $raw | ConvertFrom-Json
 }
 
+function Invoke-BackendJson {
+  param(
+    [string]$Method,
+    [string]$Url,
+    [object]$Body = $null,
+    [hashtable]$Headers = @{}
+  )
+
+  $requestHeaders = @{}
+  foreach ($key in $Headers.Keys) {
+    $requestHeaders[$key] = $Headers[$key]
+  }
+
+  $requestBody = $null
+  if ($null -ne $Body) {
+    $requestBody = $Body | ConvertTo-Json -Depth 10 -Compress
+    if (-not $requestHeaders.ContainsKey("Content-Type")) {
+      $requestHeaders["Content-Type"] = "application/json"
+    }
+  }
+
+  try {
+    $response = Invoke-WebRequest -Method $Method -Uri $Url -Headers $requestHeaders -Body $requestBody
+    return [pscustomobject]@{
+      status = [int]$response.StatusCode
+      ok = $true
+      body = if ($response.Content) { $response.Content | ConvertFrom-Json } else { $null }
+      rawText = $response.Content
+    }
+  } catch {
+    $rawText = $_.Exception.Response.Content
+    $parsedBody = $null
+
+    if ($rawText) {
+      try {
+        $parsedBody = $rawText | ConvertFrom-Json
+      } catch {
+        $parsedBody = $rawText
+      }
+    }
+
+    return [pscustomobject]@{
+      status = if ($_.Exception.Response.StatusCode) { [int]$_.Exception.Response.StatusCode } else { 0 }
+      ok = $false
+      body = $parsedBody
+      rawText = $rawText
+    }
+  }
+}
+
 function Get-SupabaseRows {
   param([string]$Url)
 
@@ -92,10 +142,12 @@ foreach ($requiredKey in @("BACKOFFICE_API_TOKEN", "SUPABASE_URL", "SUPABASE_SER
 }
 
 $baseUrl = $BackendBaseUrl.TrimEnd("/")
-$authHeader = "Authorization: Bearer $env:BACKOFFICE_API_TOKEN"
+$authHeader = "Bearer $env:BACKOFFICE_API_TOKEN"
 $templateKey = "client_next_actions_brief"
 $provisionUrl = "$baseUrl/api/automatizaciones/backoffice/$ClientId/provisionar-base"
-$provisionResponse = Invoke-HttpJson -Method "POST" -Url $provisionUrl -Headers @($authHeader) -Body @{
+$provisionResponse = Invoke-BackendJson -Method "POST" -Url $provisionUrl -Headers @{
+  Authorization = $authHeader
+} -Body @{
   template = $templateKey
 }
 
@@ -112,7 +164,9 @@ if (-not $automationId -or -not $workflowId) {
 }
 
 $executeUrl = "$baseUrl/api/automatizaciones/backoffice/$ClientId/$workflowId/ejecutar"
-$executeResponse = Invoke-HttpJson -Method "POST" -Url $executeUrl -Headers @($authHeader) -Body @{
+$executeResponse = Invoke-BackendJson -Method "POST" -Url $executeUrl -Headers @{
+  Authorization = $authHeader
+} -Body @{
   scope = "next_actions"
 }
 

@@ -91,6 +91,10 @@ Endpoint de salud esperado:
 - `GET /api/clientes` queda reservado para backoffice interno.
 - Este endpoint requiere `Authorization: Bearer <BACKOFFICE_API_TOKEN>`.
 - `BACKOFFICE_API_TOKEN` debe configurarse solo en backend o en el entorno de despliegue, nunca en variables `VITE_*`.
+- Rutas administrativas relevantes para la primera automatizacion real:
+  - `GET /api/automatizaciones/backoffice/:cliente_id`
+  - `POST /api/automatizaciones/backoffice/:cliente_id/provisionar-base`
+  - `POST /api/automatizaciones/backoffice/:cliente_id/:workflow_id/ejecutar`
 
 ## Despliegue en Render
 
@@ -112,3 +116,4 @@ Endpoint de salud esperado:
   - `ONBOARDING_DISPATCH_WEBHOOK_URL`
   - si esta definida, el dispatcher envia `onboarding_activated` por `POST` al webhook configurado;
   - si falta o el envio falla, el backend mantiene fallback interno y no rompe la activacion principal.
+- `N8N_WEBHOOK_BASE_URL` sigue siendo obligatoria para ejecutar automatizaciones reales publicadas por `n8n_workflow_id`, como `automation_client_health_snapshot`.

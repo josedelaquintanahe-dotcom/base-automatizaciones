@@ -235,7 +235,8 @@ function buildAutomationReadiness({ cliente, activeCredentials, activeToken, lat
   const missingRequirements = checks.filter((item) => !item.ok).map((item) => item.label);
   const ready = missingRequirements.length === 0;
 
-  let nextRecommendedAction = "Validar workflow real de onboarding y conectar automatizaciones.";
+  let nextRecommendedAction =
+    "Validar onboarding real y provisionar la automatizacion base del cliente.";
 
   if (!checks[0].ok) {
     nextRecommendedAction = "Revisar el estado del cliente antes de activar automatizaciones.";
@@ -448,12 +449,13 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
           status: "activated",
           can_activate: false,
           blocking_reasons: [],
-          operator_message: "Onboarding activado. Pendiente de conectar la automatizacion real.",
+          operator_message: "Onboarding activado. Pendiente de provisionar la automatizacion base.",
         },
       },
       automation_readiness: {
         ...updatedDetail.automation_readiness,
-        next_recommended_action: "Onboarding activado. Pendiente de conectar el dispatcher real.",
+        next_recommended_action:
+          "Onboarding activado. Validar la cadena auditiva y provisionar la automatizacion base.",
       },
     };
     const dispatchResult = await dispatchOnboardingActivated({
@@ -469,7 +471,7 @@ async function activarOnboardingBackofficeService(cliente_id, context = {}) {
       attempted_at: attemptedAt,
       correlation_id: context.correlationId || null,
       blocking_reasons: [],
-      operator_message: "Onboarding activado. Pendiente de conectar la automatizacion real.",
+      operator_message: "Onboarding activado. Pendiente de provisionar la automatizacion base.",
       dispatch: dispatchResult.dispatch,
       detail: activationDetail,
     };

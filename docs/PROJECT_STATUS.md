@@ -11,6 +11,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - tests y lint disponibles por paquete
 - integracion real con Supabase en backend
 - workflow `onboarding_activated` documentado en `workflows/`
+- workflow `automation_client_health_snapshot` definido en repo y publicado en n8n Cloud
 - carpeta `n8n/` presente para organizacion documental futura
 - 21 skills y 12 playbooks en `.codex/`
 
@@ -32,6 +33,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - secuencia auditiva completa ejecutada en real con un solo `correlation_id` el 29 de abril de 2026
 - `onboarding_activated` actualizado para encadenar automaticamente los 5 workflows auditivos y validado en ejecucion real el 29 de abril de 2026 con `all_checks_passed = true`
 - backend ajustado para persistir `automation_events` antes del webhook n8n y actualizar despues el estado de entrega cuando sea necesario
+- backend preparado para provisionar y ejecutar una automatizacion base real por `n8n_workflow_id` usando payload sanitario
+- workflow `automation_client_health_snapshot` publicado en n8n Cloud y validado en prueba segura manual el 30 de abril de 2026
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -66,7 +69,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 - Estado: integrado por webhooks y documentacion
 - Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa
-- Pendiente: definir y construir la primera automatizacion real de negocio sobre esta base ya validada
+- Pendiente: desplegar backend con el nuevo contrato de provisionado y ejecutar la primera validacion real extremo a extremo de `automation_client_health_snapshot`
 
 ### Sistema de agentes Codex
 
@@ -76,4 +79,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Definir e implementar la primera automatizacion real de negocio reutilizando esta cadena auditiva como prerequisito operativo.
+Desplegar y validar en real `automation_client_health_snapshot` desde backend usando el nuevo contrato de provisionado y ejecucion por `n8n_workflow_id`.

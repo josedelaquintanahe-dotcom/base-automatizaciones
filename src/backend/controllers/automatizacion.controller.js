@@ -3,6 +3,7 @@
 const {
   obtenerAutomatizacionesService,
   pausarAutomatizacionService,
+  provisionarAutomatizacionBaseService,
 } = require("../services/automatizacion.service");
 const {
   ejecutarWorkflowService,
@@ -50,10 +51,37 @@ async function ejecutarWorkflowController(req, res, next) {
       return buildForbiddenResponse(res);
     }
 
-    const result = await ejecutarWorkflowService(clienteId, workflowId, req.body || {});
+    const result = await ejecutarWorkflowService(clienteId, workflowId, req.body || {}, {
+      correlationId: req.correlationId || null,
+      triggerSource: "cliente_api",
+    });
 
     return res.status(200).json({
       success: true,
+      correlation_id: result.correlation_id,
+      automatizacion_id: result.automatizacion_id,
+      workflow_target: result.workflow_target,
+      resultado: result.resultado,
+      duracion_ms: result.duracion_ms,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function ejecutarWorkflowBackofficeController(req, res, next) {
+  try {
+    const { cliente_id: clienteId, workflow_id: workflowId } = req.params;
+    const result = await ejecutarWorkflowService(clienteId, workflowId, req.body || {}, {
+      correlationId: req.correlationId || null,
+      triggerSource: "backoffice_internal",
+    });
+
+    return res.status(200).json({
+      success: true,
+      correlation_id: result.correlation_id,
+      automatizacion_id: result.automatizacion_id,
+      workflow_target: result.workflow_target,
       resultado: result.resultado,
       duracion_ms: result.duracion_ms,
     });
@@ -113,8 +141,43 @@ async function pausarWorkflowController(req, res, next) {
   }
 }
 
+async function listarAutomatizacionesBackofficeController(req, res, next) {
+  try {
+    const { cliente_id: clienteId } = req.params;
+    const automatizaciones = await obtenerAutomatizacionesService(clienteId);
+
+    return res.status(200).json({
+      success: true,
+      automatizaciones,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function provisionarAutomatizacionBaseController(req, res, next) {
+  try {
+    const { cliente_id: clienteId } = req.params;
+    const templateKey =
+      req.body && typeof req.body.template === "string" && req.body.template.trim()
+        ? req.body.template.trim()
+        : "client_health_snapshot";
+    const provision = await provisionarAutomatizacionBaseService(clienteId, templateKey);
+
+    return res.status(200).json({
+      success: true,
+      provision,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
+  ejecutarWorkflowBackofficeController,
   ejecutarWorkflowController,
+  listarAutomatizacionesBackofficeController,
   obtenerStatusController,
   pausarWorkflowController,
+  provisionarAutomatizacionBaseController,
 };

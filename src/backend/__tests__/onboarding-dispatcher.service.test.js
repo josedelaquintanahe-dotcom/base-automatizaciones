@@ -34,7 +34,7 @@ describe("dispatchOnboardingActivated", () => {
             status: "activated",
             can_activate: false,
             blocking_reasons: [],
-            operator_message: "Onboarding activado. Pendiente de conectar la automatizacion real.",
+            operator_message: "Onboarding activado. Pendiente de provisionar la automatizacion base.",
           },
           credenciales: {
             activas: 2,
@@ -50,7 +50,8 @@ describe("dispatchOnboardingActivated", () => {
         automation_readiness: {
           ready: true,
           missing_requirements: [],
-          next_recommended_action: "Onboarding activado. Pendiente de conectar el dispatcher real.",
+          next_recommended_action:
+            "Onboarding activado. Validar la cadena auditiva y provisionar la automatizacion base.",
         },
       },
       attemptedAt: "2026-04-17T10:00:00.000Z",

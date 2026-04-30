@@ -387,3 +387,17 @@ Se adopta que el backend registre la fila de `automation_events` antes de invoca
 
 Motivo:
 La cadena automatica descubrio una dependencia circular: `onboarding_activated` intentaba disparar workflows que leen `automation_events`, pero el backend solo escribia esa fila despues de recibir la respuesta de n8n. En ese orden, los workflows hijos nunca podian verla dentro del mismo request. Registrar primero y corregir despues el estado de entrega resuelve la carrera sin romper la trazabilidad operativa.
+
+### D-054. La siguiente automatizacion funcional real sera un snapshot sanitario interno ejecutable por workflow estatico
+
+Se adopta `automation_client_health_snapshot` como la siguiente automatizacion real de negocio de bajo riesgo. Su objetivo es generar un resumen sanitario y operativo reutilizable del cliente ya dado de alta y con onboarding validado, sin efectos externos irreversibles ni uso de credenciales desencriptadas.
+
+Motivo:
+Permite convertir la base actual en una automatizacion funcional reutilizable para clientes reales apoyandose en tablas y servicios ya existentes (`automatizaciones`, `ejecuciones`, `ejecuciones_workflows`) y sin introducir dependencias nuevas con terceros. Tambien sirve como patron seguro para futuras automatizaciones que si necesiten integraciones mas delicadas.
+
+### D-055. La ejecucion backend de automatizaciones usara `n8n_workflow_id` real y payload sanitario por defecto
+
+Se adopta que `ejecutarWorkflowService` invoque el webhook n8n usando el `n8n_workflow_id` persistido en `automatizaciones`, en lugar de construir rutas dinamicas derivadas del `cliente_id` y del identificador pedido por API. El payload saliente debe incluir `correlation_id`, metadatos de la automatizacion y un `client_snapshot` sanitario obtenido desde backend, pero no credenciales desencriptadas por defecto.
+
+Motivo:
+La estrategia anterior basada en rutas compuestas `cliente-<cliente_id>-<workflow_id>` no escala bien hacia workflows reales versionados ni deja un contrato estable entre backend y n8n. Usar `n8n_workflow_id` como destino canonico y un payload sanitario reduce riesgo, mejora trazabilidad y evita exponer secretos innecesarios en la primera automatizacion real ejecutable.

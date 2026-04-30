@@ -250,7 +250,7 @@ describe("activarOnboardingBackofficeService", () => {
     expect(result.detail.operational_summary.activation.status).toBe("activated");
     expect(result.detail.operational_summary.activation.can_activate).toBe(false);
     expect(result.detail.cliente.estado).toBe("activo");
-    expect(result.detail.automation_readiness.next_recommended_action).toMatch(/dispatcher real/i);
+    expect(result.detail.automation_readiness.next_recommended_action).toMatch(/provisionar la automatizacion base/i);
     expect(result.dispatch.mode).toBe("pending_integration");
   });
 

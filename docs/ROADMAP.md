@@ -60,7 +60,7 @@ Secuencia inmediata priorizada:
 
 ## Fase 4. Consolidacion comercial y de despliegue
 
-Estado: pendiente
+Estado: en progreso
 
 Objetivos:
 
@@ -72,7 +72,7 @@ Objetivos:
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Construir la primera automatizacion real de negocio sobre una base ya validada.
+3. Desplegar y validar la primera automatizacion real de negocio ya preparada sobre una base ya validada.
 
 ## Dependencias
 
@@ -82,4 +82,4 @@ Objetivos:
 
 ## Siguiente paso recomendado
 
-Definir e implementar la primera automatizacion real de negocio reutilizando la secuencia auditiva automatizada ya cerrada como base operativa.
+Desplegar el backend con el nuevo contrato de provisionado y ejecutar la validacion real extremo a extremo de `automation_client_health_snapshot`.

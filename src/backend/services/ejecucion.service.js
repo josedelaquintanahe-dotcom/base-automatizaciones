@@ -3,7 +3,7 @@
 const { log } = require("../app/logger");
 const { triggerN8nWebhookPath } = require("../clients/n8n.client");
 const { createSupabaseClient } = require("../clients/supabase.client");
-const { desencriptar } = require("../utils/encryption");
+const { obtenerClienteBackofficeService } = require("./cliente.service");
 
 function createServiceError(message, statusCode = 500) {
   const error = new Error(message);
@@ -38,28 +38,58 @@ async function getAutomatizacionByWorkflow(clienteId, workflowId) {
   return data;
 }
 
-async function getClienteCredenciales(clienteId) {
-  const supabase = getBackendSupabaseClient();
-  const { data, error } = await supabase
-    .from("credenciales_cliente")
-    .select("nombre, valor_encriptado, activo")
-    .eq("cliente_id", clienteId)
-    .eq("activo", true);
+function buildSanitizedExecutionPayload({
+  automatizacion,
+  clienteDetail,
+  clienteId,
+  workflowId,
+  datos,
+  context,
+}) {
+  const automationReadiness = clienteDetail && clienteDetail.automation_readiness
+    ? {
+        ready: Boolean(clienteDetail.automation_readiness.ready),
+        missing_requirements: Array.isArray(clienteDetail.automation_readiness.missing_requirements)
+          ? clienteDetail.automation_readiness.missing_requirements
+          : [],
+        next_recommended_action: clienteDetail.automation_readiness.next_recommended_action || null,
+      }
+    : null;
 
-  if (error) {
-    throw createServiceError(`No se pudieron obtener las credenciales: ${error.message}`);
-  }
-
-  const credenciales = {};
-
-  for (const item of data || []) {
-    credenciales[item.nombre] = desencriptar(item.valor_encriptado);
-  }
-
-  return credenciales;
+  return {
+    correlation_id: context.correlationId || null,
+    cliente_id: clienteId,
+    automation_id: automatizacion.id,
+    workflow_id: workflowId,
+    workflow_name: automatizacion.n8n_workflow_id,
+    automation_name: automatizacion.nombre,
+    trigger_source: context.triggerSource || "cliente_api",
+    execution_requested_at: new Date().toISOString(),
+    request_payload: datos && typeof datos === "object" && !Array.isArray(datos) ? datos : {},
+    client_snapshot: clienteDetail
+      ? {
+          cliente: clienteDetail.cliente
+            ? {
+                id: clienteDetail.cliente.id,
+                nombre_empresa: clienteDetail.cliente.nombre_empresa,
+                plan: clienteDetail.cliente.plan,
+                estado: clienteDetail.cliente.estado || null,
+              }
+            : null,
+          operational_summary: clienteDetail.operational_summary || null,
+          automation_readiness: automationReadiness,
+        }
+      : null,
+  };
 }
 
-async function registrarEjecucionService(automatizacion_id, estado, resultado, error_mensaje) {
+async function registrarEjecucionService(
+  automatizacion_id,
+  estado,
+  resultado,
+  error_mensaje,
+  duracion_ms = null,
+) {
   try {
     if (typeof automatizacion_id !== "string" || !automatizacion_id.trim()) {
       throw createServiceError("automatizacion_id es obligatorio.", 400);
@@ -79,6 +109,7 @@ async function registrarEjecucionService(automatizacion_id, estado, resultado, e
       resultado: resultado == null ? null : JSON.stringify(resultado),
       error_mensaje: error_mensaje || null,
       fecha_ejecucion: nowIso,
+      duracion_ms: Number.isInteger(duracion_ms) && duracion_ms >= 0 ? duracion_ms : null,
     };
     const { data, error } = await supabase
       .from("ejecuciones")
@@ -117,7 +148,7 @@ async function registrarEjecucionService(automatizacion_id, estado, resultado, e
   }
 }
 
-async function ejecutarWorkflowService(cliente_id, workflow_id, datos) {
+async function ejecutarWorkflowService(cliente_id, workflow_id, datos, context = {}) {
   const startedAt = Date.now();
 
   try {
@@ -130,13 +161,22 @@ async function ejecutarWorkflowService(cliente_id, workflow_id, datos) {
     }
 
     const automatizacion = await getAutomatizacionByWorkflow(cliente_id, workflow_id);
-    const credenciales = await getClienteCredenciales(cliente_id.trim());
-    const payload = {
-      datos: datos && typeof datos === "object" ? datos : {},
-      credenciales,
-    };
+    const clienteDetail = await obtenerClienteBackofficeService(cliente_id.trim());
+
+    if (automatizacion.estado !== "activo") {
+      throw createServiceError("La automatizacion no esta activa.", 409);
+    }
+
+    const payload = buildSanitizedExecutionPayload({
+      automatizacion,
+      clienteDetail,
+      clienteId: cliente_id.trim(),
+      workflowId: workflow_id.trim(),
+      datos,
+      context,
+    });
     const response = await triggerN8nWebhookPath({
-      path: `cliente-${cliente_id.trim()}-${workflow_id.trim()}`,
+      path: automatizacion.n8n_workflow_id,
       payload,
     });
     const duracionMs = Date.now() - startedAt;
@@ -148,6 +188,7 @@ async function ejecutarWorkflowService(cliente_id, workflow_id, datos) {
         "error",
         resultado,
         `n8n respondio con HTTP ${response.status}.`,
+        duracionMs,
       );
 
       const executionError = createServiceError(
@@ -158,9 +199,12 @@ async function ejecutarWorkflowService(cliente_id, workflow_id, datos) {
       throw executionError;
     }
 
-    await registrarEjecucionService(automatizacion.id, "exito", resultado, null);
+    await registrarEjecucionService(automatizacion.id, "exito", resultado, null, duracionMs);
 
     return {
+      correlation_id: payload.correlation_id,
+      automatizacion_id: automatizacion.id,
+      workflow_target: automatizacion.n8n_workflow_id,
       resultado,
       duracion_ms: duracionMs,
     };
@@ -175,6 +219,7 @@ async function ejecutarWorkflowService(cliente_id, workflow_id, datos) {
           "error",
           null,
           error && error.message ? error.message : "unknown_error",
+          duracionMs,
         );
       } catch (registrationError) {
         log("warn", "No se pudo registrar la ejecucion fallida", {

@@ -21,6 +21,17 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - persistencia esperada: `automation_events` y `ejecuciones_workflows`
 - ruta activa validada: `/webhook/onboarding_activated`
 
+### `automation_client_health_snapshot`
+
+- documento fuente: `workflows/automation__internal__automation_client_health_snapshot__v1.md`
+- blueprint tecnico actual: `n8n/workflows/automation_client_health_snapshot.workflow.ts`
+- workflowId en n8n Cloud: `XXskkJrieVXTJFh0`
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y preparado para ejecucion real desde backend
+- trigger: webhook `POST`
+- objetivo: generar un snapshot sanitario interno del cliente ya listo para automatizacion real, sin exponer credenciales
+- persistencia esperada: `ejecuciones` en backend y `ejecuciones_workflows` en n8n
+- ruta activa validada: `/webhook/automation_client_health_snapshot`
+
 ## Secuencia auditiva publicada
 
 1. `onboarding_trace_verified`
@@ -149,5 +160,6 @@ Documentacion base:
 
 ## Pendiente de validar
 
+- validacion real extremo a extremo de `automation_client_health_snapshot` desde el backend ya desplegado
 - catalogo ampliado de workflows futuros
 - estrategia estable para versionar workflows reales entre repositorio y n8n Cloud

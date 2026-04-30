@@ -1,0 +1,122 @@
+"use strict";
+
+jest.mock("../clients/supabase.client");
+jest.mock("../app/logger", () => ({ log: jest.fn() }));
+
+const { createSupabaseClient } = require("../clients/supabase.client");
+const {
+  provisionarAutomatizacionBaseService,
+} = require("../services/automatizacion.service");
+
+function buildSupabaseMock({ cliente = null, existingAutomation = null, insertedAutomation = null } = {}) {
+  return {
+    from(table) {
+      if (table === "clientes") {
+        return {
+          select() {
+            return {
+              eq() {
+                return {
+                  maybeSingle: jest.fn().mockResolvedValue({
+                    data: cliente,
+                    error: null,
+                  }),
+                };
+              },
+            };
+          },
+        };
+      }
+
+      if (table === "automatizaciones") {
+        return {
+          select() {
+            return {
+              eq(field, value) {
+                if (field === "cliente_id") {
+                  return {
+                    eq() {
+                      return {
+                        maybeSingle: jest.fn().mockResolvedValue({
+                          data: existingAutomation,
+                          error: null,
+                        }),
+                      };
+                    },
+                  };
+                }
+
+                throw new Error(`Campo no mockeado en select automatizaciones: ${field}=${value}`);
+              },
+            };
+          },
+          insert() {
+            return {
+              select() {
+                return {
+                  single: jest.fn().mockResolvedValue({
+                    data: insertedAutomation,
+                    error: null,
+                  }),
+                };
+              },
+            };
+          },
+        };
+      }
+
+      throw new Error(`Tabla no mockeada: ${table}`);
+    },
+  };
+}
+
+describe("provisionarAutomatizacionBaseService", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("crea la automatizacion base si no existe", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_001" },
+        insertedAutomation: {
+          id: "auto_001",
+          cliente_id: "cli_001",
+          nombre: "Snapshot sanitario del cliente",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_health_snapshot",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService("cli_001");
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_health_snapshot");
+    expect(result.automatizacion.n8n_workflow_id).toBe("automation_client_health_snapshot");
+  });
+
+  test("devuelve la automatizacion existente si ya fue provisionada", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_002" },
+        existingAutomation: {
+          id: "auto_002",
+          cliente_id: "cli_002",
+          nombre: "Snapshot sanitario del cliente",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_health_snapshot",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService("cli_002");
+
+    expect(result.created).toBe(false);
+    expect(result.automatizacion.id).toBe("auto_002");
+  });
+});

@@ -4,6 +4,17 @@ const { log } = require("../app/logger");
 const { createSupabaseClient } = require("../clients/supabase.client");
 
 const FRECUENCIAS_VALIDAS = new Set(["manual", "diaria", "semanal", "cada_hora"]);
+const BASE_AUTOMATION_TEMPLATES = {
+  client_health_snapshot: {
+    template_key: "client_health_snapshot",
+    nombre: "Snapshot sanitario del cliente",
+    descripcion:
+      "Genera un resumen sanitario interno del estado operativo del cliente y de su base de automatizacion.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_health_snapshot",
+    estado: "activo",
+  },
+};
 
 function createServiceError(message, statusCode = 500) {
   const error = new Error(message);
@@ -29,6 +40,17 @@ async function ensureClienteExists(supabase, clienteId) {
   if (!data) {
     throw createServiceError("Cliente no encontrado.", 404);
   }
+}
+
+function getBaseAutomationTemplate(templateKey) {
+  const normalizedKey = typeof templateKey === "string" ? templateKey.trim() : "";
+  const template = BASE_AUTOMATION_TEMPLATES[normalizedKey];
+
+  if (!template) {
+    throw createServiceError("template no soportado para provisionado base.", 400);
+  }
+
+  return template;
 }
 
 async function crearAutomatizacionService(cliente_id, datos) {
@@ -126,6 +148,75 @@ async function obtenerAutomatizacionesService(cliente_id) {
   }
 }
 
+async function provisionarAutomatizacionBaseService(cliente_id, templateKey = "client_health_snapshot") {
+  try {
+    if (typeof cliente_id !== "string" || !cliente_id.trim()) {
+      throw createServiceError("cliente_id es obligatorio.", 400);
+    }
+
+    const clienteId = cliente_id.trim();
+    const template = getBaseAutomationTemplate(templateKey);
+    const supabase = getBackendSupabaseClient();
+
+    await ensureClienteExists(supabase, clienteId);
+
+    const { data: existingRow, error: existingError } = await supabase
+      .from("automatizaciones")
+      .select("id, cliente_id, nombre, descripcion, n8n_workflow_id, estado, frecuencia")
+      .eq("cliente_id", clienteId)
+      .eq("n8n_workflow_id", template.n8n_workflow_id)
+      .maybeSingle();
+
+    if (existingError) {
+      throw createServiceError(
+        `No se pudo validar la automatizacion base existente: ${existingError.message}`,
+      );
+    }
+
+    if (existingRow) {
+      return {
+        created: false,
+        template_key: template.template_key,
+        automatizacion: existingRow,
+      };
+    }
+
+    const { data, error } = await supabase
+      .from("automatizaciones")
+      .insert({
+        cliente_id: clienteId,
+        nombre: template.nombre,
+        descripcion: template.descripcion,
+        frecuencia: template.frecuencia,
+        n8n_workflow_id: template.n8n_workflow_id,
+        estado: template.estado,
+      })
+      .select("id, cliente_id, nombre, descripcion, n8n_workflow_id, estado, frecuencia")
+      .single();
+
+    if (error || !data) {
+      throw createServiceError(
+        error && error.message
+          ? `No se pudo provisionar la automatizacion base: ${error.message}`
+          : "No se pudo provisionar la automatizacion base.",
+      );
+    }
+
+    return {
+      created: true,
+      template_key: template.template_key,
+      automatizacion: data,
+    };
+  } catch (error) {
+    log("error", "provisionarAutomatizacionBaseService failed", {
+      clienteId: cliente_id || null,
+      templateKey: templateKey || null,
+      error: error && error.message ? error.message : "unknown_error",
+    });
+    throw error;
+  }
+}
+
 async function pausarAutomatizacionService(automatizacion_id) {
   try {
     if (typeof automatizacion_id !== "string" || !automatizacion_id.trim()) {
@@ -165,7 +256,9 @@ async function pausarAutomatizacionService(automatizacion_id) {
 }
 
 module.exports = {
+  BASE_AUTOMATION_TEMPLATES,
   crearAutomatizacionService,
   obtenerAutomatizacionesService,
   pausarAutomatizacionService,
+  provisionarAutomatizacionBaseService,
 };

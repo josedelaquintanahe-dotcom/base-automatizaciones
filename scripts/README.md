@@ -226,3 +226,20 @@ Verifica la nueva automatizacion real de onboarding usando un unico disparo desd
 5. valida que el reporte final deje `all_checks_passed = true`.
 
 Este es el script recomendado para comprobar que la automatizacion de onboarding ya no se limita al webhook inicial y que la cadena auditiva completa se ejecuta automaticamente.
+
+### `verify-client-health-snapshot-automation.ps1`
+
+Verifica la primera automatizacion funcional real basada en `automatizaciones`:
+
+1. provisiona de forma idempotente la automatizacion base `client_health_snapshot` para un cliente existente,
+2. la ejecuta mediante endpoint administrativo de backoffice,
+3. recoge el `correlation_id` de la ejecucion,
+4. confirma:
+   - fila `exito` en `ejecuciones`,
+   - fila `completed` en `ejecuciones_workflows`,
+   - mismo `correlation_id` en la traza n8n.
+
+Dependencias adicionales:
+
+- `BACKOFFICE_API_TOKEN`
+- backend desplegado con las nuevas rutas de `automatizaciones/backoffice`

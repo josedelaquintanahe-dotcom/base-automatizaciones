@@ -32,6 +32,17 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - persistencia esperada: `ejecuciones` en backend y `ejecuciones_workflows` en n8n
 - ruta activa validada: `/webhook/automation_client_health_snapshot`
 
+### `automation_client_next_actions_brief`
+
+- documento fuente: `workflows/automation__internal__automation_client_next_actions_brief__v1.md`
+- blueprint tecnico actual: `n8n/workflows/automation_client_next_actions_brief.workflow.ts`
+- workflowId en n8n Cloud: `x2zcl5PRG3TyHzO4`
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y pendiente de validacion extremo a extremo desde backend
+- trigger: webhook `POST`
+- objetivo: generar un brief interno priorizado con los siguientes pasos recomendados para un cliente ya dado de alta, reutilizando el `client_snapshot` sanitario del backend
+- persistencia esperada: `ejecuciones` en backend y `ejecuciones_workflows` en n8n
+- ruta activa validada: `/webhook/automation_client_next_actions_brief`
+
 ## Secuencia auditiva publicada
 
 1. `onboarding_trace_verified`
@@ -160,6 +171,5 @@ Documentacion base:
 
 ## Pendiente de validar
 
-- validacion real extremo a extremo de `automation_client_health_snapshot` desde el backend ya desplegado
 - catalogo ampliado de workflows futuros
 - estrategia estable para versionar workflows reales entre repositorio y n8n Cloud

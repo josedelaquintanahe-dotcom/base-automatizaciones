@@ -415,3 +415,10 @@ Se adopta declarar `N8N_WEBHOOK_BASE_URL` en `render.yaml` con la base publica d
 
 Motivo:
 La validacion remota de `automation_client_health_snapshot` ha confirmado que el backend desplegado seguia alcanzando una URL de n8n que devolvia `404 No workspace here`, mientras el workflow publicado respondia correctamente cuando se invocaba con la base publica adecuada. Fijar esta variable en el blueprint de Render reduce configuracion manual oculta y evita divergencias entre backend desplegado, scripts operativos y workflows reales.
+
+### D-058. La siguiente automatizacion real de bajo riesgo sera un brief interno de siguientes pasos para el cliente
+
+Se adopta `automation_client_next_actions_brief` como la siguiente automatizacion real de bajo riesgo despues de `automation_client_health_snapshot`. Su objetivo es transformar el `client_snapshot` sanitario ya emitido por backend en un brief priorizado y reutilizable para operadores, sin modificar tablas de negocio ni llamar a servicios externos.
+
+Motivo:
+Las alternativas mas obvias eran repetir un resumen sanitario muy parecido al snapshot ya existente o entrar prematuramente en automatizaciones con efectos externos. Un brief de siguientes pasos aporta valor operativo nuevo, reutiliza el mismo contrato seguro, no exige credenciales nuevas y sirve como puente entre la base tecnica ya validada y futuras automatizaciones de cliente mas sensibles.

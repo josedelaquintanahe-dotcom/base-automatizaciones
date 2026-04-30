@@ -119,4 +119,32 @@ describe("provisionarAutomatizacionBaseService", () => {
     expect(result.created).toBe(false);
     expect(result.automatizacion.id).toBe("auto_002");
   });
+
+  test("permite provisionar una segunda automatizacion base por template explicito", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_003" },
+        insertedAutomation: {
+          id: "auto_003",
+          cliente_id: "cli_003",
+          nombre: "Brief operativo de siguientes pasos",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_next_actions_brief",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService(
+      "cli_003",
+      "client_next_actions_brief",
+    );
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_next_actions_brief");
+    expect(result.automatizacion.n8n_workflow_id).toBe(
+      "automation_client_next_actions_brief",
+    );
+  });
 });

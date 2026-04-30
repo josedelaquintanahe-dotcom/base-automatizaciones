@@ -14,6 +14,15 @@ const BASE_AUTOMATION_TEMPLATES = {
     n8n_workflow_id: "automation_client_health_snapshot",
     estado: "activo",
   },
+  client_next_actions_brief: {
+    template_key: "client_next_actions_brief",
+    nombre: "Brief operativo de siguientes pasos",
+    descripcion:
+      "Genera un brief interno priorizado con los siguientes pasos recomendados para el cliente ya preparado para automatizacion.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_next_actions_brief",
+    estado: "activo",
+  },
 };
 
 function createServiceError(message, statusCode = 500) {

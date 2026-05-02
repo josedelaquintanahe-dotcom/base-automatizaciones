@@ -59,7 +59,7 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - documento fuente: `workflows/automation__internal__automation_client_controlled_run_stage__v1.md`
 - blueprint tecnico actual: `n8n/workflows/automation_client_controlled_run_stage.workflow.ts`
 - workflowId en n8n Cloud: `zcJjBmbHWcJrJ54s`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado extremo a extremo desde backend local con rollback operativo por el mismo workflow
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado extremo a extremo desde backend local y desde backend desplegado, con rollback operativo por el mismo workflow
 - trigger: webhook `POST`
 - objetivo: programar de forma reversible la primera ejecucion controlada de una automatizacion objetivo del cliente, actualizando solo `proxima_ejecucion`
 - persistencia esperada: `ejecuciones` en backend y `ejecuciones_workflows` en n8n, con cambio controlado en `automatizaciones.proxima_ejecucion`

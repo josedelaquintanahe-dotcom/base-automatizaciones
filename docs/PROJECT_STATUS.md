@@ -41,7 +41,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - workflow `automation_client_first_run_handoff` publicado en n8n Cloud y validado en prueba segura manual el 30 de abril de 2026
 - workflow `automation_client_first_run_handoff` validado extremo a extremo desde backend local con servicios reales el 30 de abril de 2026
 - workflow `automation_client_first_run_handoff` validado extremo a extremo contra el backend desplegado, n8n y Supabase el 30 de abril de 2026
-- `automation_client_controlled_run_stage` publicado en n8n Cloud y validado extremo a extremo desde backend local el 2 de mayo de 2026, incluyendo rollback operativo por el mismo workflow
+- `automation_client_controlled_run_stage` publicado en n8n Cloud y validado extremo a extremo desde backend local y desde backend desplegado el 2 de mayo de 2026, incluyendo rollback operativo por el mismo workflow
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -75,8 +75,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa; `automation_client_health_snapshot`, `automation_client_next_actions_brief` y `automation_client_first_run_handoff` estan publicados en n8n Cloud y validados en ejecucion real extremo a extremo desde el backend desplegado; `automation_client_controlled_run_stage` esta publicado en n8n Cloud y validado extremo a extremo desde backend local con rollback operativo
-- Pendiente: desplegar backend con el template `client_controlled_run_stage` y revalidar `automation_client_controlled_run_stage` contra Render
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa; `automation_client_health_snapshot`, `automation_client_next_actions_brief`, `automation_client_first_run_handoff` y `automation_client_controlled_run_stage` estan publicados en n8n Cloud y validados en ejecucion real extremo a extremo desde el backend desplegado; `automation_client_controlled_run_stage` ademas valida rollback operativo por el mismo workflow
+- Pendiente: usar `automation_client_controlled_run_stage` como puente hacia la primera automatizacion objetivo con efecto operativo real controlado
 
 ### Sistema de agentes Codex
 
@@ -86,4 +86,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Desplegar y revalidar `automation_client_controlled_run_stage` en Render, y despues usarlo como puente hacia la primera automatizacion objetivo con efecto operativo real controlado.
+Definir la primera automatizacion objetivo con efecto operativo real controlado apoyandose en `automation_client_controlled_run_stage`.

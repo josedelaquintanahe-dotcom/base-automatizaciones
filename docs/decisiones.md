@@ -436,3 +436,10 @@ Se adopta que los scripts PowerShell de verificacion que invoquen endpoints back
 
 Motivo:
 La validacion real de `automation_client_first_run_handoff` detecto un falso fallo local en el provisionado por una limitacion del motor de Internet Explorer embebido en Windows PowerShell. El backend respondia correctamente, pero el script interpretaba la llamada como error. Forzar `-UseBasicParsing` evita ese falso negativo y mantiene compatibilidad real con el entorno Windows objetivo del proyecto.
+
+### D-061. La primera automatizacion con efecto operativo controlado programara una ejecucion futura reversible
+
+Se adopta `automation_client_controlled_run_stage` como la primera automatizacion con efecto operativo controlado. Su efecto real se limita a programar `automatizaciones.proxima_ejecucion` de una automatizacion objetivo ya existente y activa, usando un `requested_first_run_at` explicito, un `target_workflow_id` canonico y un `client_snapshot` sanitario.
+
+Motivo:
+Es el siguiente salto de valor mas razonable tras `automation_client_first_run_handoff`. Introduce un efecto operativo verificable y util sin depender de credenciales nuevas, sin ejecutar todavia la automatizacion objetivo y con rollback claro al restaurar el valor previo de `proxima_ejecucion`. Esto acerca el proyecto a ejecuciones reales con clientes sin asumir aun el riesgo de acciones externas irreversibles.

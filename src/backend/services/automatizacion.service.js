@@ -32,6 +32,15 @@ const BASE_AUTOMATION_TEMPLATES = {
     n8n_workflow_id: "automation_client_first_run_handoff",
     estado: "activo",
   },
+  client_controlled_run_stage: {
+    template_key: "client_controlled_run_stage",
+    nombre: "Staging de ejecucion controlada",
+    descripcion:
+      "Programa de forma controlada la primera ejecucion operativa de una automatizacion objetivo ya existente del cliente.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_controlled_run_stage",
+    estado: "activo",
+  },
 };
 
 function createServiceError(message, statusCode = 500) {

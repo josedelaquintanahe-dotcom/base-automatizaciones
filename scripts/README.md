@@ -283,3 +283,28 @@ Dependencias adicionales:
 Nota de compatibilidad:
 
 - las llamadas al backend usan `Invoke-WebRequest -UseBasicParsing` para funcionar tambien en Windows PowerShell clasico
+
+### `verify-client-controlled-run-stage-automation.ps1`
+
+Verifica la primera automatizacion con efecto operativo controlado:
+
+1. localiza una automatizacion objetivo ya provisionada para el cliente,
+2. provisiona de forma idempotente `client_controlled_run_stage`,
+3. ejecuta el staging indicando `target_workflow_id` y `requested_first_run_at`,
+4. confirma:
+   - fila `exito` en `ejecuciones`,
+   - fila `completed` en `ejecuciones_workflows`,
+   - mismo `correlation_id`,
+   - cambio efectivo en `automatizaciones.proxima_ejecucion`,
+5. ejecuta un rollback controlado por el mismo workflow para restaurar el valor previo de `proxima_ejecucion`.
+
+Dependencias adicionales:
+
+- `BACKOFFICE_API_TOKEN`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- backend con soporte para `template=client_controlled_run_stage`
+
+Regla operativa:
+
+- usarlo primero contra backend local o staging, y exigir que la restauracion pase por el mismo contrato del workflow antes de dar la validacion por buena

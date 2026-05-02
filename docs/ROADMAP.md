@@ -76,12 +76,13 @@ Hecho recientemente:
 - `automation_client_next_actions_brief` definido, documentado, publicado en n8n Cloud y validado en prueba segura manual el 30 de abril de 2026
 - `automation_client_next_actions_brief` validado extremo a extremo el 30 de abril de 2026 contra backend desplegado, n8n y Supabase
 - `automation_client_first_run_handoff` definido, publicado en n8n Cloud y validado en prueba segura manual, desde backend local y desde backend desplegado el 30 de abril de 2026
+- `automation_client_controlled_run_stage` definido en repo, publicado en n8n Cloud y validado extremo a extremo desde backend local con rollback operativo el 2 de mayo de 2026
 
 ## Prioridades actuales
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Usar `automation_client_first_run_handoff` como puente hacia la primera automatizacion con efecto operativo controlado.
+3. Desplegar backend con `client_controlled_run_stage` y revalidar `automation_client_controlled_run_stage` contra Render.
 
 ## Dependencias
 
@@ -91,4 +92,4 @@ Hecho recientemente:
 
 ## Siguiente paso recomendado
 
-Definir la primera automatizacion con efecto operativo controlado reutilizando `automation_client_first_run_handoff`, sin introducir todavia efectos externos irreversibles sin rollback claro.
+Desplegar y revalidar `automation_client_controlled_run_stage` en Render, y despues usarlo como puente hacia la primera automatizacion objetivo con efecto operativo real controlado.

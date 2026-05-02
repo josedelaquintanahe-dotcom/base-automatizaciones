@@ -175,4 +175,32 @@ describe("provisionarAutomatizacionBaseService", () => {
       "automation_client_first_run_handoff",
     );
   });
+
+  test("permite provisionar el staging de ejecucion controlada por template explicito", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_005" },
+        insertedAutomation: {
+          id: "auto_005",
+          cliente_id: "cli_005",
+          nombre: "Staging de ejecucion controlada",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_controlled_run_stage",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService(
+      "cli_005",
+      "client_controlled_run_stage",
+    );
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_controlled_run_stage");
+    expect(result.automatizacion.n8n_workflow_id).toBe(
+      "automation_client_controlled_run_stage",
+    );
+  });
 });

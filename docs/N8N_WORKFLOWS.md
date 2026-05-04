@@ -65,6 +65,17 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - persistencia esperada: `ejecuciones` en backend y `ejecuciones_workflows` en n8n, con cambio controlado en `automatizaciones.proxima_ejecucion`
 - ruta activa validada: `/webhook/automation_client_controlled_run_stage`
 
+### `automation_client_invoice_draft_create`
+
+- documento fuente: `workflows/automation__internal__automation_client_invoice_draft_create__v1.md`
+- blueprint tecnico actual: `n8n/workflows/automation_client_invoice_draft_create.workflow.ts`
+- workflowId en n8n Cloud: `fBmldxesUq8qSuHp`
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado extremo a extremo desde backend local con rollback operativo sobre `facturas`
+- trigger: webhook `POST`
+- objetivo: crear un borrador mensual de factura para un cliente ya operativo, usando solo contexto sanitario y con rollback por el mismo workflow
+- persistencia esperada: `ejecuciones` en backend, `ejecuciones_workflows` en n8n y cambio reversible en `facturas`
+- ruta activa validada: `/webhook/automation_client_invoice_draft_create`
+
 ## Secuencia auditiva publicada
 
 1. `onboarding_trace_verified`
@@ -157,6 +168,7 @@ Documentacion base:
 - tratar `ONBOARDING_DISPATCH_WEBHOOK_URL` como la referencia exacta del workflow versionado o activo,
 - usar `N8N_WEBHOOK_BASE_URL` solo como base generica, no como sustituto del webhook especifico de onboarding,
 - repetir una prueba real con `correlation_id` verificable despues de cualquier cambio de webhook, credencial o entorno n8n,
+- para automatizaciones con efecto operativo real, exigir tambien verificacion del rollback por el mismo contrato cuando el cambio sea reversible,
 - usar `scripts/verify-onboarding-flow.ps1` como smoke test versionado cuando la validacion requiera activar onboarding real desde backend,
 - comprobar siempre:
   - fila en `automation_events`,

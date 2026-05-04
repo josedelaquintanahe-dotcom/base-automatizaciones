@@ -308,3 +308,30 @@ Dependencias adicionales:
 Regla operativa:
 
 - usarlo primero contra backend local o staging, y exigir que la restauracion pase por el mismo contrato del workflow antes de dar la validacion por buena
+
+### `verify-client-invoice-draft-automation.ps1`
+
+Verifica la primera automatizacion objetivo con efecto operativo real controlado:
+
+1. provisiona de forma idempotente `client_invoice_draft_create`,
+2. resuelve un `invoice_month` futuro no usado para el cliente,
+3. ejecuta la creacion del borrador desde backoffice,
+4. confirma:
+   - fila `exito` en `ejecuciones`,
+   - fila `completed` en `ejecuciones_workflows`,
+   - mismo `correlation_id`,
+   - nueva fila `pendiente` en `facturas`,
+5. ejecuta rollback por el mismo workflow,
+6. confirma que la misma factura termina en estado `cancelada`.
+
+Dependencias adicionales:
+
+- `BACKOFFICE_API_TOKEN`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- backend con soporte para `template=client_invoice_draft_create`
+
+Regla operativa:
+
+- usarlo primero contra backend local o staging,
+- considerar valida la automatizacion solo cuando el rollback pase por el mismo contrato del workflow y la fila de `facturas` quede cancelada, no eliminada.

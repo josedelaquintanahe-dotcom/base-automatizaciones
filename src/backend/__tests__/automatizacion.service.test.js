@@ -203,4 +203,32 @@ describe("provisionarAutomatizacionBaseService", () => {
       "automation_client_controlled_run_stage",
     );
   });
+
+  test("permite provisionar la creacion de borrador de factura por template explicito", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_006" },
+        insertedAutomation: {
+          id: "auto_006",
+          cliente_id: "cli_006",
+          nombre: "Creacion de borrador de factura mensual",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_invoice_draft_create",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService(
+      "cli_006",
+      "client_invoice_draft_create",
+    );
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_invoice_draft_create");
+    expect(result.automatizacion.n8n_workflow_id).toBe(
+      "automation_client_invoice_draft_create",
+    );
+  });
 });

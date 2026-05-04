@@ -41,6 +41,15 @@ const BASE_AUTOMATION_TEMPLATES = {
     n8n_workflow_id: "automation_client_controlled_run_stage",
     estado: "activo",
   },
+  client_invoice_draft_create: {
+    template_key: "client_invoice_draft_create",
+    nombre: "Creacion de borrador de factura mensual",
+    descripcion:
+      "Crea un borrador mensual de facturacion para el cliente usando solo contexto sanitario y con rollback controlado.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_invoice_draft_create",
+    estado: "activo",
+  },
 };
 
 function createServiceError(message, statusCode = 500) {

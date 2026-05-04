@@ -443,3 +443,19 @@ Se adopta `automation_client_controlled_run_stage` como la primera automatizacio
 
 Motivo:
 Es el siguiente salto de valor mas razonable tras `automation_client_first_run_handoff`. Introduce un efecto operativo verificable y util sin depender de credenciales nuevas, sin ejecutar todavia la automatizacion objetivo y con rollback claro al restaurar el valor previo de `proxima_ejecucion`. Esto acerca el proyecto a ejecuciones reales con clientes sin asumir aun el riesgo de acciones externas irreversibles.
+
+## 2026-05-04
+
+### D-062. La primera automatizacion objetivo con efecto operativo real controlado sera la creacion reversible de un borrador de factura
+
+Se adopta `automation_client_invoice_draft_create` como la primera automatizacion objetivo con efecto operativo real controlado. Su efecto real se limita a crear una fila `pendiente` en `facturas` para un mes futuro no usado, reutilizando el contexto sanitario de facturacion del cliente y sin llamar a servicios externos.
+
+Motivo:
+Es la primera pieza que ya genera un artefacto operativo de negocio util para cliente sin introducir credenciales nuevas ni efectos irreversibles. Aprovecha la base ya validada de `client_snapshot`, `ejecuciones`, `ejecuciones_workflows` y `automation_client_controlled_run_stage`, y mantiene un alcance razonablemente seguro porque el resultado sigue siendo un borrador interno.
+
+### D-063. El rollback de la primera automatizacion objetivo cancelara el borrador creado en lugar de borrarlo
+
+Se adopta que el rollback de `automation_client_invoice_draft_create` no elimine la fila creada en `facturas`, sino que la marque como `cancelada` usando el mismo workflow en `rollback_mode`.
+
+Motivo:
+Cancelar preserva trazabilidad de negocio y tecnica, evita borrar evidencia de pruebas operativas y mantiene un rollback claro y auditable por `correlation_id` sin introducir mutaciones destructivas sobre datos de facturacion.

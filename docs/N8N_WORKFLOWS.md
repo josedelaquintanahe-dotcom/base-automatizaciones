@@ -70,7 +70,7 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - documento fuente: `workflows/automation__internal__automation_client_invoice_draft_create__v1.md`
 - blueprint tecnico actual: `n8n/workflows/automation_client_invoice_draft_create.workflow.ts`
 - workflowId en n8n Cloud: `fBmldxesUq8qSuHp`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado extremo a extremo desde backend local con rollback operativo sobre `facturas`
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado extremo a extremo desde backend local y desde backend desplegado, con rollback operativo sobre `facturas`
 - trigger: webhook `POST`
 - objetivo: crear un borrador mensual de factura para un cliente ya operativo, usando solo contexto sanitario y con rollback por el mismo workflow
 - persistencia esperada: `ejecuciones` en backend, `ejecuciones_workflows` en n8n y cambio reversible en `facturas`

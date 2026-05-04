@@ -335,3 +335,7 @@ Regla operativa:
 
 - usarlo primero contra backend local o staging,
 - considerar valida la automatizacion solo cuando el rollback pase por el mismo contrato del workflow y la fila de `facturas` quede cancelada, no eliminada.
+
+Nota de compatibilidad:
+
+- para validaciones remotas con backend desplegado, este script y `verify-client-controlled-run-stage-automation.ps1` delegan el cuerpo JSON a un archivo temporal y lo envian a `node.exe` mediante `scripts/http-json.mjs`; esto evita falsos fallos de quoting en Windows PowerShell.

@@ -459,3 +459,10 @@ Se adopta que el rollback de `automation_client_invoice_draft_create` no elimine
 
 Motivo:
 Cancelar preserva trazabilidad de negocio y tecnica, evita borrar evidencia de pruebas operativas y mantiene un rollback claro y auditable por `correlation_id` sin introducir mutaciones destructivas sobre datos de facturacion.
+
+### D-064. Los scripts de verificacion remota en Windows delegaran cuerpos JSON complejos a archivo temporal
+
+Se adopta que los scripts PowerShell de verificacion que invoquen backend remoto a traves de `node.exe` y `scripts/http-json.mjs` pasen el cuerpo JSON mediante archivo temporal (`--body-file`) en lugar de depender del paso directo del JSON como argumento de linea de comandos.
+
+Motivo:
+La validacion remota de `automation_client_invoice_draft_create` y del puente con `automation_client_controlled_run_stage` detecto falsos fallos al enviar JSON desde PowerShell hacia Node por quoting y normalizacion de fechas. Delegar el cuerpo a archivo temporal hace la invocacion mas estable en Windows y evita errores operativos que no pertenecen al backend ni a n8n.

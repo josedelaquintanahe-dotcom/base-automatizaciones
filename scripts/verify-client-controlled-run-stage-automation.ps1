@@ -48,16 +48,25 @@ function Invoke-HttpJson {
 
   $scriptPath = Join-Path $PSScriptRoot "http-json.mjs"
   $arguments = @("--method", $Method, "--url", $Url)
+  $tempBodyFile = $null
 
   foreach ($header in $Headers) {
     $arguments += @("--header", $header)
   }
 
   if ($null -ne $Body) {
-    $arguments += @("--body", ($Body | ConvertTo-Json -Depth 10 -Compress))
+    $tempBodyFile = [System.IO.Path]::GetTempFileName()
+    ($Body | ConvertTo-Json -Depth 10 -Compress) | Set-Content -LiteralPath $tempBodyFile -Encoding utf8
+    $arguments += @("--body-file", $tempBodyFile)
   }
 
-  $raw = & node.exe $scriptPath @arguments
+  try {
+    $raw = & node.exe $scriptPath @arguments
+  } finally {
+    if ($tempBodyFile -and (Test-Path -LiteralPath $tempBodyFile)) {
+      Remove-Item -LiteralPath $tempBodyFile -Force -ErrorAction SilentlyContinue
+    }
+  }
 
   if (-not $raw) {
     throw "La llamada HTTP no devolvio salida: $Method $Url"
@@ -74,45 +83,17 @@ function Invoke-BackendJson {
     [hashtable]$Headers = @{}
   )
 
-  $requestHeaders = @{}
+  $headerList = @()
   foreach ($key in $Headers.Keys) {
-    $requestHeaders[$key] = $Headers[$key]
+    $headerList += ("{0}: {1}" -f $key, $Headers[$key])
   }
 
-  $requestBody = $null
-  if ($null -ne $Body) {
-    $requestBody = $Body | ConvertTo-Json -Depth 10 -Compress
-    if (-not $requestHeaders.ContainsKey("Content-Type")) {
-      $requestHeaders["Content-Type"] = "application/json"
-    }
-  }
-
-  try {
-    $response = Invoke-WebRequest -UseBasicParsing -Method $Method -Uri $Url -Headers $requestHeaders -Body $requestBody
-    return [pscustomobject]@{
-      status = [int]$response.StatusCode
-      ok = $true
-      body = if ($response.Content) { $response.Content | ConvertFrom-Json } else { $null }
-      rawText = $response.Content
-    }
-  } catch {
-    $rawText = $_.Exception.Response.Content
-    $parsedBody = $null
-
-    if ($rawText) {
-      try {
-        $parsedBody = $rawText | ConvertFrom-Json
-      } catch {
-        $parsedBody = $rawText
-      }
-    }
-
-    return [pscustomobject]@{
-      status = if ($_.Exception.Response.StatusCode) { [int]$_.Exception.Response.StatusCode } else { 0 }
-      ok = $false
-      body = $parsedBody
-      rawText = $rawText
-    }
+  $response = Invoke-HttpJson -Method $Method -Url $Url -Body $Body -Headers $headerList
+  return [pscustomobject]@{
+    status = [int]$response.status
+    ok = ($response.status -ge 200 -and $response.status -lt 300)
+    body = $response.body
+    rawText = $response.rawText
   }
 }
 

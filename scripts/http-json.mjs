@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import process from 'node:process';
 
 const args = process.argv.slice(2);
@@ -24,6 +25,7 @@ function readArgValues(flag) {
 const method = (readArgValue('--method') || 'GET').toUpperCase();
 const url = readArgValue('--url');
 const body = readArgValue('--body');
+const bodyFile = readArgValue('--body-file');
 const headerPairs = readArgValues('--header');
 
 if (!url) {
@@ -52,8 +54,10 @@ const requestInit = {
   headers,
 };
 
-if (body) {
-  requestInit.body = body;
+const resolvedBody = bodyFile ? fs.readFileSync(bodyFile, 'utf8') : body;
+
+if (resolvedBody) {
+  requestInit.body = resolvedBody;
   if (!headers['Content-Type'] && !headers['content-type']) {
     requestInit.headers['Content-Type'] = 'application/json';
   }

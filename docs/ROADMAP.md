@@ -77,14 +77,14 @@ Hecho recientemente:
 - `automation_client_next_actions_brief` validado extremo a extremo el 30 de abril de 2026 contra backend desplegado, n8n y Supabase
 - `automation_client_first_run_handoff` definido, publicado en n8n Cloud y validado en prueba segura manual, desde backend local y desde backend desplegado el 30 de abril de 2026
 - `automation_client_controlled_run_stage` definido en repo, publicado en n8n Cloud y validado extremo a extremo desde backend local y desde backend desplegado con rollback operativo el 2 de mayo de 2026
-- `automation_client_invoice_draft_create` definido en repo, publicado en n8n Cloud y validado extremo a extremo en local con efecto real reversible sobre `facturas` el 4 de mayo de 2026
-- `automation_client_controlled_run_stage` revalidado en local como puente hacia `automation_client_invoice_draft_create` el 4 de mayo de 2026
+- `automation_client_invoice_draft_create` definido en repo, publicado en n8n Cloud y validado extremo a extremo en local y en backend desplegado con efecto real reversible sobre `facturas` el 4 de mayo de 2026
+- `automation_client_controlled_run_stage` revalidado en local y en backend desplegado como puente hacia `automation_client_invoice_draft_create` el 4 de mayo de 2026
 
 ## Prioridades actuales
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Publicar en backend desplegado y revalidar en remoto `automation_client_invoice_draft_create` y el puente desde `automation_client_controlled_run_stage`.
+3. Elegir la siguiente automatizacion objetivo con efecto operativo controlado sobre negocio, reutilizando `automation_client_invoice_draft_create` como primer patron de mutacion reversible.
 
 ## Dependencias
 
@@ -94,4 +94,4 @@ Hecho recientemente:
 
 ## Siguiente paso recomendado
 
-Revalidar en remoto `automation_client_invoice_draft_create` y, si pasa, usarla como base para la siguiente automatizacion con efecto operativo controlado sobre negocio.
+Definir la siguiente automatizacion objetivo con efecto operativo controlado sobre negocio a partir del patron ya validado de borrador de factura reversible.

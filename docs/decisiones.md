@@ -466,3 +466,10 @@ Se adopta que los scripts PowerShell de verificacion que invoquen backend remoto
 
 Motivo:
 La validacion remota de `automation_client_invoice_draft_create` y del puente con `automation_client_controlled_run_stage` detecto falsos fallos al enviar JSON desde PowerShell hacia Node por quoting y normalizacion de fechas. Delegar el cuerpo a archivo temporal hace la invocacion mas estable en Windows y evita errores operativos que no pertenecen al backend ni a n8n.
+
+### D-065. `prompt.md` sera la guia operativa recurrente para continuidad por bloques
+
+Se adopta `prompt.md` en la raiz del proyecto como guia recurrente de ejecucion por bloques logicos. Codex debe leerlo al inicio de cada sesion, identificar el estado real del proyecto y elegir desde ahi el prompt operativo correspondiente, manteniendo sincronizados `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md`.
+
+Motivo:
+El proyecto ya tiene suficiente complejidad documental, tecnica y operativa como para necesitar una capa de continuidad explicita. Centralizar los prompts de trabajo reduce deriva entre sesiones, hace mas repetible el uso de skills y playbooks y acelera la continuidad hacia el objetivo final del negocio real de automatizaciones.

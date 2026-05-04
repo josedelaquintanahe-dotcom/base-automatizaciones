@@ -186,3 +186,31 @@ Una tarea queda terminada cuando el objetivo esta resuelto o el bloqueo real est
 ## 22. Siguiente paso recomendado
 
 Usar `.codex/playbooks/documentation-update.md` para revisar documentos canonicos secundarios, detectar desalineaciones seguras y mantener la base operativa de agentes sincronizada sin modificar logica del producto.
+
+## 23. Sistema de ejecucion basado en prompt.md
+
+El sistema operativo del proyecto se basa en el archivo `prompt.md`, que define los bloques logicos de ejecucion.
+
+Flujo real de trabajo:
+
+AGENTS.md → prompt.md → playbooks → skills → ejecucion
+
+Reglas:
+
+- Codex debe usar `prompt.md` como punto de entrada para cualquier tarea
+- No debe ejecutar tareas directamente sin mapearlas a un bloque de `prompt.md`
+- Cada bloque en `prompt.md` define:
+  - el playbook a usar
+  - los agentes implicados
+  - el objetivo
+  - las restricciones
+- Tras cada ejecucion, debe determinar el siguiente bloque logico
+
+Si no existe un bloque adecuado en `prompt.md`:
+
+1. Detectarlo
+2. Proponer nuevo bloque
+3. Generar el prompt correspondiente
+4. No ejecutarlo sin validacion si implica riesgo
+
+Este sistema permite ejecucion autonoma controlada sin perder coherencia ni seguridad.

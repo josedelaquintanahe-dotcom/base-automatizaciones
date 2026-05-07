@@ -26,7 +26,7 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - documento fuente: `workflows/automation__internal__automation_client_health_snapshot__v1.md`
 - blueprint tecnico actual: `n8n/workflows/automation_client_health_snapshot.workflow.ts`
 - workflowId en n8n Cloud: `XXskkJrieVXTJFh0`
-- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y preparado para ejecucion real desde backend
+- estado detectado: blueprint SDK validado, workflow publicado en n8n Cloud y validado extremo a extremo contra backend desplegado, n8n y Supabase el 30 de abril de 2026
 - trigger: webhook `POST`
 - objetivo: generar un snapshot sanitario interno del cliente ya listo para automatizacion real, sin exponer credenciales
 - persistencia esperada: `ejecuciones` en backend y `ejecuciones_workflows` en n8n
@@ -75,6 +75,18 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - objetivo: crear un borrador mensual de factura para un cliente ya operativo, usando solo contexto sanitario y con rollback por el mismo workflow
 - persistencia esperada: `ejecuciones` en backend, `ejecuciones_workflows` en n8n y cambio reversible en `facturas`
 - ruta activa validada: `/webhook/automation_client_invoice_draft_create`
+
+### `automation_client_invoice_mark_paid`
+
+- documento fuente: `workflows/automation__internal__automation_client_invoice_mark_paid__v1.md`
+- blueprint tecnico actual: `n8n/workflows/automation_client_invoice_mark_paid.workflow.ts`
+- workflowId en n8n Cloud: pendiente de publicar
+- estado detectado: blueprint tecnico, documento fuente, soporte de provisionado backend y script operativo versionado preparados en repositorio el 4 de mayo de 2026 como siguiente automatizacion objetivo sobre `facturas`; blueprint revisado localmente el 7 de mayo de 2026 para evitar falsos `completed` si la mutacion concurrente no actualiza ninguna fila
+- trigger: webhook `POST`
+- objetivo: marcar como `pagada` una factura `pendiente` existente, manteniendo rollback controlado a `pendiente`
+- persistencia esperada: `ejecuciones` en backend, `ejecuciones_workflows` en n8n y cambio reversible en `facturas`
+- ruta activa prevista: `/webhook/automation_client_invoice_mark_paid`
+- script operativo previsto para validacion real: `scripts/verify-client-invoice-mark-paid-automation.ps1`
 
 ## Secuencia auditiva publicada
 
@@ -169,6 +181,7 @@ Documentacion base:
 - usar `N8N_WEBHOOK_BASE_URL` solo como base generica, no como sustituto del webhook especifico de onboarding,
 - repetir una prueba real con `correlation_id` verificable despues de cualquier cambio de webhook, credencial o entorno n8n,
 - para automatizaciones con efecto operativo real, exigir tambien verificacion del rollback por el mismo contrato cuando el cambio sea reversible,
+- exigir tambien que el rollback use un `correlation_id` tecnico distinto del disparo principal cuando el flujo valide una mutacion reversible,
 - usar `scripts/verify-onboarding-flow.ps1` como smoke test versionado cuando la validacion requiera activar onboarding real desde backend,
 - comprobar siempre:
   - fila en `automation_events`,
@@ -205,5 +218,5 @@ Documentacion base:
 
 ## Pendiente de validar
 
-- catalogo ampliado de workflows futuros
+- publicacion controlada y validacion real de `automation_client_invoice_mark_paid`
 - estrategia estable para versionar workflows reales entre repositorio y n8n Cloud

@@ -473,3 +473,64 @@ Se adopta `prompt.md` en la raiz del proyecto como guia recurrente de ejecucion 
 
 Motivo:
 El proyecto ya tiene suficiente complejidad documental, tecnica y operativa como para necesitar una capa de continuidad explicita. Centralizar los prompts de trabajo reduce deriva entre sesiones, hace mas repetible el uso de skills y playbooks y acelera la continuidad hacia el objetivo final del negocio real de automatizaciones.
+
+### D-066. La siguiente automatizacion objetivo de negocio sera el marcado reversible de factura pagada
+
+Se adopta `automation_client_invoice_mark_paid` como la siguiente automatizacion objetivo a disenar despues de `automation_client_invoice_draft_create`. Su efecto real previsto se limita a cambiar el estado de una factura existente de `pendiente` a `pagada`, con rollback controlado a `pendiente` por el mismo workflow cuando la validacion siga en una fase operativa segura.
+
+Motivo:
+Entre las alternativas razonables detectadas, es la que mejor aprovecha el modelo real ya versionado (`facturas.estado` con `pendiente`, `pagada` y `cancelada`) sin exigir nuevas columnas, integraciones externas ni credenciales adicionales. Tambien amplía el patron de mutacion reversible ya validado sobre `facturas` y acerca el sistema a un ciclo minimo de facturacion util para negocio.
+### D-067. `run-codex-loop.ps1` debe encadenar el siguiente prompt exacto entre iteraciones
+
+Se adopta que `run-codex-loop.ps1` no reutilice siempre el mismo prompt maestro en todas las iteraciones. El script debe capturar la salida de cada ejecucion de `codex exec --full-auto`, extraer el `siguiente prompt exacto` devuelto por el bloque ejecutado y usarlo como entrada de la siguiente iteracion, manteniendo las paradas de seguridad sobre archivos sensibles o ausencia de un siguiente prompt claro.
+
+Motivo:
+El comportamiento anterior hacia que el loop volviera con facilidad al diagnostico inicial aunque ya existiera un siguiente paso operativo claro. Encadenar el siguiente prompt exacto convierte el loop en una ejecucion realmente secuencial y reduce trabajo manual sin rebajar control ni trazabilidad.
+
+### D-068. `run-codex-loop.ps1` debe reconstruir el siguiente prompt desde `prompt.md` si falta el prompt exacto
+
+Se adopta que `run-codex-loop.ps1` intente una reconstruccion automatica cuando la salida de un bloque no incluya `siguiente prompt exacto` en formato reutilizable. En ese caso, el script debe leer `siguiente bloque recomendado` y recuperar desde `prompt.md` el `Prompt exacto para Codex` del bloque correspondiente antes de detenerse.
+
+Motivo:
+No todos los bloques devuelven todavia el mismo formato de cierre. Este fallback mantiene el bucle operativo entre iteraciones sin obligar a rehacer manualmente el siguiente prompt, y preserva la fuente canonica de ejecucion en `prompt.md`.
+
+### D-069. `run-codex-loop.ps1` debe capturar `stderr` y detenerse de forma explicita ante limites de uso de Codex
+
+Se adopta que `run-codex-loop.ps1` capture tambien la salida de error de `codex exec --full-auto` para poder detectar limites de uso, errores operativos y otros bloqueos que no lleguen por `stdout`. Si detecta un mensaje de limite de uso, debe detener el bucle con un mensaje explicito en lugar de caer en un falso fallo de reconstruccion de prompt.
+
+Motivo:
+Durante la prueba del loop endurecido, Codex devolvio el error de limite de uso por `stderr`. Sin capturarlo, el script parecia fallar por ausencia de `siguiente prompt exacto`, cuando el bloqueo real era externo al repositorio. Esta captura mejora diagnostico y evita falsas conclusiones.
+
+### D-070. `run-codex-loop.ps1` debe poder inferir bloque desde `siguiente paso recomendado`
+
+Se adopta que `run-codex-loop.ps1` no dependa solo de `siguiente bloque recomendado` o `siguiente prompt exacto`. Si la salida de Codex solo contiene `siguiente paso recomendado`, el script debe inferir el bloque operativo mas cercano usando coincidencia con los nombres de bloque de `prompt.md` y un mapeo conservador por palabras clave.
+
+Motivo:
+Algunos bloques devuelven una recomendacion operativa valida sin nombrar formalmente el bloque. Sin esta inferencia, el loop se detiene aunque el siguiente paso este claro para una persona. Este fallback mantiene continuidad sin abrir decisiones agresivas fuera de `prompt.md`.
+
+### D-071. `run-codex-loop.ps1` debe sanear la salida antes de parsear el siguiente paso
+
+Se adopta que `run-codex-loop.ps1` conserve un log raw completo de `codex exec`, pero genere una segunda vista limpia para mostrar y parsear. Esa vista debe filtrar ruido estructural repetitivo como `System.Management.Automation.RemoteException`, cabeceras auxiliares de Codex y separadores que no aportan informacion operativa al cierre del bloque.
+
+Motivo:
+La salida real de `codex exec` en PowerShell puede llegar contaminada por lineas que no forman parte del resumen del bloque. Sin saneado previo, el parser puede fallar aunque Codex haya devuelto correctamente el siguiente paso. Mantener raw + clean mejora diagnostico y robustez sin perder trazabilidad.
+
+### D-072. `run-codex-loop.ps1` debe priorizar la ultima coincidencia valida del cierre de Codex
+
+Se adopta que `run-codex-loop.ps1` no use la primera coincidencia encontrada al buscar `siguiente prompt exacto`, `siguiente bloque recomendado` o `siguiente paso recomendado`. Si la salida contiene varios cierres o una consolidacion adicional al final, el script debe tomar la ultima coincidencia valida.
+
+Motivo:
+En ejecuciones reales de `codex exec` pueden aparecer varios resúmenes, cierres parciales o textos de consolidación en la misma salida. Usar la primera coincidencia puede arrastrar un paso intermedio obsoleto o incompleto. Tomar la última reduce falsos bloqueos y sigue mejor la intención final del cierre.
+### D-073. `run-codex-loop.ps1` debe parsear solo la cola util de la salida limpia
+
+Se adopta que `run-codex-loop.ps1` no busque el siguiente paso sobre toda la salida limpia completa, sino sobre una cola util de lineas finales. El script debe conservar el log raw y el clean completos, pero limitar la busqueda operativa de `siguiente prompt exacto`, `siguiente bloque recomendado` y `siguiente paso recomendado` a las ultimas lineas del cierre.
+
+Motivo:
+En respuestas largas de Codex, el bloque completo puede incluir contexto, diffs, logs previos o repeticiones que contaminan la deteccion del siguiente paso. Restringir el parser a la cola util reduce ruido y mejora la probabilidad de capturar el cierre real mas reciente.
+
+### D-074. `codex-auto-prompt.txt` y `run-codex-loop.ps1` usaran un cierre estructurado `CODEX_NEXT`
+
+Se adopta un contrato de salida estructurada para las ejecuciones autonomas del wrapper: cada bloque ejecutado por `codex exec --full-auto` debe terminar con un bloque maquina-legible delimitado por `=== CODEX_NEXT ===` y `=== /CODEX_NEXT ===`, incluyendo como minimo `block:` y `prompt:`. `run-codex-loop.ps1` debe intentar parsear primero ese cierre estructurado y solo despues recurrir a los fallbacks textuales ya existentes.
+
+Motivo:
+Los cierres libres de Codex siguen siendo demasiado variables para una orquestacion fiable por bucle. Un contrato de salida pequeño, explicito y versionado reduce dependencia de regex fragiles, evita que el loop se bloquee por ruido contextual y mantiene la compatibilidad con los bloques ya existentes gracias a los fallbacks previos.

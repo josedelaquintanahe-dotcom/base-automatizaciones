@@ -231,4 +231,32 @@ describe("provisionarAutomatizacionBaseService", () => {
       "automation_client_invoice_draft_create",
     );
   });
+
+  test("permite provisionar el marcado reversible de factura pagada por template explicito", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_007" },
+        insertedAutomation: {
+          id: "auto_007",
+          cliente_id: "cli_007",
+          nombre: "Marcado reversible de factura pagada",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_invoice_mark_paid",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService(
+      "cli_007",
+      "client_invoice_mark_paid",
+    );
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_invoice_mark_paid");
+    expect(result.automatizacion.n8n_workflow_id).toBe(
+      "automation_client_invoice_mark_paid",
+    );
+  });
 });

@@ -1,0 +1,36 @@
+Lee AGENTS.md y sigue estrictamente sus reglas.
+Lee CONTEXT.md.
+Lee prompt.md.
+Lee docs/PROJECT_STATUS.md si existe.
+Lee docs/ROADMAP.md si existe.
+
+Determina el estado actual del proyecto.
+Selecciona el bloque lógico correspondiente en prompt.md.
+Ejecuta el prompt exacto de ese bloque usando el playbook indicado.
+Trabaja de forma autónoma salvo riesgo crítico, cambio destructivo, producción, credenciales reales o commit/push.
+Actualiza documentación si procede.
+No hagas commit ni push.
+Termina con:
+- bloque ejecutado
+- archivos modificados
+- verificaciones realizadas
+- riesgos
+- siguiente bloque recomendado
+- siguiente prompt exacto
+- git status
+
+Al final de la respuesta, anade obligatoriamente este cierre estructurado exacto para que el wrapper pueda encadenar el siguiente paso:
+
+=== CODEX_NEXT ===
+block: <nombre exacto del siguiente bloque de prompt.md>
+prompt:
+```text
+<siguiente prompt exacto listo para ejecutar>
+```
+=== /CODEX_NEXT ===
+
+Reglas del cierre estructurado:
+- `block:` debe coincidir literalmente con un bloque existente de `prompt.md`.
+- `prompt:` debe ser el prompt completo listo para copiar y ejecutar.
+- no anadas texto despues de `=== /CODEX_NEXT ===`.
+- si no existe siguiente paso seguro, usa igualmente el cierre estructurado y explica dentro del prompt que el siguiente bloque debe ser diagnostico o documentacion.

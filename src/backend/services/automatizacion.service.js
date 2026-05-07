@@ -50,6 +50,15 @@ const BASE_AUTOMATION_TEMPLATES = {
     n8n_workflow_id: "automation_client_invoice_draft_create",
     estado: "activo",
   },
+  client_invoice_mark_paid: {
+    template_key: "client_invoice_mark_paid",
+    nombre: "Marcado reversible de factura pagada",
+    descripcion:
+      "Marca una factura pendiente como pagada usando solo contexto sanitario y con rollback controlado al estado pendiente.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_invoice_mark_paid",
+    estado: "activo",
+  },
 };
 
 function createServiceError(message, statusCode = 500) {

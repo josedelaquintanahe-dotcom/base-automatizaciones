@@ -9,6 +9,7 @@ Reunir una guia base de despliegue sin asumir mas alla de lo detectado en el rep
 - frontend preparado con Vite
 - backend preparado para Node.js/Express
 - `render.yaml` presente para backend
+- no existe `package.json` en la raiz; los comandos se ejecutan por paquete
 - no existe manifiesto de despliegue versionado para frontend
 - Vercel aparece documentado como opcion, no como flujo confirmado en uso
 - Supabase y n8n forman parte del entorno operativo
@@ -28,15 +29,16 @@ Reunir una guia base de despliegue sin asumir mas alla de lo detectado en el rep
   - frontend: `npm install`, `npm run lint`, `npm test`, `npm run build`
 - el backend no tiene script `build` actualmente
 - no hay scripts unificados en la raiz del repositorio
-- `.env.example` alineado con variables reales del codigo
+- `.env.example` de raiz alineado con variables reales del backend
+- `src/frontend/.env.example` alineado con `VITE_API_URL`
 - `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` actualizados
 - endpoints, webhooks y tablas documentados
 - riesgos de seguridad revisados
 
 ## Variables a revisar por entorno
 
-- backend: Node, CORS, JWT, cifrado, backoffice, Supabase, n8n
-- frontend: `VITE_API_URL`
+- backend: Node, CORS, JWT, cifrado, backoffice, Supabase, n8n y `ONBOARDING_DISPATCH_WEBHOOK_URL`
+- frontend: `VITE_API_URL` en `src/frontend/.env.example`
 - integraciones: URLs y credenciales separadas por entorno
 
 ## Comprobacion minima tras cambios de despliegue del backend
@@ -68,6 +70,34 @@ Control especifico actual:
 
 - `ONBOARDING_DISPATCH_WEBHOOK_URL` debe apuntar a `https://quinttanaaa.app.n8n.cloud/webhook/onboarding_activated`
 - `render.yaml` y la configuracion manual del servicio en Render deben permanecer sincronizados
+
+## Control especifico del bloque actual
+
+Bloque activo previsto para despliegue controlado:
+
+- `automation_client_invoice_mark_paid`
+
+Precondiciones minimas antes de publicarlo o validarlo:
+
+- el backend desplegado debe incluir el soporte para `template=client_invoice_mark_paid`
+- el workflow debe publicarse en n8n con la ruta `/webhook/automation_client_invoice_mark_paid`
+- la credencial Supabase activa en n8n debe poder leer y actualizar `facturas`
+- debe existir al menos una factura `pendiente` valida para el cliente objetivo
+
+Validacion operativa recomendada tras publicar el workflow:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-client-invoice-mark-paid-automation.ps1 -ClientId "<uuid-del-cliente>"
+```
+
+Esta validacion debe confirmar:
+
+- provisionado idempotente de `client_invoice_mark_paid`
+- ejecucion aceptada por backend y workflow
+- fila `completed` en `ejecuciones_workflows`
+- fila `exito` en `ejecuciones`
+- cambio real de `facturas.estado` a `pagada`
+- rollback por el mismo workflow hasta `pendiente` con un segundo `correlation_id`
 
 ## Alcance confirmado del despliegue versionado
 

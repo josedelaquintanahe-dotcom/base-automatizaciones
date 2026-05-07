@@ -79,12 +79,17 @@ Hecho recientemente:
 - `automation_client_controlled_run_stage` definido en repo, publicado en n8n Cloud y validado extremo a extremo desde backend local y desde backend desplegado con rollback operativo el 2 de mayo de 2026
 - `automation_client_invoice_draft_create` definido en repo, publicado en n8n Cloud y validado extremo a extremo en local y en backend desplegado con efecto real reversible sobre `facturas` el 4 de mayo de 2026
 - `automation_client_controlled_run_stage` revalidado en local y en backend desplegado como puente hacia `automation_client_invoice_draft_create` el 4 de mayo de 2026
+- blueprint tecnico, documento fuente del workflow, template backend provisionable, test unitario del template y script operativo de `automation_client_invoice_mark_paid` preparados en repositorio el 4 de mayo de 2026 como siguiente automatizacion objetivo de negocio
+- preparacion documental de despliegue de `automation_client_invoice_mark_paid` revisada el 4 de mayo de 2026, dejando alineados `docs/DEPLOYMENT.md`, variables por paquete y el script operativo de validacion con rollback
+- revision documental y del script operativo de `automation_client_invoice_mark_paid` completada el 5 de mayo de 2026 para exigir un `correlation_id` tecnico distinto en el rollback versionado
+- QA local del bloque `automation_client_invoice_mark_paid` completada el 5 de mayo de 2026 con lint y tests de backend en verde, mas parseo sintactico correcto del script operativo versionado; queda pendiente solo la publicacion y validacion controlada del workflow en n8n
+- revision local del blueprint `automation_client_invoice_mark_paid` completada el 7 de mayo de 2026 para evitar falsos `completed` si una transicion concurrente deja la fila de `facturas` sin mutacion efectiva
 
 ## Prioridades actuales
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Elegir la siguiente automatizacion objetivo con efecto operativo controlado sobre negocio, reutilizando `automation_client_invoice_draft_create` como primer patron de mutacion reversible.
+3. Publicar y validar `automation_client_invoice_mark_paid` como siguiente automatizacion objetivo con efecto operativo controlado sobre negocio, reutilizando `automation_client_invoice_draft_create` como patron de mutacion reversible y comprobando la nueva guardia contra mutaciones concurrentes.
 
 ## Dependencias
 
@@ -94,4 +99,4 @@ Hecho recientemente:
 
 ## Siguiente paso recomendado
 
-Definir la siguiente automatizacion objetivo con efecto operativo controlado sobre negocio a partir del patron ya validado de borrador de factura reversible.
+Publicar y validar `automation_client_invoice_mark_paid` sobre una factura `pendiente`, primero en entorno aislado o staging y despues en entorno real controlado, con rollback por el mismo workflow y trazabilidad completa en backend y `ejecuciones_workflows`.

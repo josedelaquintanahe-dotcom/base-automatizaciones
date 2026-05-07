@@ -133,13 +133,20 @@ Informacion minima a registrar:
 
 Guia base definida para documentar y estandarizar workflows n8n en futuros proyectos de automatizacion empresarial.
 
-Workflow preparado actualmente:
+Catalogo operativo detectado actualmente:
 
 - `onboarding__webhook__onboarding_activated__v1`
+- `onboarding__audit__*.md` para la secuencia auditiva post-onboarding
+- `automation__internal__automation_client_health_snapshot__v1.md`
+- `automation__internal__automation_client_next_actions_brief__v1.md`
+- `automation__internal__automation_client_first_run_handoff__v1.md`
+- `automation__internal__automation_client_controlled_run_stage__v1.md`
+- `automation__internal__automation_client_invoice_draft_create__v1.md`
+- `automation__internal__automation_client_invoice_mark_paid__v1.md`
 
 Situacion actual detectada:
 
-- existe documentacion operativa detallada para `onboarding__webhook__onboarding_activated__v1`,
-- el workflow logico `onboarding_activated` esta documentado y creado en n8n Cloud,
-- existe una exportacion JSON sanitaria del workflow activo en `n8n/workflows/onboarding_activated.active.json`,
-- la trazabilidad prevista reutiliza `correlation_id` y conecta `automation_events` con `ejecuciones_workflows`.
+- `docs/N8N_WORKFLOWS.md` actua como indice canonico resumido del estado publicado o pendiente de cada workflow,
+- `n8n/workflows/` contiene blueprints tecnicos versionados, placeholders y el export sanitario activo disponible,
+- `scripts/README.md` concentra los scripts operativos de verificacion asociados a los workflows ya preparados o validados,
+- la trazabilidad prevista reutiliza `correlation_id` y conecta backend, `automation_events`, `ejecuciones` y `ejecuciones_workflows`.

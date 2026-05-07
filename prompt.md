@@ -26,6 +26,7 @@ Reglas permanentes:
 - no tocar `.env` con valores reales;
 - no exponer secretos;
 - terminar siempre con `git status` resumido y siguiente paso recomendado.
+- cuando la sesion se ejecute mediante wrappers autonomos (`codexauto` o `codexloop`), cerrar siempre con el bloque estructurado `CODEX_NEXT` definido al final de este documento.
 
 ## Convencion de bloque
 
@@ -1413,4 +1414,16 @@ Entrega final obligatoria:
 - `git status` resumido,
 - siguiente paso recomendado,
 - siguiente prompt exacto listo para ejecutar.
+
+Despues de esa entrega, anade obligatoriamente este cierre estructurado exacto:
+
+=== CODEX_NEXT ===
+block: <nombre exacto del siguiente bloque de prompt.md>
+prompt:
+```text
+<siguiente prompt exacto listo para ejecutar>
+```
+=== /CODEX_NEXT ===
+
+No anadas texto despues de `=== /CODEX_NEXT ===`.
 ```

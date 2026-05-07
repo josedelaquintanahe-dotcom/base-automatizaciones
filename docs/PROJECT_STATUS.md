@@ -12,7 +12,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - integracion real con Supabase en backend
 - workflow `onboarding_activated` documentado en `workflows/`
 - workflow `automation_client_health_snapshot` definido en repo y publicado en n8n Cloud
-- carpeta `n8n/` presente para organizacion documental futura
+- carpeta `n8n/` activa como espacio tecnico versionado para blueprints, exports sanitarios y placeholders de workflows
 - 21 skills y 12 playbooks en `.codex/`
 
 ## Lo que ya esta hecho
@@ -44,6 +44,11 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - `automation_client_controlled_run_stage` publicado en n8n Cloud y validado extremo a extremo desde backend local y desde backend desplegado el 2 de mayo de 2026, incluyendo rollback operativo por el mismo workflow
 - `automation_client_invoice_draft_create` publicado en n8n Cloud y validado extremo a extremo desde backend local y desde backend desplegado con efecto real reversible sobre `facturas` el 4 de mayo de 2026
 - `automation_client_controlled_run_stage` revalidado el 4 de mayo de 2026 como puente operativo hacia `automation_client_invoice_draft_create`, tanto en backend local como en backend desplegado, incluyendo programacion reversible de `proxima_ejecucion` sobre la automatizacion objetivo
+- blueprint tecnico, documento fuente del workflow, template backend provisionable, test unitario del template y script operativo de `automation_client_invoice_mark_paid` preparados en repositorio el 4 de mayo de 2026 como siguiente automatizacion objetivo para completar el siguiente paso del ciclo minimo de facturacion
+- preparacion documental de despliegue del bloque `automation_client_invoice_mark_paid` revisada el 4 de mayo de 2026, incluyendo checklist por paquete, variables de frontend y validacion operativa con rollback documentadas en `docs/DEPLOYMENT.md`
+- revision del bloque documental y operativo de `automation_client_invoice_mark_paid` completada el 5 de mayo de 2026 para exigir que el rollback deje un `correlation_id` tecnico distinto en la validacion versionada
+- QA local del bloque `automation_client_invoice_mark_paid` ejecutada el 5 de mayo de 2026 con `npm --prefix src/backend run lint`, `npm --prefix src/backend test -- --runInBand` y parseo sintactico de `scripts/verify-client-invoice-mark-paid-automation.ps1`, sin fallos detectados en backend ni en el script operativo
+- blueprint `automation_client_invoice_mark_paid` revisado localmente el 7 de mayo de 2026 para impedir falsos `completed` cuando una actualizacion concurrente en `facturas` no llegue a mutar ninguna fila en Supabase
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -77,8 +82,8 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 ### n8n
 
 - Estado: integrado por webhooks y documentacion
-- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa; `automation_client_health_snapshot`, `automation_client_next_actions_brief`, `automation_client_first_run_handoff` y `automation_client_controlled_run_stage` estan publicados en n8n Cloud y validados en ejecucion real extremo a extremo desde el backend desplegado; `automation_client_controlled_run_stage` ademas valida rollback operativo por el mismo workflow; `automation_client_invoice_draft_create` esta publicado en n8n Cloud y validado en ejecucion real local y desplegada con rollback operativo sobre `facturas`; el puente desde `automation_client_controlled_run_stage` hacia `automation_client_invoice_draft_create` ha quedado validado tanto en local como en backend desplegado
-- Pendiente: definir la siguiente automatizacion objetivo con efecto operativo controlado apoyandose en esta primera mutacion reversible de negocio
+- Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa; `automation_client_health_snapshot`, `automation_client_next_actions_brief`, `automation_client_first_run_handoff` y `automation_client_controlled_run_stage` estan publicados en n8n Cloud y validados en ejecucion real extremo a extremo desde el backend desplegado; `automation_client_controlled_run_stage` ademas valida rollback operativo por el mismo workflow; `automation_client_invoice_draft_create` esta publicado en n8n Cloud y validado en ejecucion real local y desplegada con rollback operativo sobre `facturas`; el puente desde `automation_client_controlled_run_stage` hacia `automation_client_invoice_draft_create` ha quedado validado tanto en local como en backend desplegado; `automation_client_invoice_mark_paid` ya tiene blueprint tecnico versionado, documento fuente, template backend provisionable, test unitario del template y script operativo preparado en repositorio como siguiente paso controlado
+- Pendiente: publicar y validar `automation_client_invoice_mark_paid` en un entorno aislado o real controlado con efecto reversible sobre una factura `pendiente`, manteniendo trazabilidad completa entre backend y `ejecuciones_workflows` y verificando en n8n la nueva guardia ante mutaciones concurrentes
 
 ### Sistema de agentes Codex
 
@@ -88,4 +93,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Definir la siguiente automatizacion objetivo con efecto operativo controlado apoyandose en `automation_client_invoice_draft_create` y en el puente ya validado desde `automation_client_controlled_run_stage`.
+Publicar y validar `automation_client_invoice_mark_paid` en un entorno aislado o real controlado, apoyandose en `automation_client_invoice_draft_create` y en el patron ya validado de rollback reversible sobre `facturas`.

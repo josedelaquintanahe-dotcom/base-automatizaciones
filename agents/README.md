@@ -123,3 +123,12 @@ Situacion actual:
 - el sistema de agentes operativo hoy en este repositorio es el de Codex en `.codex/`,
 - el uso real de Rendel.com sigue `Pendiente de validar`,
 - esta carpeta se mantiene como referencia complementaria y no como fuente canonica del sistema de agentes actual.
+
+## Regla operativa principal
+
+Siempre que se reciba una tarea:
+
+1. No ejecutar directamente
+2. Ir primero a `prompt.md`
+3. Identificar el bloque adecuado
+4. Ejecutar ese bloque

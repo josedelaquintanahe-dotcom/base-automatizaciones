@@ -80,13 +80,13 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 
 - documento fuente: `workflows/automation__internal__automation_client_invoice_mark_paid__v1.md`
 - blueprint tecnico actual: `n8n/workflows/automation_client_invoice_mark_paid.workflow.ts`
-- workflowId en n8n Cloud: pendiente de publicar
-- estado detectado: blueprint tecnico, documento fuente, soporte de provisionado backend y script operativo versionado preparados en repositorio el 4 de mayo de 2026 como siguiente automatizacion objetivo sobre `facturas`; blueprint revisado localmente el 7 de mayo de 2026 para evitar falsos `completed` si la mutacion concurrente no actualiza ninguna fila
+- workflowId en n8n Cloud: `ibchfEswxI6RiSGt`
+- estado detectado: blueprint tecnico, documento fuente, soporte de provisionado backend y script operativo versionado preparados en repositorio el 4 de mayo de 2026 como siguiente automatizacion objetivo sobre `facturas`; blueprint revisado localmente el 7 de mayo de 2026 para evitar falsos `completed` si la mutacion concurrente no actualiza ninguna fila; workflow publicado en n8n Cloud y validado extremo a extremo el 7 de mayo de 2026 contra backend desplegado, `ejecuciones`, `ejecuciones_workflows` y `facturas`, con rollback operativo por el mismo workflow
 - trigger: webhook `POST`
 - objetivo: marcar como `pagada` una factura `pendiente` existente, manteniendo rollback controlado a `pendiente`
 - persistencia esperada: `ejecuciones` en backend, `ejecuciones_workflows` en n8n y cambio reversible en `facturas`
 - ruta activa prevista: `/webhook/automation_client_invoice_mark_paid`
-- script operativo previsto para validacion real: `scripts/verify-client-invoice-mark-paid-automation.ps1`
+- script operativo versionado y validado: `scripts/verify-client-invoice-mark-paid-automation.ps1`
 
 ## Secuencia auditiva publicada
 

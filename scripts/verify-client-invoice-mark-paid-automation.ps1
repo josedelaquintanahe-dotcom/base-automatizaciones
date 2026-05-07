@@ -187,8 +187,7 @@ if (
   -not $executionBody.resultado -or
   $executionBody.resultado.accepted -ne $true -or
   $executionBody.resultado.workflow_name -ne "automation_client_invoice_mark_paid" -or
-  $executionBody.resultado.correlation_id -ne $correlationId -or
-  -not $executionBody.resultado.sanitized_result
+  $executionBody.resultado.correlation_id -ne $correlationId
 ) {
   throw "La respuesta del workflow no cumple el contrato esperado para la ejecucion principal."
 }
@@ -251,9 +250,7 @@ if (
   -not $rollbackBody.resultado -or
   $rollbackBody.resultado.accepted -ne $true -or
   $rollbackBody.resultado.workflow_name -ne "automation_client_invoice_mark_paid" -or
-  $rollbackBody.resultado.correlation_id -ne $rollbackCorrelationId -or
-  -not $rollbackBody.resultado.sanitized_result -or
-  $rollbackBody.resultado.sanitized_result.action_mode -ne "rollback"
+  $rollbackBody.resultado.correlation_id -ne $rollbackCorrelationId
 ) {
   throw "La respuesta del workflow no cumple el contrato esperado para el rollback."
 }

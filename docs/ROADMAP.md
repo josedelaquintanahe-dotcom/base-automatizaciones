@@ -84,12 +84,13 @@ Hecho recientemente:
 - revision documental y del script operativo de `automation_client_invoice_mark_paid` completada el 5 de mayo de 2026 para exigir un `correlation_id` tecnico distinto en el rollback versionado
 - QA local del bloque `automation_client_invoice_mark_paid` completada el 5 de mayo de 2026 con lint y tests de backend en verde, mas parseo sintactico correcto del script operativo versionado; queda pendiente solo la publicacion y validacion controlada del workflow en n8n
 - revision local del blueprint `automation_client_invoice_mark_paid` completada el 7 de mayo de 2026 para evitar falsos `completed` si una transicion concurrente deja la fila de `facturas` sin mutacion efectiva
+- `automation_client_invoice_mark_paid` publicado en n8n Cloud y validado extremo a extremo el 7 de mayo de 2026 contra backend desplegado con cambio real reversible de `facturas.estado`, rollback por el mismo workflow y trazabilidad completa en `ejecuciones` y `ejecuciones_workflows`
 
 ## Prioridades actuales
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Publicar y validar `automation_client_invoice_mark_paid` como siguiente automatizacion objetivo con efecto operativo controlado sobre negocio, reutilizando `automation_client_invoice_draft_create` como patron de mutacion reversible y comprobando la nueva guardia contra mutaciones concurrentes.
+3. Definir la siguiente automatizacion objetivo con efecto operativo controlado despues del ciclo minimo de facturacion ya validado (`automation_client_invoice_draft_create` -> `automation_client_invoice_mark_paid`), reutilizando el patron de mutacion reversible y trazabilidad por `correlation_id`.
 
 ## Dependencias
 
@@ -99,4 +100,4 @@ Hecho recientemente:
 
 ## Siguiente paso recomendado
 
-Publicar y validar `automation_client_invoice_mark_paid` sobre una factura `pendiente`, primero en entorno aislado o staging y despues en entorno real controlado, con rollback por el mismo workflow y trazabilidad completa en backend y `ejecuciones_workflows`.
+Disenar la siguiente automatizacion objetivo con efecto operativo controlado a partir del ciclo minimo de facturacion ya validado, priorizando valor de negocio, reversibilidad y ausencia de dependencias externas innecesarias.

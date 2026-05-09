@@ -75,28 +75,33 @@ Control especifico actual:
 
 Bloque activo previsto para despliegue controlado:
 
-- `automation_client_invoice_mark_paid`
+- `automation_client_invoice_cancel`
 
-Precondiciones minimas antes de publicarlo o validarlo:
+Estado actual del bloque:
 
-- el backend desplegado debe incluir el soporte para `template=client_invoice_mark_paid`
-- el workflow debe publicarse en n8n con la ruta `/webhook/automation_client_invoice_mark_paid`
+- el workflow ya esta publicado en n8n Cloud con la ruta `/webhook/automation_client_invoice_cancel`
+- la validacion extremo a extremo desde backend local con servicios reales ya ha pasado
+- queda pendiente desplegar en Render el soporte backend de `template=client_invoice_cancel` y repetir la validacion remota
+
+Precondiciones minimas antes de revalidarlo contra backend desplegado:
+
+- el backend desplegado debe incluir el soporte para `template=client_invoice_cancel`
 - la credencial Supabase activa en n8n debe poder leer y actualizar `facturas`
 - debe existir al menos una factura `pendiente` valida para el cliente objetivo
 
-Validacion operativa recomendada tras publicar el workflow:
+Validacion operativa recomendada tras desplegar el backend:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify-client-invoice-mark-paid-automation.ps1 -ClientId "<uuid-del-cliente>"
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-client-invoice-cancel-automation.ps1 -ClientId "<uuid-del-cliente>"
 ```
 
 Esta validacion debe confirmar:
 
-- provisionado idempotente de `client_invoice_mark_paid`
+- provisionado idempotente de `client_invoice_cancel`
 - ejecucion aceptada por backend y workflow
 - fila `completed` en `ejecuciones_workflows`
 - fila `exito` en `ejecuciones`
-- cambio real de `facturas.estado` a `pagada`
+- cambio real de `facturas.estado` a `cancelada`
 - rollback por el mismo workflow hasta `pendiente` con un segundo `correlation_id`
 
 ## Alcance confirmado del despliegue versionado

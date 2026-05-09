@@ -59,6 +59,15 @@ const BASE_AUTOMATION_TEMPLATES = {
     n8n_workflow_id: "automation_client_invoice_mark_paid",
     estado: "activo",
   },
+  client_invoice_cancel: {
+    template_key: "client_invoice_cancel",
+    nombre: "Cancelacion reversible de factura pendiente",
+    descripcion:
+      "Cancela una factura pendiente usando solo contexto sanitario y con rollback controlado al estado pendiente.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_invoice_cancel",
+    estado: "activo",
+  },
 };
 
 function createServiceError(message, statusCode = 500) {

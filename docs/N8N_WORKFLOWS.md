@@ -88,6 +88,18 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - ruta activa prevista: `/webhook/automation_client_invoice_mark_paid`
 - script operativo versionado y validado: `scripts/verify-client-invoice-mark-paid-automation.ps1`
 
+### `automation_client_invoice_cancel`
+
+- documento fuente: `workflows/automation__internal__automation_client_invoice_cancel__v1.md`
+- blueprint tecnico actual: `n8n/workflows/automation_client_invoice_cancel.workflow.ts`
+- workflowId en n8n Cloud: `4n1EhVxD0gJepgel`
+- estado detectado: blueprint tecnico, soporte de provisionado backend y script operativo versionado preparados en repositorio el 7 de mayo de 2026; workflow publicado en n8n Cloud y validado el 9 de mayo de 2026 desde backend local con servicios reales, incluyendo mutacion efectiva `pendiente -> cancelada`, rollback `cancelada -> pendiente` y trazabilidad completa en `ejecuciones` y `ejecuciones_workflows`
+- trigger: webhook `POST`
+- objetivo: cancelar una factura `pendiente` existente con rollback controlado al estado `pendiente`
+- persistencia esperada: `ejecuciones` en backend, `ejecuciones_workflows` en n8n y cambio reversible en `facturas`
+- ruta activa validada: `/webhook/automation_client_invoice_cancel`
+- script operativo versionado y validado en local: `scripts/verify-client-invoice-cancel-automation.ps1`
+
 ## Secuencia auditiva publicada
 
 1. `onboarding_trace_verified`
@@ -218,5 +230,5 @@ Documentacion base:
 
 ## Pendiente de validar
 
-- publicacion controlada y validacion real de `automation_client_invoice_mark_paid`
+- publicacion controlada y validacion real de `automation_client_invoice_cancel`
 - estrategia estable para versionar workflows reales entre repositorio y n8n Cloud

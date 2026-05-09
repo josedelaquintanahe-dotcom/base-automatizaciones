@@ -1,10 +1,100 @@
 $ProjectPath = "C:\Users\Manuel\PROJECTS\base-automatizaciones"
 $PromptPath = "$ProjectPath\codex-auto-prompt.txt"
 $PromptGuidePath = "$ProjectPath\prompt.md"
-$LogDir = "$ProjectPath\.codex\logs"
+$PreferredLogDir = "$ProjectPath\.codex\logs"
+$FallbackLogDir = "$ProjectPath\.tmp\codex-logs"
+$CodexRuntimeDir = "$ProjectPath\.tmp\codex-home"
+$CodexCliPath = "C:\Users\manuel\AppData\Roaming\npm\node_modules\@openai\codex\bin\codex.js"
+$NodeExePath = "C:\Program Files\nodejs\node.exe"
+$SslCertFilePath = "C:\Program Files\Git\usr\ssl\cert.pem"
 $MaxIterations = 5
 $TempPromptPath = Join-Path $ProjectPath ".tmp\codex-loop-next-prompt.txt"
 $ParseTailLines = 200
+$script:ActiveLogFile = $null
+$script:ActiveLogEnabled = $false
+
+function Initialize-CodexRuntime {
+    param(
+        [string]$RuntimeDir,
+        [string]$SourceCodexHome
+    )
+
+    New-Item -ItemType Directory -Force -Path $RuntimeDir -ErrorAction Stop | Out-Null
+
+    $sourceAuthPath = Join-Path $SourceCodexHome "auth.json"
+    $sourceAgentsPath = Join-Path $SourceCodexHome "AGENTS.md"
+    $sourceConfigPath = Join-Path $SourceCodexHome "config.toml"
+
+    if (-not (Test-Path $sourceAuthPath)) {
+        throw "No se encontro auth.json en $sourceAuthPath"
+    }
+
+    Copy-Item -LiteralPath $sourceAuthPath -Destination (Join-Path $RuntimeDir "auth.json") -Force
+
+    if (Test-Path $sourceAgentsPath) {
+        Copy-Item -LiteralPath $sourceAgentsPath -Destination (Join-Path $RuntimeDir "AGENTS.md") -Force
+    }
+
+    if (Test-Path $sourceConfigPath) {
+        $configText = Get-Content -Raw $sourceConfigPath
+        $configText = [regex]::Replace($configText, '(?ms)^\[windows\].*?(?=^\[|\z)', '')
+        Set-Content -LiteralPath (Join-Path $RuntimeDir "config.toml") -Value $configText.Trim() -Encoding utf8
+    }
+
+    $env:CODEX_HOME = $RuntimeDir
+    $env:SSL_CERT_FILE = $SslCertFilePath
+}
+
+function Initialize-LogFile {
+    param(
+        [string]$PreferredDir,
+        [string]$FallbackDir,
+        [string]$Timestamp,
+        [int]$Iteration
+    )
+
+    $candidateDirs = @($PreferredDir, $FallbackDir)
+
+    foreach ($dir in $candidateDirs) {
+        try {
+            New-Item -ItemType Directory -Force -Path $dir -ErrorAction Stop | Out-Null
+            $logFile = Join-Path $dir ("codex-loop_{0}_iter-{1}.log" -f $Timestamp, $Iteration)
+            "" | Set-Content -LiteralPath $logFile -Encoding utf8 -ErrorAction Stop
+            $script:ActiveLogFile = $logFile
+            $script:ActiveLogEnabled = $true
+            return $logFile
+        }
+        catch {
+            continue
+        }
+    }
+
+    $script:ActiveLogFile = $null
+    $script:ActiveLogEnabled = $false
+    return $null
+}
+
+function Write-LogLine {
+    param(
+        [string]$Text = "",
+        [switch]$NoConsole
+    )
+
+    if (-not $NoConsole) {
+        Write-Host $Text
+    }
+
+    if ($script:ActiveLogEnabled -and $script:ActiveLogFile) {
+        try {
+            Add-Content -LiteralPath $script:ActiveLogFile -Value $Text -Encoding utf8 -ErrorAction Stop
+        }
+        catch {
+            $script:ActiveLogEnabled = $false
+            $script:ActiveLogFile = $null
+            Write-Host "Aviso: no se pudo seguir escribiendo el log de codexloop. El bucle continua sin log persistente."
+        }
+    }
+}
 
 function Get-CleanOutputText {
     param([string]$OutputText)
@@ -292,10 +382,10 @@ function Has-UsageLimitError {
     return $OutputText -match '(?is)hit your usage limit|purchase more credits|try again at'
 }
 
-New-Item -ItemType Directory -Force $LogDir | Out-Null
 New-Item -ItemType Directory -Force -Path (Split-Path $TempPromptPath -Parent) | Out-Null
 
 Set-Location $ProjectPath
+Initialize-CodexRuntime -RuntimeDir $CodexRuntimeDir -SourceCodexHome (Join-Path $env:USERPROFILE ".codex")
 
 $promptGuideText = Get-Content -Raw $PromptGuidePath
 $knownBlockNames = Get-BlockNamesFromPromptGuide -PromptGuideText $promptGuideText
@@ -303,33 +393,48 @@ $currentPromptPath = $PromptPath
 
 for ($i = 1; $i -le $MaxIterations; $i++) {
     $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
-    $LogFile = "$LogDir\codex-loop_${Timestamp}_iter-$i.log"
+    $LogFile = Initialize-LogFile -PreferredDir $PreferredLogDir -FallbackDir $FallbackLogDir -Timestamp $Timestamp -Iteration $i
 
-    "===============================" | Tee-Object -FilePath $LogFile
-    "CODEX LOOP RUN - $Timestamp" | Tee-Object -FilePath $LogFile -Append
-    "ITERATION: $i / $MaxIterations" | Tee-Object -FilePath $LogFile -Append
-    "PROJECT: $ProjectPath" | Tee-Object -FilePath $LogFile -Append
-    "PROMPT SOURCE: $currentPromptPath" | Tee-Object -FilePath $LogFile -Append
-    "===============================" | Tee-Object -FilePath $LogFile -Append
-    "" | Tee-Object -FilePath $LogFile -Append
+    Write-LogLine "===============================" -NoConsole
+    Write-LogLine "CODEX LOOP RUN - $Timestamp" -NoConsole
+    Write-LogLine "ITERATION: $i / $MaxIterations" -NoConsole
+    Write-LogLine "PROJECT: $ProjectPath" -NoConsole
+    Write-LogLine "PROMPT SOURCE: $currentPromptPath" -NoConsole
+    Write-LogLine "===============================" -NoConsole
+    Write-LogLine "" -NoConsole
 
-    "--- GIT STATUS BEFORE ---" | Tee-Object -FilePath $LogFile -Append
-    git status --short | Tee-Object -FilePath $LogFile -Append
-    "" | Tee-Object -FilePath $LogFile -Append
+    Write-LogLine "--- GIT STATUS BEFORE ---" -NoConsole
+    $gitStatusBefore = git status --short
+    foreach ($line in $gitStatusBefore) {
+        Write-LogLine $line -NoConsole
+    }
+    Write-LogLine "" -NoConsole
 
-    "--- CODEX OUTPUT ---" | Tee-Object -FilePath $LogFile -Append
-    $outputLines = Get-Content -Raw $currentPromptPath | codex exec --full-auto 2>&1
+    Write-LogLine "--- CODEX OUTPUT ---" -NoConsole
+    $outputLines = Get-Content -Raw $currentPromptPath | & $NodeExePath $CodexCliPath exec --sandbox workspace-write 2>&1
     $rawOutputText = ($outputLines -join [Environment]::NewLine)
-    $rawOutputText | Tee-Object -FilePath $LogFile -Append
+    foreach ($line in ($rawOutputText -split "(`r`n|`n|`r)")) {
+        if ($line -ne "`r" -and $line -ne "`n") {
+            Write-LogLine $line -NoConsole
+        }
+    }
     $outputText = Get-CleanOutputText -OutputText $rawOutputText
     $parseText = Get-OutputTailForParsing -OutputText $outputText -TailLineCount $ParseTailLines
 
-    "" | Tee-Object -FilePath $LogFile -Append
-    "--- CODEX OUTPUT CLEAN ---" | Tee-Object -FilePath $LogFile -Append
-    $outputText | Tee-Object -FilePath $LogFile -Append
-    "" | Tee-Object -FilePath $LogFile -Append
-    "--- CODEX OUTPUT PARSE TAIL ---" | Tee-Object -FilePath $LogFile -Append
-    $parseText | Tee-Object -FilePath $LogFile -Append
+    Write-LogLine "" -NoConsole
+    Write-LogLine "--- CODEX OUTPUT CLEAN ---" -NoConsole
+    foreach ($line in ($outputText -split "(`r`n|`n|`r)")) {
+        if ($line -ne "`r" -and $line -ne "`n") {
+            Write-LogLine $line -NoConsole
+        }
+    }
+    Write-LogLine "" -NoConsole
+    Write-LogLine "--- CODEX OUTPUT PARSE TAIL ---" -NoConsole
+    foreach ($line in ($parseText -split "(`r`n|`n|`r)")) {
+        if ($line -ne "`r" -and $line -ne "`n") {
+            Write-LogLine $line -NoConsole
+        }
+    }
 
     Write-Host ""
     Write-Host "==============================="
@@ -344,17 +449,27 @@ for ($i = 1; $i -le $MaxIterations; $i++) {
         break
     }
 
-    "" | Tee-Object -FilePath $LogFile -Append
-    "--- GIT STATUS AFTER ---" | Tee-Object -FilePath $LogFile -Append
+    Write-LogLine "" -NoConsole
+    Write-LogLine "--- GIT STATUS AFTER ---" -NoConsole
     $GitStatus = git status --short
-    $GitStatus | Tee-Object -FilePath $LogFile -Append
+    foreach ($line in $GitStatus) {
+        Write-LogLine $line -NoConsole
+    }
 
-    "" | Tee-Object -FilePath $LogFile -Append
-    "Log guardado en: $LogFile" | Tee-Object -FilePath $LogFile -Append
+    Write-LogLine "" -NoConsole
+    if ($script:ActiveLogEnabled -and $LogFile) {
+        Write-LogLine "Log guardado en: $LogFile" -NoConsole
+    }
 
     Write-Host ""
     Write-Host "Estado Git tras iteracion ${i}:"
     $GitStatus | Write-Host
+    if ($script:ActiveLogEnabled -and $LogFile) {
+        Write-Host "Log guardado en: $LogFile"
+    }
+    else {
+        Write-Host "Aviso: esta iteracion se ha ejecutado sin log persistente."
+    }
 
     if ($GitStatus -match "\.env" -or $GitStatus -match "node_modules") {
         Write-Host ""

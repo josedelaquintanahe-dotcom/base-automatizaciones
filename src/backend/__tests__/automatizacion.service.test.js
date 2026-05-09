@@ -259,4 +259,32 @@ describe("provisionarAutomatizacionBaseService", () => {
       "automation_client_invoice_mark_paid",
     );
   });
+
+  test("permite provisionar la cancelacion reversible de factura pendiente por template explicito", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_008" },
+        insertedAutomation: {
+          id: "auto_008",
+          cliente_id: "cli_008",
+          nombre: "Cancelacion reversible de factura pendiente",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_invoice_cancel",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService(
+      "cli_008",
+      "client_invoice_cancel",
+    );
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_invoice_cancel");
+    expect(result.automatizacion.n8n_workflow_id).toBe(
+      "automation_client_invoice_cancel",
+    );
+  });
 });

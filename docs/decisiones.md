@@ -534,3 +534,38 @@ Se adopta un contrato de salida estructurada para las ejecuciones autonomas del 
 
 Motivo:
 Los cierres libres de Codex siguen siendo demasiado variables para una orquestacion fiable por bucle. Un contrato de salida pequeño, explicito y versionado reduce dependencia de regex fragiles, evita que el loop se bloquee por ruido contextual y mantiene la compatibilidad con los bloques ya existentes gracias a los fallbacks previos.
+
+### D-075. La siguiente automatizacion objetivo tras `automation_client_invoice_mark_paid` sera la cancelacion reversible de facturas pendientes
+
+Se adopta `automation_client_invoice_cancel` como la siguiente automatizacion objetivo a implementar despues de `automation_client_invoice_mark_paid`. Su efecto real previsto se limita a cambiar el estado de una factura existente de `pendiente` a `cancelada`, con rollback controlado a `pendiente` por el mismo workflow cuando la validacion siga en una fase operativa segura.
+
+Motivo:
+Entre las alternativas razonables detectadas, es la que mejor aprovecha el modelo real ya versionado (`facturas.estado` con `pendiente`, `pagada` y `cancelada`) sin exigir nuevas columnas, integraciones externas ni credenciales adicionales. Tambien cubre una rama operativa de excepcion util para negocio antes de entrar en automatizaciones de cobro, aviso o morosidad, que hoy requeririan mas dependencias y cambios de modelo.
+
+### D-076. `run-codex-loop.ps1` debe degradar el logging a una ruta temporal escribible
+
+Se adopta que `run-codex-loop.ps1` no dependa exclusivamente de `.codex/logs` para persistir sus logs. El wrapper debe intentar primero esa ruta por compatibilidad con la estructura actual, pero si falla al crear o escribir el fichero debe degradar automaticamente a `.tmp/codex-logs` y, en ultimo termino, continuar la iteracion sin log persistente en lugar de abortar el bucle.
+
+Motivo:
+La ejecucion real del 7 de mayo de 2026 demostro que un fallo de permisos sobre `.codex/logs` podia romper el wrapper aunque el resto de la iteracion siguiera siendo valida. El log es util para trazabilidad, pero no debe convertirse en punto unico de fallo del orquestador.
+
+### D-077. El logging de `run-codex-loop.ps1` debe tratar errores de escritura como terminantes
+
+Se adopta que `run-codex-loop.ps1` use `-ErrorAction Stop` en `New-Item`, `Set-Content` y `Add-Content` dentro del flujo de logging. Esto obliga a que los fallos de permisos sobre la ruta de log entren en `try/catch` y permitan activar correctamente el fallback hacia `.tmp/codex-logs` o la continuacion sin log persistente.
+
+Motivo:
+La ejecucion real del 8 de mayo de 2026 confirmo que `UnauthorizedAccessException` en `.codex/logs` seguia ensuciando la salida porque PowerShell los trataba como errores no terminantes. Sin `-ErrorAction Stop`, el wrapper aparentaba tener fallback, pero seguia imprimiendo ruido masivo y no degradaba de forma limpia.
+
+### D-078. Los wrappers locales de Codex usaran un `CODEX_HOME` aislado en `.tmp` y un bundle PEM explicito
+
+Se adopta que `run-codex-auto.ps1` y `run-codex-loop.ps1` dejen de depender directamente de `C:\Users\manuel\.codex` en tiempo de ejecucion. Ambos wrappers deben inicializar un `CODEX_HOME` aislado en `.tmp/codex-home`, copiando en cada arranque `auth.json`, `AGENTS.md` y una version saneada de `config.toml` sin el bloque `[windows]`. Ademas, deben fijar `SSL_CERT_FILE` al bundle PEM de Git (`C:\Program Files\Git\usr\ssl\cert.pem`) e invocar Codex directamente por `node.exe` + `codex.js`.
+
+Motivo:
+La ejecucion real del 8 de mayo de 2026 aislo dos causas de inestabilidad ajenas al proyecto: ACLs problemáticos en el `CODEX_HOME` global y fallo de acceso al almacen nativo de certificados de Windows (`no native root CA certificates found`, `Acceso denegado`). Un runtime local efimero y un bundle PEM explicito eliminan esa dependencia del estado global de la maquina y dejan los wrappers en una configuracion reproducible y mucho mas estable.
+
+### D-079. `run-codex-auto.ps1` debe usar el mismo fallback de logging robusto que `run-codex-loop.ps1`
+
+Se adopta que `run-codex-auto.ps1` no siga usando `Tee-Object` directo sobre `.codex/logs` como mecanismo principal de logging. Debe inicializar el log con fallback a `.tmp/codex-logs`, tratar los errores de escritura como terminantes y continuar la ejecucion sin log persistente si ninguna ruta es escribible.
+
+Motivo:
+Tras estabilizar `run-codex-loop.ps1`, `run-codex-auto.ps1` seguia ensuciando la salida con `UnauthorizedAccessException` en `.codex/logs`. Mantener ambos wrappers con la misma estrategia evita comportamientos divergentes y elimina una fuente innecesaria de ruido operativo.

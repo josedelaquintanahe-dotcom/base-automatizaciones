@@ -89,12 +89,15 @@ Hecho recientemente:
 - implementacion local de `automation_client_invoice_cancel` completada el 7 de mayo de 2026 con blueprint tecnico, template backend, test unitario y script operativo versionado
 - `automation_client_invoice_cancel` publicado en n8n Cloud el 9 de mayo de 2026 (`4n1EhVxD0gJepgel`) y validado extremo a extremo desde backend local con servicios reales, incluyendo rollback `cancelada -> pendiente`
 - `automation_client_invoice_cancel` revalidado el 9 de mayo de 2026 contra backend desplegado, n8n y Supabase con cancelacion real, rollback por el mismo workflow y trazabilidad completa en `ejecuciones` y `ejecuciones_workflows`
+- diseno funcional y tecnico de `automation_client_invoice_void_paid` completado el 9 de mayo de 2026 para cubrir la rama interna `pagada -> cancelada` con rollback controlado a `pagada`, sin cambios de esquema ni dependencias externas nuevas
+- implementacion local de `automation_client_invoice_void_paid` completada el 9 de mayo de 2026 con blueprint tecnico, template backend, test unitario y script operativo versionado
+- `automation_client_invoice_void_paid` publicado en n8n Cloud el 9 de mayo de 2026 (`9aYpaeUPByu6yzwD`) y validado extremo a extremo desde backend local con servicios reales, incluyendo rollback `cancelada -> pagada`; queda pendiente solo su revalidacion contra backend desplegado
 
 ## Prioridades actuales
 
 1. Mantener documentacion operativa alineada con el repo.
 2. Evitar deriva entre codigo, skills, playbooks y docs base.
-3. Definir la siguiente automatizacion objetivo del ciclo de facturacion, reutilizando el patron de mutacion reversible y trazabilidad por `correlation_id`.
+3. Desplegar en Render el soporte backend de `automation_client_invoice_void_paid` y revalidarlo contra backend desplegado, n8n y Supabase, reutilizando el patron de mutacion reversible y trazabilidad por `correlation_id`.
 
 ## Dependencias
 
@@ -104,4 +107,4 @@ Hecho recientemente:
 
 ## Siguiente paso recomendado
 
-Definir la siguiente automatizacion objetivo del ciclo de facturacion antes de plantear automatizaciones externas de cobro o aviso.
+Desplegar en Render el soporte backend de `automation_client_invoice_void_paid` y ejecutar su revalidacion controlada extremo a extremo antes de plantear automatizaciones externas de cobro o aviso.

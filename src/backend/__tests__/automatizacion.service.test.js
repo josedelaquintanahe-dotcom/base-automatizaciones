@@ -287,4 +287,32 @@ describe("provisionarAutomatizacionBaseService", () => {
       "automation_client_invoice_cancel",
     );
   });
+
+  test("permite provisionar la anulacion reversible de factura pagada por template explicito", async () => {
+    createSupabaseClient.mockReturnValue(
+      buildSupabaseMock({
+        cliente: { id: "cli_009" },
+        insertedAutomation: {
+          id: "auto_009",
+          cliente_id: "cli_009",
+          nombre: "Anulacion reversible de factura pagada",
+          descripcion: "desc",
+          n8n_workflow_id: "automation_client_invoice_void_paid",
+          estado: "activo",
+          frecuencia: "manual",
+        },
+      }),
+    );
+
+    const result = await provisionarAutomatizacionBaseService(
+      "cli_009",
+      "client_invoice_void_paid",
+    );
+
+    expect(result.created).toBe(true);
+    expect(result.template_key).toBe("client_invoice_void_paid");
+    expect(result.automatizacion.n8n_workflow_id).toBe(
+      "automation_client_invoice_void_paid",
+    );
+  });
 });

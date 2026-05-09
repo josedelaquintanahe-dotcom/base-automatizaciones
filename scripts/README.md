@@ -403,3 +403,35 @@ Regla operativa:
 Nota de compatibilidad:
 
 - reutiliza el mismo patron de envio JSON a archivo temporal via `node.exe` y `scripts/http-json.mjs` para evitar falsos fallos de quoting en Windows PowerShell.
+
+### `verify-client-invoice-void-paid-automation.ps1`
+
+Verifica la siguiente rama operativa objetivo sobre `facturas` con mutacion reversible posterior al cobro:
+
+1. localiza una factura existente en estado `pagada` para el cliente,
+2. provisiona de forma idempotente `client_invoice_void_paid`,
+3. ejecuta la anulacion desde backoffice,
+4. confirma:
+   - fila `exito` en `ejecuciones`,
+   - fila `completed` en `ejecuciones_workflows`,
+   - mismo `correlation_id`,
+   - misma factura final en estado `cancelada`,
+5. ejecuta rollback por el mismo workflow,
+6. confirma que la misma factura vuelve a `pagada`,
+7. exige que el rollback deje un segundo `correlation_id` tecnico distinto al de la ejecucion principal.
+
+Dependencias adicionales:
+
+- `BACKOFFICE_API_TOKEN`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- backend con soporte para `template=client_invoice_void_paid`
+
+Regla operativa:
+
+- usarlo primero contra backend local o staging,
+- exigir que el rollback pase por el mismo contrato del workflow y restaure exactamente la misma factura a `pagada`.
+
+Nota de compatibilidad:
+
+- reutiliza el mismo patron de envio JSON a archivo temporal via `node.exe` y `scripts/http-json.mjs` para evitar falsos fallos de quoting en Windows PowerShell.

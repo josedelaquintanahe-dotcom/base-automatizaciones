@@ -569,3 +569,10 @@ Se adopta que `run-codex-auto.ps1` no siga usando `Tee-Object` directo sobre `.c
 
 Motivo:
 Tras estabilizar `run-codex-loop.ps1`, `run-codex-auto.ps1` seguia ensuciando la salida con `UnauthorizedAccessException` en `.codex/logs`. Mantener ambos wrappers con la misma estrategia evita comportamientos divergentes y elimina una fuente innecesaria de ruido operativo.
+
+### D-080. La siguiente automatizacion objetivo tras `automation_client_invoice_cancel` sera la anulacion reversible de facturas pagadas
+
+Se adopta `automation_client_invoice_void_paid` como la siguiente automatizacion objetivo a implementar despues de `automation_client_invoice_cancel`. Su efecto real previsto se limita a cambiar el estado de una factura existente de `pagada` a `cancelada`, con rollback controlado a `pagada` por el mismo workflow cuando la validacion siga en una fase operativa segura.
+
+Motivo:
+Entre las alternativas razonables detectadas, es la que mas valor nuevo aporta sin exigir columnas nuevas, integraciones externas ni credenciales adicionales. A diferencia de reabrir una factura cancelada o deshacer un pago como accion primaria, cubre una incidencia posterior al cobro que no queda resuelta solo con los rollbacks ya existentes y amplía el ciclo de facturacion validado con una rama operativa de correccion util para negocio.

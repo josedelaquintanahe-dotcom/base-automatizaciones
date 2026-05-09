@@ -144,6 +144,7 @@ Catalogo operativo detectado actualmente:
 - `automation__internal__automation_client_invoice_draft_create__v1.md`
 - `automation__internal__automation_client_invoice_mark_paid__v1.md`
 - `automation__internal__automation_client_invoice_cancel__v1.md`
+- `automation__internal__automation_client_invoice_void_paid__v1.md`
 
 Situacion actual detectada:
 

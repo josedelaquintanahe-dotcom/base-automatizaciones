@@ -68,6 +68,15 @@ const BASE_AUTOMATION_TEMPLATES = {
     n8n_workflow_id: "automation_client_invoice_cancel",
     estado: "activo",
   },
+  client_invoice_void_paid: {
+    template_key: "client_invoice_void_paid",
+    nombre: "Anulacion reversible de factura pagada",
+    descripcion:
+      "Anula una factura pagada usando solo contexto sanitario y con rollback controlado al estado pagada.",
+    frecuencia: "manual",
+    n8n_workflow_id: "automation_client_invoice_void_paid",
+    estado: "activo",
+  },
 };
 
 function createServiceError(message, statusCode = 500) {

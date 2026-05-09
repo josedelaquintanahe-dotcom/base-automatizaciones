@@ -75,34 +75,35 @@ Control especifico actual:
 
 Bloque activo previsto para despliegue controlado:
 
-- `automation_client_invoice_cancel`
+- `automation_client_invoice_void_paid`
 
 Estado actual del bloque:
 
-- el workflow ya esta publicado en n8n Cloud con la ruta `/webhook/automation_client_invoice_cancel`
-- la validacion extremo a extremo ya ha pasado tanto desde backend local con servicios reales como desde backend desplegado
-- la rama reversible `pendiente -> cancelada -> pendiente` queda cerrada operativamente en local y en remoto
+- el blueprint, el template backend, el test unitario y el script operativo ya estan preparados en repositorio
+- el workflow ya esta publicado en n8n Cloud con la ruta `/webhook/automation_client_invoice_void_paid`
+- la validacion extremo a extremo desde backend local con servicios reales ya ha pasado
+- la rama prevista es `pagada -> cancelada -> pagada`
 
-Precondiciones minimas que se usaron para la validacion contra backend desplegado:
+Precondiciones minimas antes de revalidarlo contra backend desplegado:
 
-- el backend desplegado debe incluir el soporte para `template=client_invoice_cancel`
+- el backend desplegado debe incluir el soporte para `template=client_invoice_void_paid`
 - la credencial Supabase activa en n8n debe poder leer y actualizar `facturas`
-- debe existir al menos una factura `pendiente` valida para el cliente objetivo
+- debe existir al menos una factura `pagada` valida para el cliente objetivo
 
-Validacion operativa recomendada para futuras revalidaciones:
+Validacion operativa recomendada tras desplegar el backend:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify-client-invoice-cancel-automation.ps1 -ClientId "<uuid-del-cliente>"
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-client-invoice-void-paid-automation.ps1 -ClientId "<uuid-del-cliente>"
 ```
 
 Esta validacion debe confirmar:
 
-- provisionado idempotente de `client_invoice_cancel`
+- provisionado idempotente de `client_invoice_void_paid`
 - ejecucion aceptada por backend y workflow
 - fila `completed` en `ejecuciones_workflows`
 - fila `exito` en `ejecuciones`
 - cambio real de `facturas.estado` a `cancelada`
-- rollback por el mismo workflow hasta `pendiente` con un segundo `correlation_id`
+- rollback por el mismo workflow hasta `pagada` con un segundo `correlation_id`
 
 ## Alcance confirmado del despliegue versionado
 

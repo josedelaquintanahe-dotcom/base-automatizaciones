@@ -57,6 +57,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 - diseno funcional y tecnico de `automation_client_invoice_void_paid` preparado el 9 de mayo de 2026 como siguiente automatizacion objetivo, incluyendo alternativas descartadas, contrato previsto y rollback `cancelada -> pagada`
 - blueprint tecnico, template backend provisionable, test unitario del template y script operativo de `automation_client_invoice_void_paid` preparados en repositorio el 9 de mayo de 2026 para cubrir la rama reversible `pagada -> cancelada` sobre `facturas`
 - workflow `automation_client_invoice_void_paid` publicado en n8n Cloud el 9 de mayo de 2026 (`9aYpaeUPByu6yzwD`) y validado extremo a extremo desde backend local con servicios reales, incluyendo anulacion efectiva de factura `pagada`, rollback por el mismo workflow y trazabilidad confirmada en `ejecuciones` y `ejecuciones_workflows`
+- `automation_client_invoice_void_paid` revalidado contra backend desplegado, n8n y Supabase el 9 de mayo de 2026 con anulacion real de factura, rollback `cancelada -> pagada` y `correlation_id` distinto por ejecucion
 - entorno de frontend y backend con scripts de test
 - `CONTEXT.md`, `AGENTS.md`, `docs/PROJECT_STATUS.md` y `docs/ROADMAP.md` ya presentes como base operativa
 
@@ -91,7 +92,7 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 - Estado: integrado por webhooks y documentacion
 - Validado: workflow `onboarding_activated` documentado, ejecutable, exportado de forma sanitaria y confirmado en trazabilidad real con `ejecuciones_workflows`, incluida revalidacion post-despliegue; los 5 workflows de auditoria post-onboarding estan publicados, encadenados automaticamente y validados en ejecucion real por `correlation_id`, incluida la secuencia completa; `automation_client_health_snapshot`, `automation_client_next_actions_brief`, `automation_client_first_run_handoff` y `automation_client_controlled_run_stage` estan publicados en n8n Cloud y validados en ejecucion real extremo a extremo desde el backend desplegado; `automation_client_controlled_run_stage` ademas valida rollback operativo por el mismo workflow; `automation_client_invoice_draft_create` esta publicado en n8n Cloud y validado en ejecucion real local y desplegada con rollback operativo sobre `facturas`; el puente desde `automation_client_controlled_run_stage` hacia `automation_client_invoice_draft_create` ha quedado validado tanto en local como en backend desplegado; `automation_client_invoice_mark_paid` ya esta publicado en n8n Cloud y validado en ejecucion real desplegada con efecto reversible sobre una factura `pendiente`, rollback con `correlation_id` distinto y trazabilidad completa en backend y `ejecuciones_workflows`
-- Pendiente: desplegar en Render el soporte backend de `automation_client_invoice_void_paid` y repetir la validacion extremo a extremo contra backend desplegado
+- Pendiente: definir la siguiente automatizacion objetivo que extienda el ciclo de facturacion ya validado sin introducir todavia dependencias externas innecesarias
 
 ### Sistema de agentes Codex
 
@@ -101,4 +102,4 @@ Estado actual: operativo en base documental y tecnica, con frontend y backend fu
 
 ## Siguiente hito razonable
 
-Desplegar en Render el soporte backend de `automation_client_invoice_void_paid` y revalidar el workflow ya publicado contra backend desplegado, n8n y Supabase para cerrar la rama reversible `pagada -> cancelada` tambien en remoto.
+Definir la siguiente automatizacion objetivo del ciclo de facturacion sobre el patron ya validado de mutacion reversible y trazabilidad por `correlation_id`.

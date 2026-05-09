@@ -81,16 +81,16 @@ Estado actual del bloque:
 
 - el blueprint, el template backend, el test unitario y el script operativo ya estan preparados en repositorio
 - el workflow ya esta publicado en n8n Cloud con la ruta `/webhook/automation_client_invoice_void_paid`
-- la validacion extremo a extremo desde backend local con servicios reales ya ha pasado
+- la validacion extremo a extremo ya ha pasado tanto desde backend local con servicios reales como desde backend desplegado
 - la rama prevista es `pagada -> cancelada -> pagada`
 
-Precondiciones minimas antes de revalidarlo contra backend desplegado:
+Precondiciones minimas que se usaron para la validacion contra backend desplegado:
 
 - el backend desplegado debe incluir el soporte para `template=client_invoice_void_paid`
 - la credencial Supabase activa en n8n debe poder leer y actualizar `facturas`
 - debe existir al menos una factura `pagada` valida para el cliente objetivo
 
-Validacion operativa recomendada tras desplegar el backend:
+Validacion operativa recomendada para futuras revalidaciones:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\verify-client-invoice-void-paid-automation.ps1 -ClientId "<uuid-del-cliente>"

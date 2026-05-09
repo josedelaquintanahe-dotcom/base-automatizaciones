@@ -105,12 +105,12 @@ Este documento funciona como indice canonico resumido. El detalle operativo prin
 - documento fuente: `workflows/automation__internal__automation_client_invoice_void_paid__v1.md`
 - blueprint tecnico actual: `n8n/workflows/automation_client_invoice_void_paid.workflow.ts`
 - workflowId en n8n Cloud: `9aYpaeUPByu6yzwD`
-- estado detectado: blueprint tecnico, template backend provisionable, test unitario del template y script operativo versionado preparados en repositorio el 9 de mayo de 2026; workflow publicado en n8n Cloud y validado el 9 de mayo de 2026 desde backend local con servicios reales, incluyendo mutacion efectiva `pagada -> cancelada`, rollback `cancelada -> pagada` y trazabilidad completa en `ejecuciones` y `ejecuciones_workflows`
+- estado detectado: blueprint tecnico, template backend provisionable, test unitario del template y script operativo versionado preparados en repositorio el 9 de mayo de 2026; workflow publicado en n8n Cloud y validado el 9 de mayo de 2026 tanto desde backend local con servicios reales como desde backend desplegado, incluyendo mutacion efectiva `pagada -> cancelada`, rollback `cancelada -> pagada` y trazabilidad completa en `ejecuciones` y `ejecuciones_workflows`
 - trigger: webhook `POST`
 - objetivo: anular una factura `pagada` existente con rollback controlado al estado `pagada`
 - persistencia esperada: `ejecuciones` en backend, `ejecuciones_workflows` en n8n y cambio reversible en `facturas`
 - ruta activa validada: `/webhook/automation_client_invoice_void_paid`
-- script operativo versionado y validado en local: `scripts/verify-client-invoice-void-paid-automation.ps1`
+- script operativo versionado y validado en local y remoto: `scripts/verify-client-invoice-void-paid-automation.ps1`
 
 ## Secuencia auditiva publicada
 
@@ -242,5 +242,5 @@ Documentacion base:
 
 ## Pendiente de validar
 
-- revalidacion remota de `automation_client_invoice_void_paid` contra backend desplegado
+- definir la siguiente automatizacion objetivo del ciclo de facturacion
 - estrategia estable para versionar workflows reales entre repositorio y n8n Cloud
